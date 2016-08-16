@@ -7,21 +7,27 @@ uniform mat4 projection;
 
 in float v_scale[];
 
+out vec2 uv_coords;
+
 void main() {
 	const vec4 position = gl_in[0].gl_Position;
 	const float scale = v_scale[0];
 
 
 	gl_Position = projection * (position + vec4(-scale, -scale, 0, 0));
+	uv_coords = vec2(0, 0);
 	EmitVertex();
 
 	gl_Position = projection * (position + vec4(-scale, scale, 0, 0));
+	uv_coords = vec2(0, 1);
 	EmitVertex();
 
 	gl_Position = projection * (position + vec4(scale, -scale, 0, 0));
+	uv_coords = vec2(1, 0);
 	EmitVertex();
 
 	gl_Position = projection * (position + vec4(scale, scale, 0, 0));
+	uv_coords = vec2(1, 1);
 	EmitVertex();
 
 	EndPrimitive();

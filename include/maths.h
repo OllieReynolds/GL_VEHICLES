@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace maths {
 	class vec2 {
 	protected:
@@ -375,6 +377,13 @@ namespace maths {
 			vec4(0.f, 2.f / h, 0.f, 0.f),
 			vec4(0.f, 0.f, -2.f / z, 0.f),
 			vec4(i, j, k, 1.f)
+		);
+	}
+
+	static const mat4 projection_perspective() {
+
+		return mat4(
+
 		);
 	}
 }
