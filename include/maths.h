@@ -1,7 +1,6 @@
 #pragma once
 
 namespace maths {
-
 	class vec2 {
 	protected:
 		float n[2];
