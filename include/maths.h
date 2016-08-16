@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cmath>
-
 namespace maths {
 
 	class vec2 {
