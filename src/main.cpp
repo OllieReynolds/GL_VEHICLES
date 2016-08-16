@@ -23,7 +23,7 @@ namespace {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
-		GLFWwindow* window = glfwCreateWindow(utils::resolution[0], utils::resolution[1], "Particle Simulation", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(utils::resolution[0], utils::resolution[1], "Vehicles", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
 			return {1, "GFLW failed to create window", nullptr};
@@ -76,7 +76,6 @@ int main() {
 	while (check_running(status.window, 300)) {
 		{ // Per-frame updating and drawing here
 			glClear(GL_COLOR_BUFFER_BIT);
-			simulation.update_simulation(status.window);
 			simulation.draw_simulation(fps);
 			glfwPollEvents();
 			glfwSwapBuffers(status.window);

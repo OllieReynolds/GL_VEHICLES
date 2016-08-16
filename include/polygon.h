@@ -15,6 +15,7 @@ namespace utils {
 		void draw_gl();
 		void destroy_gl();
 
+		inline void set_position(const maths::vec2& p) { position = p; }
 
 	private:
 		GLuint VAO;

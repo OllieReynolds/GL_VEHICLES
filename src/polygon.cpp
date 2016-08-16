@@ -2,9 +2,6 @@
 
 namespace utils {
 	void Polygon::init_gl() {
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
 		shader = {
 			"shaders/polygon.v.glsl",
 			"shaders/polygon.f.glsl",
@@ -12,13 +9,19 @@ namespace utils {
 		};
 
 		glUniform1f(shader.uniform_handle("scale"), scale);
-		glUniform2f(shader.uniform_handle("vp"), position[0], position[1]);
+		glUniform2fv(shader.uniform_handle("vp"), 1, &position[0]);
 		glUniformMatrix4fv(shader.uniform_handle("projection"), 1, GL_FALSE, &utils::resolution_matrix[0][0]);
+	
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 		glBindVertexArray(0);
+
 	}
 
 	void Polygon::draw_gl() {
 		shader.use();
+		glUniform2fv(shader.uniform_handle("vp"), 1, &position[0]);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_POINTS, 0, 1);
 		glBindVertexArray(0);
