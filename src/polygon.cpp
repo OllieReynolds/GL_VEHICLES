@@ -15,7 +15,6 @@ namespace utils {
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 		glBindVertexArray(0);
-
 	}
 
 	void Polygon::draw_gl() {
