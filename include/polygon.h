@@ -9,7 +9,7 @@
 namespace utils {
 	class Polygon {
 	public:
-		Polygon(maths::vec2 position = {16.f, 16.f}, float scale = 32.f) : position(position), scale(scale) {}
+		Polygon(maths::vec2 position = {16.f, 16.f}, float scale = 128.f) : position(position), scale(scale) {}
 
 		void init_gl();
 		void draw_gl();

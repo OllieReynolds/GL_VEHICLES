@@ -8,9 +8,10 @@ namespace utils {
 			"shaders/polygon.g.glsl"
 		};
 
-		glUniform1f(shader.uniform_handle("scale"), scale);
-		glUniform2fv(shader.uniform_handle("vp"), 1, &position[0]);
-		glUniformMatrix4fv(shader.uniform_handle("projection"), 1, GL_FALSE, &utils::resolution_matrix[0][0]);
+		shader.set_uniform("scale", scale);
+		shader.set_uniform("vp", position);
+		shader.set_uniform("colour", maths::vec4{1.f, 0.f, 0.f, 0.2f});
+		shader.set_uniform("projection", utils::resolution_matrix);
 	
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
@@ -19,7 +20,7 @@ namespace utils {
 
 	void Polygon::draw_gl() {
 		shader.use();
-		glUniform2fv(shader.uniform_handle("vp"), 1, &position[0]);
+		shader.set_uniform("vp", position);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_POINTS, 0, 1);

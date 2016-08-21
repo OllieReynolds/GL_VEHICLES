@@ -86,6 +86,32 @@ namespace utils {
 		glDeleteProgram(program);
 	}
 
+
+	void Shader::set_uniform(const char* name, const float v) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform1f(uniform_location, v);
+	}
+
+	void Shader::set_uniform(const char* name, const maths::vec2& v) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform2fv(uniform_location, 1, &v[0]);
+	}
+
+	void Shader::set_uniform(const char* name, const maths::vec3& v) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform3fv(uniform_location, 1, &v[0]);
+	}
+
+	void Shader::set_uniform(const char* name, const maths::vec4& v) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform4fv(uniform_location, 1, &v[0]);
+	}
+
+	void Shader::set_uniform(const char* name, const maths::mat4& v) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniformMatrix4fv(uniform_location, 1, GL_FALSE, &v[0][0]);
+	}
+
 	GLint Shader::uniform_handle(const char* name) {
 		return glGetUniformLocation(program, name);
 	}
