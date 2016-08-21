@@ -46,7 +46,6 @@ namespace maths {
 			float n[2];
 		};
 	};
-
 	
 	class vec3 {
 	public:
@@ -92,7 +91,6 @@ namespace maths {
 			float n[3];
 		};
 	};
-
 	
 	class vec4 {
 	public:
@@ -140,7 +138,6 @@ namespace maths {
 		};
 	};
 
-
 	class mat4 {
 	public:
 		mat4() : n{{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0},{0, 0, 0, 1}} {}
@@ -151,16 +148,16 @@ namespace maths {
 		inline       vec4& operator [] (int i)       { return n[i]; }
 		inline const vec4& operator [] (int i) const { return n[i]; }
 
-		static void scale(const vec3& v, mat4& m) { 
-			m.x.x = v.x; 
-			m.y.y = v.y; 
-			m.z.z = v.z; 
-		
+		void scale(const vec3& v) { 
+			x.x = v.x; 
+			y.y = v.y; 
+			z.z = v.z; 
 		}
-		static void translate(const vec3& v, mat4& m) { 
-			m.z.x = v.x; 
-			m.z.y = v.y; 
-			m.z.z = v.z; 
+
+		void translate(const vec3& v) { 
+			z.x = v.x; 
+			z.y = v.y; 
+			z.z = v.z; 
 		}
 
 		union {

@@ -8,20 +8,19 @@
 
 namespace utils {
 	class Polygon {
+	private:
+		GLuint VAO;
+
 	public:
-		Polygon(maths::vec2 position = {16.f, 16.f}, float scale = 128.f) : position(position), scale(scale) {}
+		Polygon(maths::vec2 position = {0.f}, maths::vec2 scale = {128.f}) : position(position), scale(scale) {}
 
 		void init_gl();
 		void draw_gl();
 		void destroy_gl();
 
-		inline void set_position(const maths::vec2& p) { position = p; }
-
-	private:
-		GLuint VAO;
-
-		float scale;
+		maths::vec2 scale;
 		maths::vec2 position;
+
 		utils::Shader shader;
 	};
 }

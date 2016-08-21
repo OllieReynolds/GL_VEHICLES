@@ -16,6 +16,8 @@ namespace utils {
 		Shader(const char* vertex_shader_filename, const char* fragment_shader_filename, const char* geom_shader_filename);
 
 		void use();
+		void release();
+
 		void destroy();
 
 		void set_uniform(const char* name, const float v);

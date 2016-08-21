@@ -10,7 +10,7 @@ namespace utils {
 
 		shader.set_uniform("scale", scale);
 		shader.set_uniform("vp", position);
-		shader.set_uniform("colour", maths::vec4{1.f, 0.f, 0.f, 0.2f});
+		shader.set_uniform("colour", maths::vec4{1.f, 0.f, 0.f, 1.f});
 		shader.set_uniform("projection", utils::resolution_matrix);
 	
 		glGenVertexArrays(1, &VAO);
@@ -19,9 +19,6 @@ namespace utils {
 	}
 
 	void Polygon::draw_gl() {
-		shader.use();
-		shader.set_uniform("vp", position);
-
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_POINTS, 0, 1);
 		glBindVertexArray(0);

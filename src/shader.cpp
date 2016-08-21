@@ -82,6 +82,10 @@ namespace utils {
 		glUseProgram(program);
 	}
 
+	void Shader::release() {
+		glUseProgram(0);
+	}
+
 	void Shader::destroy() {
 		glDeleteProgram(program);
 	}

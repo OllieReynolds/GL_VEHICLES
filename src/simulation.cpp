@@ -2,17 +2,22 @@
 
 namespace utils {
 	void Simulation::init_simulation() {	
-		p.init_gl();
+		polygon.init_gl();
 	}
 
 	void Simulation::draw_simulation(const float fps) {
-		p.set_position({320.f, 320.f});
-		p.draw_gl();
-		p.set_position({960.f, 320.f});
-		p.draw_gl();
+		polygon.shader.use();
+		{
+			polygon.shader.set_uniform("vp", {320.f, 320.f});
+			polygon.draw_gl();
+
+			polygon.shader.set_uniform("vp", {960.f, 320.f});
+			polygon.draw_gl();
+		}
+		polygon.shader.release();
 	}
 
 	void Simulation::destroy_simulation() {
-		p.destroy_gl();
+		polygon.destroy_gl();
 	}
 }

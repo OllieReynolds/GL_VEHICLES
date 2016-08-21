@@ -14,9 +14,6 @@ namespace utils {
 		void draw_simulation(const float fps);
 		void destroy_simulation();
 
-
-	private:
-		Polygon p;
-		Polygon p1;
+		Polygon polygon;
 	};
 }

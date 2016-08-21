@@ -23,7 +23,7 @@ namespace {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
-		GLFWwindow* window = glfwCreateWindow(utils::resolution.x, utils::resolution.y, "Vehicles", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(static_cast<int>(utils::resolution.x), static_cast<int>(utils::resolution.y), "Vehicles", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
 			return {1, "GFLW failed to create window", nullptr};
@@ -94,6 +94,7 @@ namespace app {
 
 		simulation.destroy_simulation();
 		glfwTerminate();
+
 		return 0;
 	}
 }
