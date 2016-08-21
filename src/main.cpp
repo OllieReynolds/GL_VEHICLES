@@ -100,15 +100,48 @@ namespace app {
 }
 
 namespace test {
+#include <assert.h>
+#include <iostream>
+#include <string>
 
+	using namespace std;
 
 	int main() {
-		maths::vec2 a = {0.f, 1.f};
-		maths::vec2 b = {1.f, 0.f};
+		{ // Tests for vec2 type
+			std::string test_set{"2D Vector type should "};
 
+			{ 
+				cout << test_set + "initialise correctly: " << endl;
+			}
 
+		}
 
-		return 0;
+		{ // Tests for vec3 type
+			std::string test_set{"3D Vector type should "};
+
+			{
+				cout << test_set + "initialise correctly: " << endl;
+			}
+
+		}
+
+		{ // Tests for vec4 type
+			std::string test_set{"4D Vector type should "};
+
+			{
+				cout << test_set + "initialise correctly: " << endl;
+			}
+
+		}
+
+		{ // Test for matrix type
+			std::string test_set{"Matrix type should "};
+
+			{
+				cout << test_set + "initialise correctly: " << endl;
+			}
+
+		}
 	}
 }
 

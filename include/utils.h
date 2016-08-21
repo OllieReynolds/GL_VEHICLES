@@ -3,6 +3,8 @@
 #include <chrono>
 #include <random>
 
+#include "maths.h"
+
 namespace utils {
 	static float elapsed_time() {
 		using namespace std::chrono;
