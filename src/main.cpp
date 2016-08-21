@@ -64,34 +64,59 @@ namespace {
 	}
 }
 
-int main() {
-	setup_status status = setup();
+namespace app {
+	int main() {
+		setup_status status = setup();
 
-	utils::Simulation simulation;
-	simulation.init_simulation();
+		utils::Simulation simulation;
+		simulation.init_simulation();
 
-	glfwSetWindowUserPointer(status.window, &simulation);
+		glfwSetWindowUserPointer(status.window, &simulation);
 
-	float elapsed = 0.f;
-	float fps = 0.f;
-	float start = utils::elapsed_time();
+		float elapsed = 0.f;
+		float fps = 0.f;
+		float start = utils::elapsed_time();
 
-	while (check_running(status.window, 300)) {
-		{ // Per-frame updating and drawing here
-			glClear(GL_COLOR_BUFFER_BIT);
-			simulation.draw_simulation(fps);
-			glfwPollEvents();
-			glfwSwapBuffers(status.window);
+		while (check_running(status.window, 300)) {
+			{ // Per-frame updating and drawing here
+				glClear(GL_COLOR_BUFFER_BIT);
+				simulation.draw_simulation(fps);
+				glfwPollEvents();
+				glfwSwapBuffers(status.window);
+			}
+
+			{ // Frame metrics and logging here
+				elapsed = utils::elapsed_time();
+				fps = 1.f / (elapsed - start);
+				start = elapsed;
+			}
 		}
 
-		{ // Frame metrics and logging here
-			elapsed = utils::elapsed_time();
-			fps = 1.f / (elapsed - start);
-			start = elapsed;
-		}
+		simulation.destroy_simulation();
+		glfwTerminate();
+		return 0;
 	}
+}
 
-	simulation.destroy_simulation();
-	glfwTerminate();
-	return 0;
+namespace test {
+	int main() {
+		maths::vec2 a = {0.f, 1.f};
+		maths::vec2 b = {1.f, 0.f};
+
+		std::cout << a.x << std::endl;
+		std::cout << a.y << std::endl;
+
+		a += b;
+
+		std::cout << a.x << std::endl;
+		std::cout << a.y << std::endl;
+
+		system("pause");
+		return 0;
+	}
+}
+
+int main() {
+	test::main();
+	app::main();
 }

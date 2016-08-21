@@ -12,6 +12,10 @@ namespace maths {
 		vec2(const float v) : n{v, v} {}
 		vec2(const float x, const float y) : n{x, y} {}
 
+		const float& x = n[0];
+		const float& y = n[1];
+
+
 		vec2& operator = (const vec2& v)  {
 			n[0] = v[0]; 
 			n[1] = v[1]; 
@@ -261,7 +265,6 @@ namespace maths {
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
-		friend int operator != (const vec4& a, const vec4& b) { return !(a == b); }
 		friend int operator == (const vec4& a, const vec4& b) {
 			return (
 				a[0] == b[0] &&
@@ -269,6 +272,8 @@ namespace maths {
 				a[2] == b[2] &&
 				a[3] == b[3]);
 		}
+
+		friend int operator != (const vec4& a, const vec4& b) { return !(a == b); }
 
 		friend vec4 operator + (const vec4& a, const vec4& b) {
 			return {
@@ -349,41 +354,38 @@ namespace maths {
 	};
 
 	static mat4 translate_matrix(const vec3& v) {
-		return mat4(
-			vec4(1.0, 0.0, 0.0, 0.0),
-			vec4(0.0, 1.0, 0.0, 0.0),
-			vec4(0.0, 0.0, 1.0, 0.0),
-			vec4(v[0], v[1], v[2], 1.0)
-		);
+		return {
+			{ 1.f,  0.f,  0.f, 0.f },
+			{ 0.f,  1.f,  0.f, 0.f },
+			{ 0.f,  0.f,  1.f, 0.f },
+			{v[0], v[1], v[2], 1.f }
+		};
 	}
 
 	static mat4 scale_matrix(const vec3& v) {
-		return mat4(
-			vec4(v[0], 0.0, 0.0, 0.0),
-			vec4(0.0, v[1], 0.0, 0.0),
-			vec4(0.0, 0.0, v[2], 0.0),
-			vec4(0.0, 0.0, 0.0, 1.0)
-		);
+		return {
+			{v[0],  0.f,  0.f, 0.f },
+			{ 0.f, v[1],  0.f, 0.f },
+			{ 0.f,  0.f, v[2], 0.f },
+			{ 0.f,  0.f,  0.f, 1.f }
+		};
 	}
 
-	static const mat4 orthographic_perspective(float w, float h, float nZ, float fZ) {
+	static mat4 orthographic_perspective(float w, float h, float nZ, float fZ) {
 		float z = fZ - nZ;
 		float i = -w / w;
 		float j = -h / h;
 		float k = -(fZ + nZ) / z;
 
-		return mat4(
-			vec4(2.f / w, 0.f, 0.f, 0.f),
-			vec4(0.f, 2.f / h, 0.f, 0.f),
-			vec4(0.f, 0.f, -2.f / z, 0.f),
-			vec4(i, j, k, 1.f)
-		);
-	}
+		float a =  2.f / w;
+		float b =  2.f / h;
+		float c = -2.f / z;
 
-	static const mat4 projection_perspective() {
-
-		return mat4(
-
-		);
+		return {
+			{   a, 0.f, 0.f, 0.f },
+			{ 0.f,   b, 0.f, 0.f },
+			{ 0.f, 0.f,   c, 0.f },
+			{   i,   j,   k, 1.f }
+		};
 	}
 }

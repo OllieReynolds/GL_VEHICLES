@@ -5,7 +5,7 @@
 
 namespace utils {
 	static const maths::vec2 resolution = {1366.f, 768.f};
-	static const maths::mat4 resolution_matrix = maths::orthographic_perspective(resolution[0], resolution[1], -1.f, 1.f);
+	static const maths::mat4 resolution_matrix = maths::orthographic_perspective(resolution.x, resolution.y, -1.f, 1.f);
 
 	static float elapsed_time() {
 		using namespace std::chrono;
