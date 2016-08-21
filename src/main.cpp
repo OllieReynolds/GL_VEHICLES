@@ -23,7 +23,7 @@ namespace {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
-		GLFWwindow* window = glfwCreateWindow(utils::resolution[0], utils::resolution[1], "Vehicles", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(utils::resolution.x, utils::resolution.y, "Vehicles", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
 			return {1, "GFLW failed to create window", nullptr};

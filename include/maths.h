@@ -12,9 +12,7 @@ namespace maths {
 		vec2(const float v) : n{v, v} {}
 		vec2(const float x, const float y) : n{x, y} {}
 
-		const float& x = n[0];
-		const float& y = n[1];
-
+		const float& x = n[0]; const float& y = n[1];
 
 		vec2& operator = (const vec2& v)  {
 			n[0] = v[0]; 
@@ -113,6 +111,8 @@ namespace maths {
 		vec3() : n{0.f, 0.f, 0.f} {}
 		vec3(const float v) : n{v, v, v} {}
 		vec3(const float x, const float y, const float z) : n{x, y, z} {}
+
+		const float& x = n[0]; const float& y = n[1]; const float& z = n[2];
 		
 		vec3& operator = (const vec3& v) { 
 			n[0] = v[0]; 
@@ -221,6 +221,8 @@ namespace maths {
 		vec4() : n{0.f, 0.f, 0.f, 0.f} {}
 		vec4(const float v) : n{v, v, v, v} {}
 		vec4(const float x, const float y, const float z, const float w) : n{x, y, z, w} {}
+
+		const float& x = n[0]; const float& y = n[1]; const float& z = n[2]; const float& w = n[3];
 
 		vec4& operator = (const vec4& v) { 
 			n[0] = v[0];  
@@ -340,6 +342,8 @@ namespace maths {
 	public:
 		mat4() : n{{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0},{0, 0, 0, 1}} {}
 		mat4(const vec4& a, const vec4& b, const vec4& c, const vec4& d) : n{a, b, c, d} {}
+
+		const vec4& x = n[0]; const vec4& y = n[1]; const vec4& z = n[2]; const vec4& w = n[3];
 
 		mat4& operator = (const mat4& v) {
 			n[0] = v[0];
