@@ -100,9 +100,13 @@ namespace app {
 }
 
 namespace test {
+
+
 	int main() {
 		maths::vec2 a = {0.f, 1.f};
 		maths::vec2 b = {1.f, 0.f};
+
+
 
 		return 0;
 	}

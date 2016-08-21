@@ -26,27 +26,15 @@ namespace maths {
 		friend vec2 operator * (const vec2& a, const float v) { return { a.x * v, a.y * v }; }
 		friend vec2 operator / (const vec2& a, const float v) { return { a.x / v, a.y / v }; }
 
-		static float magnitude(const vec2& v) { 
-			return sqrt(magnitude_squared(v)); 
-		}
-
-		static float magnitude_squared(const vec2& v) { 
-			return v.x * v.x + v.y * v.y; 
-		}
-
-		static vec2 normalise(const vec2& v) { 
-			return (v == vec2{0.f}) ? v : v / magnitude(v); 
-		}
-
 		union {
+			float n[2];
 			struct {
 				float x;
 				float y;
 			};
-			float n[2];
 		};
 	};
-	
+
 	class vec3 {
 	public:
 		vec3() : n{0.f, 0.f, 0.f} {}
@@ -70,25 +58,13 @@ namespace maths {
 		friend vec3 operator * (const vec3& a, const float v) { return { a.x * v, a.y * v, a.z * v }; }
 		friend vec3 operator / (const vec3& a, const float v) { return { a.x / v, a.y / v, a.z / v }; }
 
-		static float magnitude(const vec3& v) { 
-			return sqrt(magnitude_squared(v)); 
-		}
-		
-		static float magnitude_squared(const vec3& v) { 
-			return v.x * v.x + v.y * v.y + v.z * v.z; 
-		}
-		
-		static vec3 normalise(const vec3& v) { 
-			return (v == vec3{0.f}) ? v : v / magnitude(v); 
-		}
-
 		union {
+			float n[3];
 			struct {
 				float x;
 				float y;
 				float z;
 			};
-			float n[3];
 		};
 	};
 	
@@ -115,26 +91,14 @@ namespace maths {
 		friend vec4 operator * (const vec4& a, const float v) { return { a.x * v, a.y * v, a.z * v, a.w * v }; }
 		friend vec4 operator / (const vec4& a, const float v) { return { a.x / v, a.y / v, a.z / v, a.w / v }; }
 
-		static float magnitude(const vec4& v) { 
-			return sqrt(magnitude_squared(v)); 
-		}
-
-		static float magnitude_squared(const vec4& v) { 
-			return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w; 
-		}
-
-		static vec4 normalise(const vec4& v) { 
-			return (v == vec4{0.f}) ? v : v / magnitude(v); 
-		}
-
 		union {
+			float n[4];
 			struct {
 				float x;
 				float y;
 				float z;
 				float w;
 			};
-			float n[4];
 		};
 	};
 
@@ -161,20 +125,40 @@ namespace maths {
 		}
 
 		union {
+			vec4 n[4];
 			struct {
 				vec4 x;
 				vec4 y;
 				vec4 z;
 				vec4 w;
 			};
-			vec4 n[4];
 		};
 	};
 
-	static mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ) {
-		mat4 m{};
-		m.x.x =  2.f / resolution.x;
-		m.y.y =  2.f / resolution.y;
+	float dot_product(const vec2& a, const vec2& b) {
+		return (a.x * b.x) + (a.y * b.y);
+	}
+
+	float magnitude(const vec2& v) {
+		return sqrt(v.x * v.x + v.y * v.y);
+	}
+
+	float magnitude(const vec3& v) {
+		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	}
+
+	float magnitude(const vec4& v) {
+		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	}
+
+	template <class T>
+	T normalise(const T& v) {
+		return (v == T{0.f}) ? v : v / magnitude(v);
+	}
+
+	mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ, mat4 m) {
+		m.x.x = 2.f / resolution.x;
+		m.y.y = 2.f / resolution.y;
 		m.z.z = -2.f / (fZ - nZ);
 
 		m.w.x = -resolution.x / resolution.x;

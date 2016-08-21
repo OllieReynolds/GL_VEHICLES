@@ -4,10 +4,6 @@
 #include <random>
 
 namespace utils {
-	static const maths::vec2 resolution = {1366.f, 768.f};
-	static const maths::vec2 near_far = {-1.f, 1.f};
-	static const maths::mat4 resolution_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y);
-
 	static float elapsed_time() {
 		using namespace std::chrono;
 		static time_point<steady_clock> start = steady_clock::now();
@@ -20,4 +16,8 @@ namespace utils {
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(mt);
 	}
+
+	static const maths::vec2 resolution = {1366.f, 768.f};
+	static const maths::vec2 near_far = {-1.f, 1.f};
+	static const maths::mat4 resolution_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
 }
