@@ -4,392 +4,185 @@
 
 namespace maths {
 	class vec2 {
-	protected:
-		float n[2];
-
 	public:
 		vec2() : n{0.f, 0.f} {}
 		vec2(const float v) : n{v, v} {}
 		vec2(const float x, const float y) : n{x, y} {}
 
-		const float& x = n[0]; const float& y = n[1];
-
-		vec2& operator = (const vec2& v)  {
-			n[0] = v[0]; 
-			n[1] = v[1]; 
-			return *this;
-		}
-
-		vec2& operator += (const vec2& v) {
-			n[0] += v[0]; 
-			n[1] += v[1]; 
-			return *this;
-		}
-
-		vec2& operator -= (const vec2& v) { 
-			n[0] -= v[0]; 
-			n[1] -= v[1]; 
-			return *this; 
-		}
-
-		vec2& operator *= (const float v) { 
-			n[0] *= v; 
-			n[1] *= v; 
-			return *this; 
-		}
-
-		vec2& operator /= (const float v) { 
-			n[0] /= v; 
-			n[1] /= v; 
-			return *this; 
-		}
+		vec2& operator  = (const vec2& v) { x  = v.x; y  = v.y; return *this; }
+		vec2& operator += (const vec2& v) { x += v.x; y += v.y; return *this; }
+		vec2& operator -= (const vec2& v) { x -= v.x; y -= v.y; return *this; }
+		vec2& operator *= (const float v) { x *= v; y *= v; return *this; }
+		vec2& operator /= (const float v) { x /= v; y /= v; return *this; }
 
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
+		friend int operator == (const vec2& a, const vec2& b) { return a.x == b.x && a.y == b.y; }
 		friend int operator != (const vec2& a, const vec2& b) { return !(a == b); }
-		friend int operator == (const vec2& a, const vec2& b) { 
-			return (
-				a[0] == b[0] && 
-				a[1] == b[1]
-			);
+
+		friend vec2 operator + (const vec2& a, const vec2& b) { return { a.x + b.x, a.y + b.y }; }
+		friend vec2 operator - (const vec2& a, const vec2& b) { return { a.x - b.x, a.y - b.y }; }
+		friend vec2 operator * (const vec2& a, const float v) { return { a.x * v, a.y * v }; }
+		friend vec2 operator / (const vec2& a, const float v) { return { a.x / v, a.y / v }; }
+
+		static float magnitude(const vec2& v) { 
+			return sqrt(magnitude_squared(v)); 
 		}
 
-		friend vec2 operator + (const vec2& a, const vec2& b) {
-			return {
-				a[0] + b[0], 
-				a[1] + b[1]
+		static float magnitude_squared(const vec2& v) { 
+			return v.x * v.x + v.y * v.y; 
+		}
+
+		static vec2 normalise(const vec2& v) { 
+			return (v == vec2{0.f}) ? v : v / magnitude(v); 
+		}
+
+		union {
+			struct {
+				float x;
+				float y;
 			};
-		}
-
-		friend vec2 operator - (const vec2& a, const vec2& b) {
-			return {
-				a[0] - b[0], 
-				a[1] - b[1]
-			};
-		}
-
-		friend vec2 operator * (const vec2& a, const float v) {
-			return {
-				a[0] * v, 
-				a[1] * v
-			};
-		}
-
-		friend vec2 operator / (const vec2& a, const float v) {
-			return {
-				a[0] / v, 
-				a[1] / v
-			};
-		}
-
-		friend float magnitude_squared(const vec2& v);
+			float n[2];
+		};
 	};
 
-	static float magnitude_squared(const vec2& v) {
-		return 
-			v.n[0] * v.n[0] + 
-			v.n[1] * v.n[1];
-	}
-
-	static float magnitude(const vec2& v) {
-		return sqrt(magnitude_squared(v));
-	}
-
-	static vec2 normalise(const vec2& v) {
-		return (v == vec2{0.f, 0.f}) ? v : v / magnitude(v);
-	}
-
-
-
-
+	
 	class vec3 {
-	protected:
-		float n[3];
-
 	public:
 		vec3() : n{0.f, 0.f, 0.f} {}
 		vec3(const float v) : n{v, v, v} {}
 		vec3(const float x, const float y, const float z) : n{x, y, z} {}
-
-		const float& x = n[0]; const float& y = n[1]; const float& z = n[2];
 		
-		vec3& operator = (const vec3& v) { 
-			n[0] = v[0]; 
-			n[1] = v[1]; 
-			n[2] = v[2]; 
-			return *this; 
-		}
-
-		vec3& operator += (const vec3& v) { 
-			n[0] += v[0]; 
-			n[1] += v[1]; 
-			n[2] += v[2]; 
-			return *this; 
-		}
-
-		vec3& operator -= (const vec3& v) { 
-			n[0] -= v[0]; 
-			n[1] -= v[1];
-			n[2] -= v[2]; 
-			return *this; 
-		}
-
-		vec3& operator *= (const float& v) {
-			n[0] *= v;
-			n[1] *= v;
-			n[2] *= v;
-			return *this;
-		}
-
-		vec3& operator /= (const float v) {
-			n[0] /= v;
-			n[1] /= v;
-			n[2] /= v;
-			return *this;
-		}
+		vec3& operator  = (const vec3& v) { x  = v.x; y  = v.y; z  = v.z; return *this; }
+		vec3& operator += (const vec3& v) { x += v.x; y += v.y; z += v.z; return *this; }
+		vec3& operator -= (const vec3& v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
+		vec3& operator *= (const float v) { x *= v; y *= v; z *= v; return *this; }
+		vec3& operator /= (const float v) { x /= v; y /= v; z /= v; return *this; }
 
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
+		friend int operator == (const vec3& a, const vec3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 		friend int operator != (const vec3& a, const vec3& b) { return !(a == b); }
-		friend int operator == (const vec3& a, const vec3& b) {
-			return (
-				a[0] == b[0] && 
-				a[1] == b[1] && 
-				a[2] == b[2]);
+
+		friend vec3 operator + (const vec3& a, const vec3& b) { return { a.x + b.x, a.y + b.y, a.z + b.z }; }
+		friend vec3 operator - (const vec3& a, const vec3& b) { return { a.x - b.x, a.y - b.y, a.z - b.z }; }
+		friend vec3 operator * (const vec3& a, const float v) { return { a.x * v, a.y * v, a.z * v }; }
+		friend vec3 operator / (const vec3& a, const float v) { return { a.x / v, a.y / v, a.z / v }; }
+
+		static float magnitude(const vec3& v) { 
+			return sqrt(magnitude_squared(v)); 
+		}
+		
+		static float magnitude_squared(const vec3& v) { 
+			return v.x * v.x + v.y * v.y + v.z * v.z; 
+		}
+		
+		static vec3 normalise(const vec3& v) { 
+			return (v == vec3{0.f}) ? v : v / magnitude(v); 
 		}
 
-		friend vec3 operator + (const vec3& a, const vec3& b) {
-			return {
-				a[0] + b[0],
-				a[1] + b[1],
-				a[2] + b[2]
+		union {
+			struct {
+				float x;
+				float y;
+				float z;
 			};
-		}
-
-		friend vec3 operator - (const vec3& a, const vec3& b) {
-			return {
-				a[0] - b[0],
-				a[1] - b[1],
-				a[2] - b[2]
-			};
-		}
-
-		friend vec3 operator * (const vec3& a, const float v) {
-			return {
-				a[0] * v, 
-				a[1] * v, 
-				a[2] * v
-			};
-		}
-
-		friend vec3 operator / (const vec3& a, const float v) {
-			return {
-				a[0] / v,
-				a[1] / v,
-				a[2] / v
-			};
-		}
-
-		friend float magnitude_squared(const vec3& v);
+			float n[3];
+		};
 	};
 
-	static float magnitude_squared(const vec3& v) {
-		return 
-			v.n[0] * v.n[0] + 
-			v.n[1] * v.n[1] + 
-			v.n[2] * v.n[2];
-	}
-
-	static float magnitude(const vec3& v) {
-		return sqrt(magnitude_squared(v));
-	}
-
-	static vec3 normalise(const vec3& v) {
-		return (v == vec3{0.f, 0.f, 0.f}) ? v : v / magnitude(v);
-	}
-
-
-
-
+	
 	class vec4 {
-	protected:
-		float n[4];
-
 	public:
 		vec4() : n{0.f, 0.f, 0.f, 0.f} {}
 		vec4(const float v) : n{v, v, v, v} {}
 		vec4(const float x, const float y, const float z, const float w) : n{x, y, z, w} {}
 
-		const float& x = n[0]; const float& y = n[1]; const float& z = n[2]; const float& w = n[3];
-
-		vec4& operator = (const vec4& v) { 
-			n[0] = v[0];  
-			n[1] = v[1];  
-			n[2] = v[2];  
-			n[3] = v[3]; 
-			return *this; 
-		}
-
-		vec4& operator += (const vec4& v) { 
-			n[0] += v[0]; 
-			n[1] += v[1]; 
-			n[2] += v[2]; 
-			n[3] += v[3]; 
-			return *this; 
-		}
-
-		vec4& operator -= (const vec4& v) { 
-			n[0] -= v[0]; 
-			n[1] -= v[1]; 
-			n[2] -= v[2]; 
-			n[3] -= v[3]; 
-			return *this; 
-		}
-
-		vec4& operator *= (const float& v) {
-			n[0] *= v;
-			n[1] *= v;
-			n[2] *= v;
-			n[3] *= v;
-			return *this;
-		}
-
-		vec4& operator /= (const float v) {
-			n[0] /= v;
-			n[1] /= v;
-			n[2] /= v;
-			n[3] /= v;
-			return *this;
-		}
+		vec4& operator  = (const vec4& v) { x  = v.x; y  = v.y; z  = v.z; w  = v.w; return *this; }
+		vec4& operator += (const vec4& v) { x += v.x; y += v.y; z += v.z; w += v.w; return *this; }
+		vec4& operator -= (const vec4& v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w; return *this; }
+		vec4& operator *= (const float v) { x *= v; y *= v; z *= v; w *= v; return *this; }
+		vec4& operator /= (const float v) { x /= v; y /= v; z /= v; w /= v; return *this; }
 
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
-		friend int operator == (const vec4& a, const vec4& b) {
-			return (
-				a[0] == b[0] &&
-				a[1] == b[1] &&
-				a[2] == b[2] &&
-				a[3] == b[3]);
-		}
-
+		friend int operator == (const vec4& a, const vec4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
 		friend int operator != (const vec4& a, const vec4& b) { return !(a == b); }
 
-		friend vec4 operator + (const vec4& a, const vec4& b) {
-			return {
-				a[0] + b[0],
-				a[1] + b[1],
-				a[2] + b[2],
-				a[3] + b[3]
-			};
+		friend vec4 operator + (const vec4& a, const vec4& b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
+		friend vec4 operator - (const vec4& a, const vec4& b) { return { a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
+		friend vec4 operator * (const vec4& a, const float v) { return { a.x * v, a.y * v, a.z * v, a.w * v }; }
+		friend vec4 operator / (const vec4& a, const float v) { return { a.x / v, a.y / v, a.z / v, a.w / v }; }
+
+		static float magnitude(const vec4& v) { 
+			return sqrt(magnitude_squared(v)); 
 		}
 
-		friend vec4 operator - (const vec4& a, const vec4& b) {
-			return {
-				a[0] - b[0],
-				a[1] - b[1],
-				a[2] - b[2],
-				a[3] - b[3]
-			};
+		static float magnitude_squared(const vec4& v) { 
+			return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w; 
 		}
 
-		friend vec4 operator * (const vec4& a, const float v) {
-			return {
-				a[0] * v,
-				a[1] * v,
-				a[2] * v,
-				a[3] * v
-			};
+		static vec4 normalise(const vec4& v) { 
+			return (v == vec4{0.f}) ? v : v / magnitude(v); 
 		}
 
-		friend vec4 operator / (const vec4& a, const float v) {
-			return {
-				a[0] / v,
-				a[1] / v,
-				a[2] / v,
-				a[3] / v
+		union {
+			struct {
+				float x;
+				float y;
+				float z;
+				float w;
 			};
-		}
-
-		friend float magnitude_squared(const vec4& v);
+			float n[4];
+		};
 	};
-
-	static float magnitude_squared(const vec4& v) {
-		return 
-			v.n[0] * v.n[0] + 
-			v.n[1] * v.n[1] + 
-			v.n[2] * v.n[2] +
-			v.n[3] * v.n[3];
-	}
-
-	static float magnitude(const vec4& v) {
-		return sqrt(magnitude_squared(v));
-	}
-
-	static vec4 normalise(const vec4& v) {
-		return (v == vec4{0.f, 0.f, 0.f, 0.f}) ? v : v / magnitude(v);
-	}
-
-
 
 
 	class mat4 {
-	protected:
-		vec4 n[4];
-
 	public:
 		mat4() : n{{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0},{0, 0, 0, 1}} {}
 		mat4(const vec4& a, const vec4& b, const vec4& c, const vec4& d) : n{a, b, c, d} {}
 
-		const vec4& x = n[0]; const vec4& y = n[1]; const vec4& z = n[2]; const vec4& w = n[3];
-
-		mat4& operator = (const mat4& v) {
-			n[0] = v[0];
-			n[1] = v[1];
-			n[2] = v[2];
-			n[3] = v[3];
-			return *this;
-		}
+		mat4& operator = (const mat4& v) { x = v.x; y = v.y; z = v.z; w = v.w; return *this; }
 
 		inline       vec4& operator [] (int i)       { return n[i]; }
 		inline const vec4& operator [] (int i) const { return n[i]; }
+
+		static void scale(const vec3& v, mat4& m) { 
+			m.x.x = v.x; 
+			m.y.y = v.y; 
+			m.z.z = v.z; 
+		
+		}
+		static void translate(const vec3& v, mat4& m) { 
+			m.z.x = v.x; 
+			m.z.y = v.y; 
+			m.z.z = v.z; 
+		}
+
+		union {
+			struct {
+				vec4 x;
+				vec4 y;
+				vec4 z;
+				vec4 w;
+			};
+			vec4 n[4];
+		};
 	};
 
-	static mat4 translate_matrix(const vec3& v) {
-		return {
-			{ 1.f,  0.f,  0.f, 0.f },
-			{ 0.f,  1.f,  0.f, 0.f },
-			{ 0.f,  0.f,  1.f, 0.f },
-			{v[0], v[1], v[2], 1.f }
-		};
-	}
+	static mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ) {
+		mat4 m{};
+		m.x.x =  2.f / resolution.x;
+		m.y.y =  2.f / resolution.y;
+		m.z.z = -2.f / (fZ - nZ);
 
-	static mat4 scale_matrix(const vec3& v) {
-		return {
-			{v[0],  0.f,  0.f, 0.f },
-			{ 0.f, v[1],  0.f, 0.f },
-			{ 0.f,  0.f, v[2], 0.f },
-			{ 0.f,  0.f,  0.f, 1.f }
-		};
-	}
-
-	static mat4 orthographic_perspective(float w, float h, float nZ, float fZ) {
-		float z = fZ - nZ;
-		float i = -w / w;
-		float j = -h / h;
-		float k = -(fZ + nZ) / z;
-
-		float a =  2.f / w;
-		float b =  2.f / h;
-		float c = -2.f / z;
-
-		return {
-			{   a, 0.f, 0.f, 0.f },
-			{ 0.f,   b, 0.f, 0.f },
-			{ 0.f, 0.f,   c, 0.f },
-			{   i,   j,   k, 1.f }
-		};
+		m.w.x = -resolution.x / resolution.x;
+		m.w.y = -resolution.y / resolution.y;
+		m.w.z = -(fZ + nZ) / (fZ - nZ);
+		return m;
 	}
 }

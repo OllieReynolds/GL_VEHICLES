@@ -103,15 +103,6 @@ namespace test {
 		maths::vec2 a = {0.f, 1.f};
 		maths::vec2 b = {1.f, 0.f};
 
-		std::cout << a.x << std::endl;
-		std::cout << a.y << std::endl;
-
-		a += b;
-
-		std::cout << a.x << std::endl;
-		std::cout << a.y << std::endl;
-
-		system("pause");
 		return 0;
 	}
 }
