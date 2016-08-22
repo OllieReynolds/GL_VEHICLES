@@ -64,88 +64,35 @@ namespace {
 	}
 }
 
-namespace app {
-	int main() {
-		setup_status status = setup();
-
-		utils::Simulation simulation;
-		simulation.init_simulation();
-
-		glfwSetWindowUserPointer(status.window, &simulation);
-
-		float elapsed = 0.f;
-		float fps = 0.f;
-		float start = utils::elapsed_time();
-
-		while (check_running(status.window, 300)) {
-			{ // Per-frame updating and drawing here
-				glClear(GL_COLOR_BUFFER_BIT);
-				simulation.draw_simulation(fps);
-				glfwPollEvents();
-				glfwSwapBuffers(status.window);
-			}
-
-			{ // Frame metrics and logging here
-				elapsed = utils::elapsed_time();
-				fps = 1.f / (elapsed - start);
-				start = elapsed;
-			}
-		}
-
-		simulation.destroy_simulation();
-		glfwTerminate();
-
-		return 0;
-	}
-}
-
-namespace test {
-#include <assert.h>
-#include <iostream>
-#include <string>
-
-	using namespace std;
-
-	int main() {
-		{ // Tests for vec2 type
-			std::string test_set{"2D Vector type should "};
-
-			{ 
-				cout << test_set + "initialise correctly: " << endl;
-			}
-
-		}
-
-		{ // Tests for vec3 type
-			std::string test_set{"3D Vector type should "};
-
-			{
-				cout << test_set + "initialise correctly: " << endl;
-			}
-
-		}
-
-		{ // Tests for vec4 type
-			std::string test_set{"4D Vector type should "};
-
-			{
-				cout << test_set + "initialise correctly: " << endl;
-			}
-
-		}
-
-		{ // Test for matrix type
-			std::string test_set{"Matrix type should "};
-
-			{
-				cout << test_set + "initialise correctly: " << endl;
-			}
-
-		}
-	}
-}
-
 int main() {
-	test::main();
-	app::main();
+	setup_status status = setup();
+
+	utils::Simulation simulation;
+	simulation.init_simulation();
+
+	glfwSetWindowUserPointer(status.window, &simulation);
+
+	float elapsed = 0.f;
+	float fps = 0.f;
+	float start = utils::elapsed_time();
+
+	while (check_running(status.window, 300)) {
+		{ // Per-frame updating and drawing here
+			glClear(GL_COLOR_BUFFER_BIT);
+			simulation.draw_simulation(fps);
+			glfwPollEvents();
+			glfwSwapBuffers(status.window);
+		}
+
+		{ // Frame metrics and logging here
+			elapsed = utils::elapsed_time();
+			fps = 1.f / (elapsed - start);
+			start = elapsed;
+		}
+	}
+
+	simulation.destroy_simulation();
+	glfwTerminate();
+
+	return 0;
 }

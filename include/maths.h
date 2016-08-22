@@ -18,8 +18,8 @@ namespace maths {
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
-		friend int operator == (const vec2& a, const vec2& b) { return a.x == b.x && a.y == b.y; }
-		friend int operator != (const vec2& a, const vec2& b) { return !(a == b); }
+		friend bool operator == (const vec2& a, const vec2& b) { return a.x == b.x && a.y == b.y; }
+		friend bool operator != (const vec2& a, const vec2& b) { return !(a == b); }
 
 		friend vec2 operator + (const vec2& a, const vec2& b) { return { a.x + b.x, a.y + b.y }; }
 		friend vec2 operator - (const vec2& a, const vec2& b) { return { a.x - b.x, a.y - b.y }; }
@@ -50,8 +50,8 @@ namespace maths {
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
-		friend int operator == (const vec3& a, const vec3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
-		friend int operator != (const vec3& a, const vec3& b) { return !(a == b); }
+		friend bool operator == (const vec3& a, const vec3& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
+		friend bool operator != (const vec3& a, const vec3& b) { return !(a == b); }
 
 		friend vec3 operator + (const vec3& a, const vec3& b) { return { a.x + b.x, a.y + b.y, a.z + b.z }; }
 		friend vec3 operator - (const vec3& a, const vec3& b) { return { a.x - b.x, a.y - b.y, a.z - b.z }; }
@@ -83,8 +83,8 @@ namespace maths {
 		inline       float& operator [] (int i)       { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
-		friend int operator == (const vec4& a, const vec4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
-		friend int operator != (const vec4& a, const vec4& b) { return !(a == b); }
+		friend bool operator == (const vec4& a, const vec4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
+		friend bool operator != (const vec4& a, const vec4& b) { return !(a == b); }
 
 		friend vec4 operator + (const vec4& a, const vec4& b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
 		friend vec4 operator - (const vec4& a, const vec4& b) { return { a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
