@@ -1,6 +1,10 @@
 #include "..\include\maths.h"
 
 namespace maths {
+	bool check_clockwise(const vec2& a, const vec2& b) {
+		return true;
+	}
+
 	vec3 cross_product(const vec3& a, const vec3& b) {
 		return {
 			a.y * b.z - a.z * b.y,

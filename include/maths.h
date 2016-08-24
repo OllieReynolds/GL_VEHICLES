@@ -135,6 +135,8 @@ namespace maths {
 		};
 	};
 
+	bool check_clockwise(const vec2& a, const vec2& b);
+
 	vec3 cross_product(const vec3& a, const vec3& b);
 
 	float dot_product(const vec2& a, const vec2& b);
