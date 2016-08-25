@@ -1,7 +1,15 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
+#include <ostream>
+#include <cmath>
+#include <limits>
+#include <iomanip>
+#include <iostream>
+#include <type_traits>
 
+																													   
 namespace maths {
 	class vec2 {
 	public:
@@ -25,6 +33,8 @@ namespace maths {
 		friend vec2 operator - (const vec2& a, const vec2& b) { return { a.x - b.x, a.y - b.y }; }
 		friend vec2 operator * (const vec2& a, const float v) { return { a.x * v, a.y * v }; }
 		friend vec2 operator / (const vec2& a, const float v) { return { a.x / v, a.y / v }; }
+
+		friend std::ostream& operator << (std::ostream& os, const vec2& v) { os << "(" << v.x << ", " << v.y << ")"; return os; }
 
 		union {
 			float n[2];
@@ -57,6 +67,8 @@ namespace maths {
 		friend vec3 operator - (const vec3& a, const vec3& b) { return { a.x - b.x, a.y - b.y, a.z - b.z }; }
 		friend vec3 operator * (const vec3& a, const float v) { return { a.x * v, a.y * v, a.z * v }; }
 		friend vec3 operator / (const vec3& a, const float v) { return { a.x / v, a.y / v, a.z / v }; }
+
+		friend std::ostream& operator << (std::ostream& os, const vec3& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; return os; }
 
 		union {
 			float n[3];
@@ -91,6 +103,8 @@ namespace maths {
 		friend vec4 operator * (const vec4& a, const float v) { return { a.x * v, a.y * v, a.z * v, a.w * v }; }
 		friend vec4 operator / (const vec4& a, const float v) { return { a.x / v, a.y / v, a.z / v, a.w / v }; }
 
+		friend std::ostream& operator << (std::ostream& os, const vec4& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; return os; }
+
 		union {
 			float n[4];
 			struct {
@@ -112,17 +126,10 @@ namespace maths {
 		inline       vec4& operator [] (int i)       { return n[i]; }
 		inline const vec4& operator [] (int i) const { return n[i]; }
 
-		void scale(const vec3& v) { 
-			x.x = v.x; 
-			y.y = v.y; 
-			z.z = v.z; 
-		}
+		friend std::ostream& operator << (std::ostream& os, const mat4& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; return os; }
 
-		void translate(const vec3& v) { 
-			z.x = v.x; 
-			z.y = v.y; 
-			z.z = v.z; 
-		}
+		void scale(const vec3& v) { x.x = v.x; y.y = v.y; z.z = v.z; }
+		void translate(const vec3& v) { z.x = v.x; z.y = v.y; z.z = v.z; }
 
 		union {
 			vec4 n[4];
@@ -135,9 +142,37 @@ namespace maths {
 		};
 	};
 
-	bool check_clockwise(const vec2& a, const vec2& b);
+	// Types for 2D and 3D Matrix
+
+	struct line {
+		vec2 A;
+		vec2 B;
+	};
+
+	struct circle {
+		vec2 O;
+		float r;
+	};
+
+	struct segment {
+		vec2 A;
+		vec2 O;
+		vec2 B;
+	};
+
+	bool almost_equal(float x, float y, float error_factor);
+
+	bool check_clockwise(const line& l, const vec2& p);
+	bool check_anticlockwise(const line& l, const vec2& p);
 
 	vec3 cross_product(const vec3& a, const vec3& b);
+
+	// Make this work for 2d Matrix
+	float determinant(const vec2& a, const vec2& b);
+
+	float distance(const vec2& a, const vec2& b);
+	float distance(const vec3& a, const vec3& b);
+	float distance(const vec4& a, const vec4& b);
 
 	float dot_product(const vec2& a, const vec2& b);
 	float dot_product(const vec3& a, const vec3& b);
@@ -147,8 +182,14 @@ namespace maths {
 	float magnitude(const vec3& v);
 	float magnitude(const vec4& v);
 
-	template <class T> 
-	T normalise(const T& v);
+	vec2 normalise(const vec2& v);
+	vec3 normalise(const vec3& v);
+	vec4 normalise(const vec4& v);
 	
 	mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ, mat4 m);
+
+	namespace intersections {
+		bool point_circle(const vec2& P, const circle& C);
+		bool point_segment(const vec2& P, const segment& S);
+	}
 }
