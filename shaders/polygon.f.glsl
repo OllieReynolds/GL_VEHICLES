@@ -24,15 +24,14 @@ bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b) {
 }
 
 void main() {
-	float theta = 0.5f;
-	float half_theta = theta * 0.5f;
-	if (!point_segment_intersect(uv_coords, vec2(-half_theta, 1.0), vec2(0.5, 0.5), vec2(half_theta, 1.0)))
-		discard;
-
-	float d = distance(uv_coords, vec2(0.5, 0.5));
+	if (!point_segment_intersect(
+		uv_coords, vec2(0.0, 1.0), vec2(0.5, 0.5), vec2(1.0, 1.0))
+	) discard;
 
 	vec4 c = colour;
-	c.a *= pow((1.0 - (2.0 * d)), 1.0);
+
+	float d = distance(uv_coords, vec2(0.5, 0.5));
+	c.a *= pow(1.0 - (2.0 * d), 0.5);
 
 	frag_colour = c;
 };
