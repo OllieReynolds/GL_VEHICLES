@@ -12,7 +12,7 @@ namespace utils {
 		GLuint VAO;
 
 	public:
-		Polygon(maths::vec2 position = {0.f}, maths::vec2 scale = {256.f}) : position(position), scale(scale) {}
+		Polygon(maths::vec2 position = {0.f}, maths::vec2 scale = {512.f}) : position(position), scale(scale) {}
 
 		void init_gl();
 		void draw_gl();

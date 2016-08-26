@@ -8,27 +8,44 @@ namespace utils {
 	void Simulation::draw_simulation(const float fps) {
 		polygon.shader.use();
 
-
-
-		//The jury is out - we need a segment type with vec2 origin and angle, to make life easier
-
-		// Uniforms are getting out of hand - move to UBO Solution soon
 		{
-			static const float mid = utils::resolution.x / 2;
-			static const float fudge = 60.f;
+			maths::vec2 vehicle_position = utils::resolution * 0.5f;
 
-			polygon.shader.set_uniform("vp", {mid - fudge, 320.f});
-			polygon.shader.set_uniform("colour", maths::vec4{1.f, 0.f, 0.f, 1.f});
-			polygon.draw_gl();
+			{ // Left Sensor
+				float xOffset = -50.f;
+				float theta = 60.f;
+				float rotation = 30.f;
+				float size = 256.f;
 
-			polygon.shader.set_uniform("vp", {mid, 320.f - fudge});
-			polygon.shader.set_uniform("colour", maths::vec4{0.f, 1.f, 0.f, 1.f});
-			polygon.draw_gl();
+				polygon.shader.set_uniform("colour", maths::vec4{1.f, 1.f, 1.f, 1.f});
+				polygon.shader.set_uniform("vp", {vehicle_position.x + xOffset, vehicle_position.y});
 
-			polygon.shader.set_uniform("vp", {mid + fudge, 320.f});
-			polygon.shader.set_uniform("colour", maths::vec4{0.f, 0.f, 1.f, 1.f});
-			polygon.draw_gl();
+				polygon.shader.set_uniform("size", size);
+
+				polygon.shader.set_uniform("rotation", rotation);
+				polygon.shader.set_uniform("theta", theta);
+
+				polygon.draw_gl();
+			}
+			
+			{ // Right Sensor
+				float xOffset = 50.f;
+				float theta = 60.f;
+				float rotation = 330.f;
+				float size = 256.f;
+
+				polygon.shader.set_uniform("colour", maths::vec4{1.f, 1.f, 1.f, 1.f});
+				polygon.shader.set_uniform("vp", {vehicle_position.x + xOffset, vehicle_position.y});
+
+				polygon.shader.set_uniform("size", size);
+
+				polygon.shader.set_uniform("rotation", rotation);
+				polygon.shader.set_uniform("theta", theta);
+				
+				polygon.draw_gl();
+			}
 		}
+
 		polygon.shader.release();
 	}
 
