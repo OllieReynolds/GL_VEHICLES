@@ -20,13 +20,13 @@ bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b) {
 
 	return
 		point_circle_intersect(p, o, r) &&
-		check_clockwise(o, a, p) &&
-		!check_clockwise(o, b, p);
-
+		check_clockwise(o, a, p) && !check_clockwise(o, b, p);
 }
 
 void main() {
-	if (!point_segment_intersect(uv_coords, vec2(-1, 1), vec2(0.5, 0.5), vec2(1, 1)))
+	float theta = 0.5f;
+	float half_theta = theta * 0.5f;
+	if (!point_segment_intersect(uv_coords, vec2(-half_theta, 1.0), vec2(0.5, 0.5), vec2(half_theta, 1.0)))
 		discard;
 
 	float d = distance(uv_coords, vec2(0.5, 0.5));
