@@ -26,6 +26,8 @@ namespace utils {
 		void set_uniform(const char* name, const maths::vec4& v);
 		void set_uniform(const char* name, const maths::mat4& v);
 
+		GLuint program;
+
 
 	private:
 		GLint uniform_handle(const char* name);
@@ -33,6 +35,6 @@ namespace utils {
 		void compile(GLuint shader, const char* src);
 		void link();
 
-		GLuint program;
+		
 	};
 }

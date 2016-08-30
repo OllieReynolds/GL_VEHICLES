@@ -4,9 +4,13 @@ in vec2 uv_coords;
 
 out vec4 frag_colour;
 
-uniform vec4 colour;
-uniform float theta;
-uniform float rotation;
+layout(std140) uniform Sectors{
+	vec4 colour;
+	vec2 position;
+	vec2 size;
+	float rotation;
+	float theta;
+} sector;
 
 bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b) {
 	return distance(o, p) <= length(a - o) 
@@ -19,8 +23,8 @@ void main() {
 	////////////////////////////////////////////////////////////////////////////
 	// Point segment intersect
 	////////////////////////////////////////////////////////////////////////////
-	float th  = clamp(theta,    1.0, 180.0) * 0.50;
-	float rot = clamp(rotation, 0.0, 359.0) + 90.0;
+	float th  = clamp(sector.theta,    1.0, 180.0) * 0.50;
+	float rot = sector.rotation + 90.0;//clamp(sector.rotation, 0.0, 359.0) + 90.0;
 
 	float rA = radians(rot + th);
 	vec2 vA = (vec2(cos(rA), sin(rA)) + vec2(1.0, 1.0)) * 0.5;
@@ -34,7 +38,7 @@ void main() {
 	////////////////////////////////////////////////////////////////////////////
 	// Circular distance cutoff
 	////////////////////////////////////////////////////////////////////////////
-	vec4 c = colour;
+	vec4 c = sector.colour;
 
 	float d = distance(uv_coords, uv_centerpoint);
 	c.a *= pow(1.0 - (2.0 * d), 0.1);

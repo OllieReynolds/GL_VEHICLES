@@ -23,7 +23,7 @@ namespace {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
-		GLFWwindow* window = glfwCreateWindow(static_cast<int>(utils::resolution.x), static_cast<int>(utils::resolution.y), "Vehicles", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
 			return {1, "GFLW failed to create window", nullptr};
@@ -44,6 +44,9 @@ namespace {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glClearColor(0.f, 0.f, 0.f, 0.f);
 	
+		// Flush GL errors;
+		err = glGetError();
+
 		return {
 			0,
 			[]() -> std::string {
@@ -65,8 +68,9 @@ namespace {
 
 int main() {
 	setup_status status = setup();
+	std::cout << status.msg << std::endl;
 
-	utils::Simulation simulation;
+	simulation::Simulation simulation;
 	simulation.init_simulation();
 
 	glfwSetWindowUserPointer(status.window, &simulation);
@@ -77,6 +81,8 @@ int main() {
 
 	while (check_running(status.window, 300)) {
 		{ // Per-frame updating and drawing here
+			simulation.update_simulation();
+
 			glClear(GL_COLOR_BUFFER_BIT);
 			simulation.draw_simulation(fps);
 			glfwPollEvents();
