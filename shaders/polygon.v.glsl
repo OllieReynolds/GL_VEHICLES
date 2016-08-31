@@ -6,6 +6,7 @@ layout(std140) uniform Sectors {
 	vec2 size;
 	float rotation;
 	float theta;
+	bool is_body;
 } sector;
 
 void main() {

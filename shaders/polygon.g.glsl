@@ -11,6 +11,7 @@ layout(std140) uniform Sectors{
 	vec2 size;
 	float rotation;
 	float theta;
+	bool is_body;
 } sector;
 
 uniform mat4 projection;
