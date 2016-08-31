@@ -191,5 +191,7 @@ namespace maths {
 	namespace intersections {
 		bool point_circle(const vec2& P, const circle& C);
 		bool point_segment(const vec2& P, const segment& S);
+
+		bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b);
 	}
 }

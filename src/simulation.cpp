@@ -15,13 +15,16 @@ namespace graphics {
 		maths::vec2 size;
 		float rotation;
 		float theta;
+
 		bool is_body;
 	};
+	
+	Sector light_FOV_L = {{1.f, 0.f, 0.f, 1.f}, {-10.f, 510.f},{256.f}, 270.f, 40.f, false};
+	Sector light_FOV_R = {{1.f, 0.f, 0.f, 1.f}, {-10.f, 546.f},{256.f}, 270.f, 40.f, false};
 
-	Sector light_FOV_L = {{1.f, 0.f, 0.f, 1.f}, {-10.f, 510.f},{128.f}, 270.f, 40.f, false};
-	Sector light_FOV_R = {{1.f, 0.f, 0.f, 1.f}, {-10.f, 546.f},{128.f}, 270.f, 40.f, false};
+	Sector body = {{1.f}, {-64.f, 528.f}, {96.f, 64.f}, 270.f, 40.f, true};
 
-	Sector body = {{1.f}, {-64.f, 528.f}, {64.f, 32.f}, 270.f, 40.f, true};
+	Sector box = {{1.f, 1.f, 0.5, 1.f},{593.f, 580.f},{16.f, 16.f}, 270.f, 40.f, true};
 
 	GLuint VAO;
 	GLuint UBO;
@@ -31,6 +34,8 @@ namespace graphics {
 
 // Data Transformation
 namespace logic {
+	float speed = 2.f;
+
 	void spin_sensors() {
 		float t = utils::elapsed_time();
 		float s = sin(t) * 0.5f;
@@ -40,12 +45,43 @@ namespace logic {
 	}
 
 	void move_vehicle() {
-		float speed = 1.f;
+		
 
+		{ // CHECK LEFT BEAM INTERSECTIONS
+			float th = graphics::light_FOV_L.theta * 0.5f;
+			float rot = graphics::light_FOV_L.rotation + 90.0;
+
+			float radiansA = (rot + th); //* (std::_Pi / 180.f);
+			maths::vec2 a = maths::vec2{
+				graphics::light_FOV_L.size.x * cos(radiansA),
+				graphics::light_FOV_L.size.y * sin(radiansA)
+			};
+					
+
+			float radiansB = (rot - th); //* (std::_Pi / 180.f);
+			maths::vec2 b = maths::vec2{
+				graphics::light_FOV_L.size.x * cos(radiansB),
+				graphics::light_FOV_L.size.y * sin(radiansB)
+			};
+		
+
+
+			maths::vec2 o = graphics::light_FOV_L.position;
+			maths::vec2 p = graphics::box.position;
+
+			
+
+			if (maths::intersections::point_segment(p, {a, o, b}))
+				speed = 0.f;
+		}
+
+		float t = utils::elapsed_time() * 3;
+		graphics::box.position.x += sin(t);
 		graphics::body.position.x += speed;
-
 		graphics::light_FOV_L.position.x += speed;
 		graphics::light_FOV_R.position.x += speed;
+
+		
 	}
 }
 
@@ -94,6 +130,8 @@ namespace simulation {
 			glBindVertexArray(graphics::VAO);
 			glBindBuffer(GL_UNIFORM_BUFFER, graphics::UBO);
 
+			
+
 			{ // DRAW BODY
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(graphics::Sector), &graphics::body, GL_STATIC_DRAW);
 				glDrawArrays(GL_POINTS, 0, 1);
@@ -106,6 +144,11 @@ namespace simulation {
 
 			{ // DRAW RIGHT SENSOR
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(graphics::Sector), &graphics::light_FOV_R, GL_STATIC_DRAW);
+				glDrawArrays(GL_POINTS, 0, 1);
+			}
+
+			{ // DRAW OBSTACLE
+				glBufferData(GL_UNIFORM_BUFFER, sizeof(graphics::Sector), &graphics::box, GL_STATIC_DRAW);
 				glDrawArrays(GL_POINTS, 0, 1);
 			}
 

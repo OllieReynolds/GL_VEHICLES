@@ -111,6 +111,12 @@ namespace maths {
 				maths::check_clockwise(line{S.O, S.A}, P) && 
 				maths::check_anticlockwise(line{S.O, S.B}, P);
 		}
+
+		bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b) {
+			return distance(o, p) <= magnitude(a - o)
+				&& ((p.x - o.x) * (a.y - o.y)) - ((p.y - o.y) * (a.x - o.x)) >= 0
+				&& ((p.x - o.x) * (b.y - o.y)) - ((p.y - o.y) * (b.x - o.x)) <= 0;
+		}
 	}
 }
 
