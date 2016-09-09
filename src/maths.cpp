@@ -6,14 +6,7 @@ namespace maths {
 		return diff < error_factor;
 	}
 
-	bool check_clockwise(const line& l, const vec2& p) {
-		float d = ((p.x - l.A.x) * (l.B.y - l.A.y)) - ((p.y - l.A.y) * (l.B.x - l.A.x));
-		return d > 0;
-	}
-
-	bool check_anticlockwise(const line& l, const vec2& p) {
-		return !check_clockwise(l, p);
-	}
+	
 
 	vec3 cross_product(const vec3& a, const vec3& b) {
 		return {
@@ -98,24 +91,46 @@ namespace maths {
 		return m;
 	}
 
+	bool check_clockwise(const line& l, const vec2& p) {
+		float d = ((p.x - l.A.x) * (l.B.y - l.A.y)) - ((p.y - l.A.y) * (l.B.x - l.A.x));
+		return d > 0;
+	}
+
+	bool check_anticlockwise(const line& l, const vec2& p) {
+		return !check_clockwise(l, p);
+	}
+
+	float radians(float deg) {
+		const static float PI = 3.141592f;
+		return (PI / 180.f) * deg;
+	}
+
 	namespace intersections {
 		bool point_circle(const vec2& P, const circle& C) {
-			return distance(C.O, P) < C.r;
+			float d = distance(C.O, P);
+			return d < C.r;
 		}
 
 		bool point_segment(const vec2& P, const segment& S) {
-			float r = magnitude(S.A - S.O);
+			float r = distance(S.A, S.O);
 
-			return
-				point_circle(P, circle{S.O, r}) &&
-				maths::check_clockwise(line{S.O, S.A}, P) && 
-				maths::check_anticlockwise(line{S.O, S.B}, P);
+			bool in_point_circle = point_circle(P, circle{S.O, r});
+			bool is_clockwise_to_A = maths::check_clockwise(line{S.O, S.A}, P);
+			bool is_anticlockwise_to_B = maths::check_anticlockwise(line{S.O, S.B}, P);
+
+			return in_point_circle && is_clockwise_to_A && is_anticlockwise_to_B;
 		}
 
 		bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b) {
-			return distance(o, p) <= magnitude(a - o)
-				&& ((p.x - o.x) * (a.y - o.y)) - ((p.y - o.y) * (a.x - o.x)) >= 0
-				&& ((p.x - o.x) * (b.y - o.y)) - ((p.y - o.y) * (b.x - o.x)) <= 0;
+
+			float d1 = distance(o, p);
+			float d2 = distance(o, a);
+
+			bool in_point_circle = d1 < d2;
+			bool is_clockwise_to_A = ((p.x - o.x) * (a.y - o.y)) - ((p.y - o.y) * (a.x - o.x)) >= 0;
+			bool is_anticlockwise_to_B = ((p.x - o.x) * (b.y - o.y)) - ((p.y - o.y) * (b.x - o.x)) <= 0;
+
+			return in_point_circle && is_clockwise_to_A && is_anticlockwise_to_B;
 		}
 	}
 }

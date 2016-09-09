@@ -19,7 +19,7 @@ uniform mat4 projection;
 void main() {
 	const vec4 position = gl_in[0].gl_Position;
 
-	vec2 size = sector.size * 0.5;
+	vec2 size = sector.size;
 
 	gl_Position = projection * (position + vec4(-size.x, -size.y, 0, 0));
 	uv_coords = vec2(0, 0);

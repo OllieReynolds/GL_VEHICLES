@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <ostream>
 #include <cmath>
 #include <limits>
@@ -34,7 +35,10 @@ namespace maths {
 		friend vec2 operator * (const vec2& a, const float v) { return { a.x * v, a.y * v }; }
 		friend vec2 operator / (const vec2& a, const float v) { return { a.x / v, a.y / v }; }
 
-		friend std::ostream& operator << (std::ostream& os, const vec2& v) { os << "(" << v.x << ", " << v.y << ")"; return os; }
+		friend std::ostream& operator << (std::ostream& os, const vec2& v) { 
+			os << "(" << v.x << ", " << v.y << ")"; 
+			return os; 
+		}
 
 		union {
 			float n[2];
@@ -68,7 +72,10 @@ namespace maths {
 		friend vec3 operator * (const vec3& a, const float v) { return { a.x * v, a.y * v, a.z * v }; }
 		friend vec3 operator / (const vec3& a, const float v) { return { a.x / v, a.y / v, a.z / v }; }
 
-		friend std::ostream& operator << (std::ostream& os, const vec3& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; return os; }
+		friend std::ostream& operator << (std::ostream& os, const vec3& v) { 
+			os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; 
+			return os; 
+		}
 
 		union {
 			float n[3];
@@ -103,7 +110,10 @@ namespace maths {
 		friend vec4 operator * (const vec4& a, const float v) { return { a.x * v, a.y * v, a.z * v, a.w * v }; }
 		friend vec4 operator / (const vec4& a, const float v) { return { a.x / v, a.y / v, a.z / v, a.w / v }; }
 
-		friend std::ostream& operator << (std::ostream& os, const vec4& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; return os; }
+		friend std::ostream& operator << (std::ostream& os, const vec4& v) { 
+			os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; 
+			return os; 
+		}
 
 		union {
 			float n[4];
@@ -126,7 +136,10 @@ namespace maths {
 		inline       vec4& operator [] (int i)       { return n[i]; }
 		inline const vec4& operator [] (int i) const { return n[i]; }
 
-		friend std::ostream& operator << (std::ostream& os, const mat4& v) { os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; return os; }
+		friend std::ostream& operator << (std::ostream& os, const mat4& v) { 
+			os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; 
+			return os; 
+		}
 
 		void scale(const vec3& v) { x.x = v.x; y.y = v.y; z.z = v.z; }
 		void translate(const vec3& v) { z.x = v.x; z.y = v.y; z.z = v.z; }
@@ -187,6 +200,8 @@ namespace maths {
 	vec4 normalise(const vec4& v);
 	
 	mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ, mat4 m);
+
+	float radians(float deg);
 
 	namespace intersections {
 		bool point_circle(const vec2& P, const circle& C);

@@ -28,22 +28,30 @@ void main() {
 		////////////////////////////////////////////////////////////////////////////
 		// Point segment intersect
 		////////////////////////////////////////////////////////////////////////////
-		float th  = clamp(sector.theta, 1.0, 180.0) * 0.50;
-		float rot = sector.rotation + 90.0;
+		float th  = sector.theta * 0.5;
+		float rot = sector.rotation;
 
 		float rA = radians(rot + th);
-		vec2 vA = (vec2(cos(rA), sin(rA)) + vec2(1.0, 1.0)) * 0.5;
+		vec2 vA = vec2(
+			sector.size.x * cos(rA), 
+			sector.size.y * sin(rA)
+		);
+		
 
 		float rB = radians(rot - th);
-		vec2 vB = (vec2(cos(rB), sin(rB)) + vec2(1.0, 1.0)) * 0.5;
+		vec2 vB = vec2(
+			sector.size.x * cos(rB), 
+			sector.size.y * sin(rB)
+		);
+
 
 		if (!point_segment_intersect(uv_coords, vA, uv_centerpoint, vB)) 
 			discard;
 
 		////////////////////////////////////////////////////////////////////////////
 		// Circular distance cutoff
-		///////////////////////////////////////////////////////////////////////////
-		c.a *= pow(1.0 - (2.0 * d), 0.5);
+		////////////////////////////////////////////////////////////////////////////
+		c.a *= pow(1.0 - (2.0 * d), 0.98);
 	}
 
 	////////////////////////////////////////////////////////////////////////////

@@ -70,21 +70,18 @@ int main() {
 	setup_status status = setup();
 	std::cout << status.msg << std::endl;
 
-	simulation::Simulation simulation;
-	simulation.init_simulation();
-
-	glfwSetWindowUserPointer(status.window, &simulation);
+	simulation::init();
 
 	float elapsed = 0.f;
 	float fps = 0.f;
 	float start = utils::elapsed_time();
 
-	while (check_running(status.window, 300)) {
+	while (check_running(status.window, 6000)) {
 		{ // Per-frame updating and drawing here
-			simulation.update_simulation();
+			simulation::update();
 
 			glClear(GL_COLOR_BUFFER_BIT);
-			simulation.draw_simulation(fps);
+			simulation::draw(fps);
 			glfwPollEvents();
 			glfwSwapBuffers(status.window);
 		}
@@ -96,7 +93,7 @@ int main() {
 		}
 	}
 
-	simulation.destroy_simulation();
+	simulation::destroy();
 	glfwTerminate();
 
 	return 0;
