@@ -23,6 +23,12 @@ namespace {
 
 		return fps;
 	}
+
+	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+		vec2* cursor_position = reinterpret_cast<maths::vec2*>(glfwGetWindowUserPointer(window));
+		cursor_position->x = (float)xpos;
+		cursor_position->y = 768.f - (float)ypos;
+	}
 }
 
 int main() {
@@ -45,6 +51,7 @@ int main() {
 	} 
 
 	glfwMakeContextCurrent(window);
+	glfwSetCursorPosCallback(window, &cursor_position_callback);
 		
 	// Glew
 	glewExperimental = GL_TRUE;
@@ -72,6 +79,7 @@ int main() {
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
 	simulation::init();
+	glfwSetWindowUserPointer(window, &simulation::cursor_position);
 
 	while (check_running(window, 6000)) {
 		glClear(GL_COLOR_BUFFER_BIT);
