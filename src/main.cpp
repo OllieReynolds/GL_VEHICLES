@@ -8,89 +8,79 @@
 #include "..\include\utils.h"
 
 namespace {
-	struct setup_status {
-		uint16_t code;
-		std::string msg;
-		GLFWwindow* window;
-	};
-
-	setup_status setup() {
-		// GLFW Init
-		if (!glfwInit()) 
-			return {1, "GLFW failed to initialise", nullptr};
-		
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		
-		GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
-		if (!window) {
-			glfwTerminate();
-			return {1, "GFLW failed to create window", nullptr};
-		} else {
-			glfwMakeContextCurrent(window);
-		}
-
-		// Glew Init
-		glewExperimental = GL_TRUE;
-		GLenum err = glewInit();
-		if (err != GLEW_OK) {
-			glfwTerminate();
-			return {1, "Glew failed to initialise", nullptr};
-		}
-	
-		// GL Config
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glClearColor(0.f, 0.f, 0.f, 0.f);
-	
-		// Flush GL errors;
-		err = glGetError();
-
-		return {
-			0,
-			[]() -> std::string {
-				std::stringstream ss;
-				ss << "Device Vendor: "   << glGetString(GL_VENDOR)                   << std::endl;
-				ss << "Device Renderer: " << glGetString(GL_RENDERER)                 << std::endl;
-				ss << "OpenGL Version: "  << glGetString(GL_VERSION)                  << std::endl;
-				ss << "GLSL Version: "    << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-				return ss.str();
-			}(),
-			window
-		};
-	}
-
 	bool check_running(GLFWwindow* window, int duration) {
 		return !glfwWindowShouldClose(window) && utils::elapsed_time() < duration;
+	}
+
+	float calc_fps() {
+		static float elapsed = 0.f;
+		static float fps = 0.f;
+		static float start = utils::elapsed_time();
+
+		elapsed = utils::elapsed_time();
+		fps = 1.f / (elapsed - start);
+		start = elapsed;
+
+		return fps;
 	}
 }
 
 int main() {
-	setup_status status = setup();
-	std::cout << status.msg << std::endl;
+	// GLFW
+	if (!glfwInit()) {
+		std::cout << "GLFW failed to initialise" << std::endl;
+		return 1;
+	}
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
+
+	if (!window) {
+		glfwTerminate();
+		std::cout << "GFLW failed to create window" << std::endl;
+		return 1;
+	} 
+
+	glfwMakeContextCurrent(window);
+		
+	// Glew
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK) {
+		glfwTerminate();
+		std::cout << "Glew failed to initialise" << std::endl;
+		return 1;
+	}
+
+#ifdef _DEBUG
+	{ // Check everything initialised correctly
+		std::stringstream ss;
+		ss << "Device Vendor: " << glGetString(GL_VENDOR) << std::endl;
+		ss << "Device Renderer: " << glGetString(GL_RENDERER) << std::endl;
+		ss << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+		ss << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+		std::cout << ss.str() << std::endl;
+	}
+#endif
+
+	// GL Config
+	glEnable(GL_BLEND);
+	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	
 	simulation::init();
 
-	float elapsed = 0.f;
-	float fps = 0.f;
-	float start = utils::elapsed_time();
-
-	while (check_running(status.window, 6000)) {
-		{ // Per-frame updating and drawing here
-			simulation::update();
-
-			glClear(GL_COLOR_BUFFER_BIT);
-			simulation::draw(fps);
-			glfwPollEvents();
-			glfwSwapBuffers(status.window);
-		}
-
-		{ // Frame metrics and logging here
-			elapsed = utils::elapsed_time();
-			fps = 1.f / (elapsed - start);
-			start = elapsed;
-		}
+	while (check_running(window, 6000)) {
+		glClear(GL_COLOR_BUFFER_BIT);
+			
+		simulation::update();
+		simulation::draw();
+			
+		glfwPollEvents();
+		glfwSwapBuffers(window);
 	}
 
 	simulation::destroy();

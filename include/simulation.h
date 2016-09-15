@@ -17,7 +17,7 @@ using namespace utils;
 namespace simulation {
 	void init();
 	void update();
-	void draw(const float fps);
+	void draw();
 	void destroy();
 
 	static const vec2 resolution = {1366.f, 768.f};
@@ -29,59 +29,63 @@ namespace logic {
 	struct Sector {
 		vec4 colour;
 		vec2 position;
-		vec2 size;
-		float rotation;
-		float theta;
-		bool is_body;
+		vec2 start;
+		vec2 end;
+		float radius;
 	};
+
+	struct Obstacle {
+		vec4 colour;
+		vec2 position;
+		vec2 size;
+	};
+
+	
+
+	static Sector create_sector(const vec4& colour, const vec2& position, const vec2& heading, const float theta, const float radius) {
+		float heading_angle = atan2(heading.y, heading.x) * 180 / std::_Pi;
+
+		float start_arm_angle_deg = heading_angle - theta * 0.5f;
+		float end_arm_angle_deg = heading_angle + theta * 0.5f;
+
+		float start_arm_angle_rad = start_arm_angle_deg * std::_Pi / 180;
+		float end_arm_angle_rad = end_arm_angle_deg * std::_Pi / 180;
+
+		vec2 start = {cos(start_arm_angle_rad), sin(start_arm_angle_rad)};
+		vec2 end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
+
+		return{colour, position, start, end, radius};
+	}
+
 
 	void move_vehicle();
+	
 
-	static float speed = 2.f;
+// ######################################################
 
-	static vec2 acceleration = {0.f, 0.f};
-	static vec2 velocity = {0.f, 0.f};
+	
 
-	static Sector light_FOV_L = {
-		{1.f, 1.f, 0.f, 1.f},
-		{-10.f, 510.f},
-		{128.f},
-		0.f,
-		40.f,
-		false
-	};
+	static Sector sensor = create_sector(
+		{1.f, 1.f, 0.f, 1.f}, // Yellow
+		{40.f, 600.f}, // Position, extreme left of screen between the top and middle
+		{1.f, 0.f}, // Heading
+		{60.f}, // Radius
+		{602.f} // Size of the beam
+	);
 
-	static Sector light_FOV_R = {
-		{1.f, 1.f, 0.f, 1.f},
-		{-10.f, 546.f},
-		{128.f},
-		0.f,
-		40.f,
-		false
-	};
-
-	static Sector body = {
-		{1.f, 1.f, 1.f, 1.f},
-		{-64.f, 528.f},
-		{64.f, 32.f},
-		0.f,
-		40.f,
-		true
-	};
-
-	static Sector box = {
-		{1.f, 0.f, 0.f, 1.f},
-		{593.f, 510.f},
-		{8.f},
-		0.f,
-		40.f,
-		true
+	static Obstacle obstacle = {
+		{1.f, 1.f, 1.f, 1.f}, // White
+		{600.f, 450}, // In line with the sensor for now
+		{32.f} // Smallish
 	};
 }
 
 namespace graphics {
-	static GLuint VAO;
-	static GLuint UBO;
+	static GLuint sensor_VAO;
+	static GLuint sensor_UBO;
+	static Shader sensor_shader;
 
-	static Shader shader;
+	static GLuint obstacle_VAO;
+	static GLuint obstacle_UBO;
+	static Shader obstacle_shader;
 }

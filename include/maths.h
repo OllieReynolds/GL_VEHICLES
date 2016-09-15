@@ -126,6 +126,7 @@ namespace maths {
 		};
 	};
 
+	// Types for 2D and 3D Matrix
 	class mat4 {
 	public:
 		mat4() : n{{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0},{0, 0, 0, 1}} {}
@@ -155,28 +156,9 @@ namespace maths {
 		};
 	};
 
-	// Types for 2D and 3D Matrix
 
-	struct line {
-		vec2 A;
-		vec2 B;
-	};
-
-	struct circle {
-		vec2 O;
-		float r;
-	};
-
-	struct segment {
-		vec2 A;
-		vec2 O;
-		vec2 B;
-	};
-
+	
 	bool almost_equal(float x, float y, float error_factor);
-
-	bool check_clockwise(const line& l, const vec2& p);
-	bool check_anticlockwise(const line& l, const vec2& p);
 
 	vec3 cross_product(const vec3& a, const vec3& b);
 
@@ -201,12 +183,5 @@ namespace maths {
 	
 	mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ, mat4 m);
 
-	float radians(float deg);
-
-	namespace intersections {
-		bool point_circle(const vec2& P, const circle& C);
-		bool point_segment(const vec2& P, const segment& S);
-
-		bool point_segment_intersect(vec2 p, vec2 a, vec2 o, vec2 b);
-	}
+	bool point_segment_intersect(vec2 p, vec2 start, vec2 o, vec2 end, float radius);	
 }
