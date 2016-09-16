@@ -11,7 +11,7 @@ namespace utils {
 	class Shader {
 	public:
 		Shader() { }
-		Shader(const char* compute_shader_filename);
+		explicit Shader(const char* compute_shader_filename);
 		Shader(const char* vertex_shader_filename, const char* fragment_shader_filename);
 		Shader(const char* vertex_shader_filename, const char* fragment_shader_filename, const char* geom_shader_filename);
 

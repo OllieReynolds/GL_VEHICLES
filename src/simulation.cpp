@@ -22,9 +22,29 @@ namespace simulation {
 
 	void init() {
 		obstacle = {
-			{1.f, 1.f, 1.f, 1.f}, // White
-			{600.f, 450}, // In line with the sensor for now
-			{32.f} // Smallish
+			{1.f, 1.f, 1.f, 1.f},     // Colour
+			{600.f, 450},             // Position
+			{32.f}                    // Size
+		};
+
+		vehicle = {
+			Sensor(
+				{1.f, 1.f, 0.f, 1.f}, // Colour
+				{40.f, 600.f},        // Position
+				{1.f, 1.f},           // Heading
+				{60.f},               // Angle
+				{256.f}               // Radius
+			),
+			Sensor(
+				{1.f, 1.f, 0.f, 1.f}, // Colour
+				{40.f, 500.f},        // Position
+				{1.f, -1.f},          // Heading
+				{60.f},               // Angle
+				{256.f}               // Radius
+			),
+			{40.f, 550.f},            // Position
+			0.1f,                     // Speed
+			0.002f                    // Turning force
 		};
 
 		resolution = {1366.f, 768.f};
@@ -102,7 +122,7 @@ namespace simulation {
 
 	void draw() {
 		{ // DRAW OBSTACLE
-		    // Bind GL context
+			// Bind GL context
 			glBindVertexArray(obstacle_VAO);
 			glBindBuffer(GL_UNIFORM_BUFFER, obstacle_UBO);
 			obstacle_shader.use();
@@ -128,13 +148,13 @@ namespace simulation {
 
 
 			{ // DRAW LEFT SENSOR
-				vehicle.left_sensor.set_sector_arms(vehicle.velocity, 45.f);
+				//vehicle.left_sensor.set_sector_arms(vehicle.velocity, 45.f);
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(Sensor), &vehicle.left_sensor, GL_STATIC_DRAW);
 				glDrawArrays(GL_POINTS, 0, 1);
 			}
 
 			{ // DRAW LEFT SENSOR
-				vehicle.right_sensor.set_sector_arms(vehicle.velocity, 45.f);
+				//vehicle.right_sensor.set_sector_arms(vehicle.velocity, 45.f);
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(Sensor), &vehicle.right_sensor, GL_STATIC_DRAW);
 				glDrawArrays(GL_POINTS, 0, 1);
 			}

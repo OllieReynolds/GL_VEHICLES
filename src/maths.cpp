@@ -95,13 +95,12 @@ namespace maths {
 		return (-v1.x * v2.y) + (v1.y * v2.x) > 0;
 	}
 
-	bool point_segment_intersect(vec2 p, vec2 start, vec2 o, vec2 end, float radius) {
+	bool point_segment_intersect(const vec2& p, const vec2& start, const vec2& o, const vec2& end, const float radius) {
 		float origin_to_point = distance(o, p);
 
 		bool b1 = origin_to_point <= radius;
 		bool b2 = !check_clockwise(start, p - o);
 		bool b3 = check_clockwise(end, p - o);
-
 
 		return b1 && b2 && b3;
 	}

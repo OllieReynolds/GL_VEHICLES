@@ -183,5 +183,5 @@ namespace maths {
 	
 	mat4 orthographic_matrix(const vec2& resolution, float nZ, float fZ, mat4 m);
 
-	bool point_segment_intersect(vec2 p, vec2 start, vec2 o, vec2 end, float radius);	
+	bool point_segment_intersect(const vec2& p, const vec2& start, const vec2& o, const vec2& end, const float radius);
 }
