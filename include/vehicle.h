@@ -11,6 +11,7 @@ namespace simulation {
 		void move(const Obstacle& obstacle);
 		bool test_sensor_activity(const Sensor& s, const Obstacle& obstacle);
 
+		mat4 model;
 
 		Sensor left_sensor;
 		Sensor right_sensor;

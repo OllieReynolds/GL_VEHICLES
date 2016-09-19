@@ -34,10 +34,6 @@ namespace simulation {
 	extern GLuint sensor_UBO;
 	extern Shader sensor_shader;
 
-	extern GLuint obstacle_VAO;
-	extern GLuint obstacle_UBO;
-	extern Shader obstacle_shader;
-
 	extern GLuint vehicle_VAO;
 	extern GLuint vehicle_VBO;
 	extern Shader vehicle_shader;

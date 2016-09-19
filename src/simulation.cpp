@@ -17,10 +17,6 @@ namespace simulation {
 	 GLuint sensor_UBO;
 	 Shader sensor_shader;
 
-	 GLuint obstacle_VAO;
-	 GLuint obstacle_UBO;
-	 Shader obstacle_shader;
-
 	 GLuint vehicle_VAO;
 	 GLuint vehicle_VBO;
 	 Shader vehicle_shader;
@@ -33,11 +29,11 @@ namespace simulation {
 
 
 	void init() {
-		obstacle = {
+		obstacle = {{
 			{1.f, 1.f, 1.f, 1.f},     // Colour
 			{600.f, 450},             // Position
 			{32.f}                    // Size
-		};
+		}};
 
 		vehicle = {
 			Sensor(
@@ -59,12 +55,11 @@ namespace simulation {
 			0.002f                    // Turning force
 		};
 
+
 		resolution = {1366.f, 768.f};
 		near_far = {-1.f, 1.f};
 		resolution_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
 		cursor_position = {0.f, 0.f};
-
-		vehicle_matrix = mat4();
 
 		{ // INIT VEHICLE BODY
 			vehicle_shader = {
@@ -72,7 +67,7 @@ namespace simulation {
 				"shaders/default.f.glsl",
 			};
 
-			vehicle_shader.set_uniform("model", vehicle_matrix);
+			vehicle_shader.set_uniform("model", vehicle.model);
 			vehicle_shader.set_uniform("projection", resolution_matrix);
 
 			glGenVertexArrays(1, &vehicle_VAO);
@@ -117,34 +112,13 @@ namespace simulation {
 
 
 		{ // INIT OBSTACLE
-			obstacle_shader = {
-				"shaders/obstacle.v.glsl",
-				"shaders/obstacle.f.glsl",
-				"shaders/obstacle.g.glsl"
-			};
-
-			obstacle_shader.set_uniform("projection", resolution_matrix);
-
-			glGenVertexArrays(1, &obstacle_VAO);
-			glBindVertexArray(obstacle_VAO);
-
-			glGenBuffers(1, &obstacle_UBO);
-			glBindBuffer(GL_UNIFORM_BUFFER, obstacle_UBO);
-
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(Obstacle), NULL, GL_STATIC_DRAW);
-			GLuint bind_index = 1;
-			glBindBufferBase(GL_UNIFORM_BUFFER, bind_index, obstacle_UBO);
-			glUniformBlockBinding(obstacle_shader.program, glGetUniformBlockIndex(obstacle_shader.program, "Obstacles"), bind_index);
-
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			glBindVertexArray(0);
-			obstacle_shader.release();
+			obstacle.init();
 		}
 	}
 
 	void update() {
 		vehicle.move(obstacle);
-		obstacle.move(cursor_position);
+		obstacle.update(cursor_position);
 	}
 
 	void draw() {
@@ -166,16 +140,7 @@ namespace simulation {
 
 
 		{ // DRAW OBSTACLE
-			glBindVertexArray(obstacle_VAO);
-			glBindBuffer(GL_UNIFORM_BUFFER, obstacle_UBO);
-			obstacle_shader.use();
-
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(Obstacle), &obstacle, GL_STATIC_DRAW);
-			glDrawArrays(GL_POINTS, 0, 1);
-
-			obstacle_shader.release();
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			glBindVertexArray(0);
+			obstacle.draw();
 		}
 
 
@@ -209,8 +174,6 @@ namespace simulation {
 		glDeleteVertexArrays(1, &sensor_VAO);
 		sensor_shader.destroy();
 
-		glDeleteBuffers(1, &obstacle_UBO);
-		obstacle_shader.destroy();
-		glDeleteVertexArrays(1, &obstacle_VAO);
+		obstacle.destroy();
 	}
 }
