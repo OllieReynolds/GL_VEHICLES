@@ -24,6 +24,8 @@ namespace simulation {
 
 	extern Vehicle vehicle;
 	extern Obstacle obstacle;
+	
+	extern vec2 points[4];
 
 
 
@@ -35,6 +37,11 @@ namespace simulation {
 	extern GLuint obstacle_VAO;
 	extern GLuint obstacle_UBO;
 	extern Shader obstacle_shader;
+
+	extern GLuint vehicle_VAO;
+	extern GLuint vehicle_VBO;
+	extern Shader vehicle_shader;
+	extern mat4 vehicle_matrix;
 
 	extern vec2 resolution;
 	extern vec2 near_far;

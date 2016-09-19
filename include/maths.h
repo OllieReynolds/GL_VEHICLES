@@ -143,7 +143,7 @@ namespace maths {
 		}
 
 		void scale(const vec3& v) { x.x = v.x; y.y = v.y; z.z = v.z; }
-		void translate(const vec3& v) { z.x = v.x; z.y = v.y; z.z = v.z; }
+		void translate(const vec3& v) { w.x = v.x; w.y = v.y; w.z = v.z; }
 
 		union {
 			vec4 n[4];
