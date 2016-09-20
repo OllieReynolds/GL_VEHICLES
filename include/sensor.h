@@ -2,6 +2,7 @@
 
 #include <math.h>
 
+#include "drawable.h"
 #include "maths.h"
 
 namespace simulation {
@@ -9,16 +10,39 @@ namespace simulation {
 	
 	extern const float PI;
 
-	struct Sensor {
+
+	struct Sensor_Attribs {
+		Sensor_Attribs();
+		Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, float theta, float radius);
+
 		vec4 colour;
 		vec2 position;
 		vec2 start;
 		vec2 end;
 		float radius;
+	};
 
-		Sensor(const vec4& colour = vec4{1.f}, const vec2& position = vec2{1.f}, const vec2& heading = vec2{1.f}, 
-			const float theta = 1.f, const float radius = 1.f);
+	class Sensor : public Drawable {
+	public:
+		Sensor() {}
+		Sensor(const Sensor_Attribs& sa) {
+			attribs.colour = sa.colour;
+			attribs.end = sa.end;
+			attribs.position = sa.position;
+			attribs.radius = sa.radius;
+			attribs.start = sa.start;
+		}
 
-		void set_sector_arms(const vec2& heading, float theta);
+		void init();
+		void update(const maths::vec2& cursor_pos);
+		void draw();
+		void destroy();
+
+
+		Sensor_Attribs attribs;
+
+	private:
+		static GLuint bind_index;
+		
 	};
 }
