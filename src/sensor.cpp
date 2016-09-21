@@ -34,8 +34,6 @@ namespace simulation {
 			"shaders/sensor.g.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
-
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
 
@@ -46,9 +44,6 @@ namespace simulation {
 		glBindBufferBase(GL_UNIFORM_BUFFER, bind_index, gl_buffer_object);
 		glUniformBlockBinding(shader.program, glGetUniformBlockIndex(shader.program, "Sectors"), bind_index);
 		bind_index++;
-
-		glBindVertexArray(0);
-		shader.release();
 	}
 
 	void Sensor::update(const maths::vec2& cursor_pos) 
@@ -64,17 +59,14 @@ namespace simulation {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_object);
 		
-
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(Sensor_Attribs), &attribs, GL_STATIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, bind_index, gl_buffer_object);
 		glUniformBlockBinding(shader.program, glGetUniformBlockIndex(shader.program, "Sectors"), bind_index);
 		bind_index++;
-		glDrawArrays(GL_POINTS, 0, 1);
 
-		
-		glBindVertexArray(0);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		shader.release();
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+
+		glDrawArrays(GL_POINTS, 0, 1);
 	}
 
 	void Sensor::destroy() 

@@ -1,17 +1,7 @@
 #version 450
 
-out vec4 frag_colour;
-
-layout(std140) uniform Obstacles{
-	vec4 colour;
-	vec2 position;
-	vec2 size;
-} obstacle;
-
+out vec4 colour;
 
 void main() {
-	////////////////////////////////////////////////////////////////////////////
-	// Paint
-	////////////////////////////////////////////////////////////////////////////
-	frag_colour = obstacle.colour;
-};
+	colour = vec4(1.0, 1.0, 1.0, 1.0);
+}

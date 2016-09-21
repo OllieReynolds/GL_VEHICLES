@@ -93,22 +93,23 @@ namespace maths {
 		vec4(const float v) : n{v, v, v, v} {}
 		vec4(const float x, const float y, const float z, const float w) : n{x, y, z, w} {}
 
-		vec4& operator  = (const vec4& v) { x  = v.x; y  = v.y; z  = v.z; w  = v.w; return *this; }
+		vec4& operator  = (const vec4& v) { x = v.x; y = v.y; z = v.z; w = v.w; return *this; }
 		vec4& operator += (const vec4& v) { x += v.x; y += v.y; z += v.z; w += v.w; return *this; }
 		vec4& operator -= (const vec4& v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w; return *this; }
 		vec4& operator *= (const float v) { x *= v; y *= v; z *= v; w *= v; return *this; }
 		vec4& operator /= (const float v) { x /= v; y /= v; z /= v; w /= v; return *this; }
 
-		inline       float& operator [] (int i)       { return n[i]; }
+		inline       float& operator [] (int i) { return n[i]; }
 		inline const float& operator [] (int i) const { return n[i]; }
 
 		friend bool operator == (const vec4& a, const vec4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
 		friend bool operator != (const vec4& a, const vec4& b) { return !(a == b); }
 
-		friend vec4 operator + (const vec4& a, const vec4& b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
-		friend vec4 operator - (const vec4& a, const vec4& b) { return { a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
-		friend vec4 operator * (const vec4& a, const float v) { return { a.x * v, a.y * v, a.z * v, a.w * v }; }
-		friend vec4 operator / (const vec4& a, const float v) { return { a.x / v, a.y / v, a.z / v, a.w / v }; }
+		friend vec4 operator + (const vec4& a, const vec4& b) { return{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w}; }
+		friend vec4 operator - (const vec4& a, const vec4& b) { return{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w}; }
+		friend vec4 operator * (const vec4& a, const float v) { return{a.x * v, a.y * v, a.z * v, a.w * v}; }
+		friend vec4 operator / (const vec4& a, const float v) { return{a.x / v, a.y / v, a.z / v, a.w / v}; }
+
 
 		friend std::ostream& operator << (std::ostream& os, const vec4& v) { 
 			os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; 
@@ -138,7 +139,7 @@ namespace maths {
 		inline const vec4& operator [] (int i) const { return n[i]; }
 
 		friend std::ostream& operator << (std::ostream& os, const mat4& v) { 
-			os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; 
+			os << v.x << std::endl << v.y << std::endl << v.z << std::endl << v.w << std::endl;
 			return os; 
 		}
 
@@ -157,6 +158,14 @@ namespace maths {
 	};
 
 
+	mat4 transpose(const mat4& m);
+
+	vec4 mult(const mat4& m, const vec4& v);
+	mat4 mult(const mat4& a, const mat4& b);
+
+	mat4 rotate(float degrees);
+	mat4 translate(const vec3& position);
+	mat4 scale(const vec3& size);
 	
 	bool almost_equal(float x, float y, float error_factor);
 

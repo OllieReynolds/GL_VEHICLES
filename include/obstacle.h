@@ -6,20 +6,10 @@
 namespace simulation {
 	using namespace maths;
 
-	struct Obstacle_Attribs {
-		Obstacle_Attribs(vec4 c = {1.f}, vec2 p = {500.f}, vec2 s = {128.f}) : colour(c), position(p), size(s) {}
-
-		vec4 colour;
-		vec2 position;
-		vec2 size;
-	};
-
 	class Obstacle : public Drawable {
 	public:
-		Obstacle(Obstacle_Attribs attribs = {}) : attribs(attribs) {}
-
-
-		Obstacle_Attribs attribs;
+		Obstacle(const vec4& colour = {1.f}, const vec2& position = {1.f}, const vec2& size = {1.f}, 
+			const float rotation = 0.f);
 
 		void init();
 		void update(const maths::vec2& cursor_pos);
@@ -27,5 +17,10 @@ namespace simulation {
 		void destroy();
 
 		void move(const vec2& cursor_position);
+
+		vec4 colour;
+		vec2 position;
+		vec2 size;
+		float rotation;
 	};
 }

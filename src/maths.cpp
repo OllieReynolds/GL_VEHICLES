@@ -1,12 +1,50 @@
 #include "..\include\maths.h"
 
 namespace maths {
+	const float PI = 3.14159265358979f;
+
+	vec4 mult(const mat4& m, const vec4& v) {
+		float x = (m.x.x * v.x) + (m.x.y * v.y) + (m.x.z * v.z) + m.x.w;
+		float y = (m.y.x * v.x) + (m.y.y * v.y) + (m.y.z * v.z) + m.y.w;
+		float z = (m.z.x * v.x) + (m.z.y * v.y) + (m.z.z * v.z) + m.z.w;
+		float w = (m.w.x * v.x) + (m.w.y * v.y) + (m.w.z * v.z) + m.w.w;
+		
+		return vec4{x, y, z, w};
+	}
+
+	mat4 mult(const mat4& a, const mat4& b) {
+		float xx = a.x.x * b.x.x + a.x.y * b.y.x + a.x.z * b.z.x + a.x.w * b.w.x;
+		float xy = a.x.x * b.x.y + a.x.y * b.y.y + a.x.z * b.z.y + a.x.w * b.w.y;
+		float xz = a.x.x * b.x.z + a.x.y * b.y.z + a.x.z * b.z.z + a.x.w * b.w.z;
+		float xw = a.x.x * b.x.w + a.x.y * b.y.w + a.x.z * b.z.w + a.x.w * b.w.w;
+
+		float yx = a.y.x * b.x.x + a.y.y * b.y.x + a.y.z * b.z.x + a.y.w * b.w.x;
+		float yy = a.y.x * b.x.y + a.y.y * b.y.y + a.y.z * b.z.y + a.y.w * b.w.y;
+		float yz = a.y.x * b.x.z + a.y.y * b.y.z + a.y.z * b.z.z + a.y.w * b.w.z;
+		float yw = a.y.x * b.x.w + a.y.y * b.y.w + a.y.z * b.z.w + a.y.w * b.w.w;
+
+		float zx = a.z.x * b.x.x + a.z.y * b.y.x + a.z.z * b.z.x + a.z.w * b.w.x;
+		float zy = a.z.x * b.x.y + a.z.y * b.y.y + a.z.z * b.z.y + a.z.w * b.w.y;
+		float zz = a.z.x * b.x.z + a.z.y * b.y.z + a.z.z * b.z.z + a.z.w * b.w.z;
+		float zw = a.z.x * b.x.w + a.z.y * b.y.w + a.z.z * b.z.w + a.z.w * b.w.w;
+
+		float wx = a.w.x * b.x.x + a.w.y * b.y.x + a.w.z * b.z.x + a.w.w * b.w.x;
+		float wy = a.w.x * b.x.y + a.w.y * b.y.y + a.w.z * b.z.y + a.w.w * b.w.y;
+		float wz = a.w.x * b.x.z + a.w.y * b.y.z + a.w.z * b.z.z + a.w.w * b.w.z;
+		float ww = a.w.x * b.x.w + a.w.y * b.y.w + a.w.z * b.z.w + a.w.w * b.w.w;
+		
+		return mat4{
+			{xx, xy, xz, xw},
+			{yx, yy, yz, yw},
+			{zx, zy, zz, zw},
+			{wx, wy, wz, ww}
+		};
+	}
+
 	bool almost_equal(float x, float y, float error_factor) {
 		float diff = std::abs(x - y);
 		return diff < error_factor;
 	}
-
-	
 
 	vec3 cross_product(const vec3& a, const vec3& b) {
 		return {
@@ -103,6 +141,42 @@ namespace maths {
 		bool b3 = check_clockwise(end, p - o);
 
 		return b1 && b2 && b3;
+	}
+
+	mat4 rotate(float degrees) {
+		float rads = degrees * (PI / 180.f);
+
+		return mat4{
+			{cos(rads), -sin(rads), 0.f, 0.f},
+			{sin(rads),  cos(rads), 0.f, 0.f},
+			{0.f,        0.f,       1.f, 0.f},
+			{0.f,        0.f,       0.f, 1.f}
+		};
+	}
+
+	mat4 translate(const vec3& position) {
+		mat4 m = {};
+		m.x.w = position.x;
+		m.y.w = position.y;
+		m.z.w = position.z;
+		return m;
+	}
+
+	mat4 scale(const vec3& size) {
+		mat4 m = {};
+		m.x.x = size.x;
+		m.y.y = size.y;
+		m.z.z = size.z;
+		return m;
+	}
+
+	mat4 transpose(const mat4& m) {
+		return mat4{
+			{m.x.x, m.y.x, m.z.x, m.w.x},
+			{m.x.y, m.y.y, m.z.y, m.w.y},
+			{m.x.z, m.y.z, m.z.z, m.w.z},
+			{m.x.w, m.y.w, m.z.w, m.w.w}
+		};
 	}
 }
 
