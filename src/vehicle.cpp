@@ -2,22 +2,25 @@
 
 namespace simulation {
 
-	Vehicle::Vehicle(const Sensor& sl, const Sensor& sr, const vec2& position, const vec2& size, float rotation, 
-		float speed, float turning_force)
+	Vehicle::Vehicle(const vec2& position, const vec2& size, float rotation, float speed, float turning_force)
 		: position(position), size(size), rotation(rotation), speed(speed), turning_force(turning_force), 
 		velocity(0.f), acceleration(0.f) 
 	{
-		left_sensor.attribs.colour = sl.attribs.colour;
-		left_sensor.attribs.end = sl.attribs.end;
-		left_sensor.attribs.position = sl.attribs.position;
-		left_sensor.attribs.radius = sl.attribs.radius;
-		left_sensor.attribs.start = sl.attribs.start;
+		left_sensor = {{
+			{0.f, 0.f, 1.f, 1.f},             // Colour
+			position + vec2{0.f, 50.f},       // Position
+			{1.f, 1.f},                       // Heading
+			{60.f},                           // Angle
+			{256.f},                          // Radius
+		}};
 
-		right_sensor.attribs.colour = sr.attribs.colour;
-		right_sensor.attribs.end = sr.attribs.end;
-		right_sensor.attribs.position = sr.attribs.position;
-		right_sensor.attribs.radius = sr.attribs.radius;
-		right_sensor.attribs.start = sr.attribs.start;
+		right_sensor = {{
+			{1.f, 0.f, 0.f, 1.f},             // Colour
+			position + vec2{0.f, -50.f},      // Position
+			{1.f, -1.f},                       // Heading
+			{60.f},                           // Angle
+			{256.f},                          // Radius
+		}};
 	}
 
 	void Vehicle::init() {
@@ -61,7 +64,7 @@ namespace simulation {
 
 		mat4 s = scale({size.x, size.y, 0.f});
 		mat4 t = transpose(translate({position.x, position.y, 0.f}));
-		mat4 r = rotate(rotation);
+		mat4 r = rotate(45.f);
 		mat4 m = mult(mult(s, r), t);
 
 		shader.set_uniform("model", m);
@@ -98,7 +101,15 @@ namespace simulation {
 			position.x += speed;
 		}
 
-		left_sensor.attribs.position.x = position.x;
-		right_sensor.attribs.position.x = position.x;
+		vec2 vehicle_to_left_sensor = {0, 50.f};
+		vec2 vehicle_to_right_sensor = {0, -50.f};
+
+		mat4 r = rotate(45.f);
+
+		vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
+		vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
+
+		left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
+		right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
 	}
 }

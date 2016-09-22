@@ -5,9 +5,8 @@
 
 namespace simulation {
 	struct Vehicle : Drawable {
-		Vehicle() {}
-		Vehicle(const Sensor& sl, const Sensor& sr, const vec2& position = vec2{1.f}, const vec2& size = vec2{1.f}, 
-			float rotation = 0.f, float speed = 1.f, float turning_force = 1.f);
+		Vehicle(const vec2& position = vec2{1.f}, const vec2& size = vec2{1.f}, float rotation = 0.f, 
+			float speed = 1.f, float turning_force = 1.f);
 
 		void move();
 		bool test_sensor_activity(const Sensor& s);

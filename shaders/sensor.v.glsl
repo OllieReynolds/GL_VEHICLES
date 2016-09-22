@@ -1,14 +1,14 @@
 #version 450
 
-layout(std140) uniform Sectors{
-	vec4 colour;
-	vec2 position;
-	vec2 start;
-	vec2 end;
-	float radius;
-} sector;
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 uv_coord;
 
+out vec2 uv;
+
+uniform mat4 model;
+uniform mat4 projection;
 
 void main() {
-	gl_Position = vec4(sector.position, 0.0, 1.0);
+	gl_Position = projection * model * vec4(position, 0.0, 1.0);
+	uv = uv_coord;
 };

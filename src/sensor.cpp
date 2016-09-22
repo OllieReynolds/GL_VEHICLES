@@ -30,20 +30,31 @@ namespace simulation {
 	{
 		shader = {
 			"shaders/sensor.v.glsl",
-			"shaders/sensor.f.glsl",
-			"shaders/sensor.g.glsl"
+			"shaders/sensor.f.glsl"
 		};
+
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
 
 		glGenBuffers(1, &gl_buffer_object);
-		glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_object);
+		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(Sensor_Attribs), &attribs, GL_STATIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, bind_index, gl_buffer_object);
-		glUniformBlockBinding(shader.program, glGetUniformBlockIndex(shader.program, "Sectors"), bind_index);
-		bind_index++;
+		vec4 points[4] = {
+			{-0.5f, -0.5f, 0.f, 0.f},
+			{-0.5f,  0.5f, 0.f, 1.f},
+			{0.5f, -0.5f, 1.f, 0.f},
+			{0.5f,  0.5f, 1.f, 1.f}
+		};
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), (GLvoid*)(sizeof(float) * 2));
 	}
 
 	void Sensor::update(const maths::vec2& cursor_pos) 
@@ -53,20 +64,23 @@ namespace simulation {
 
 	void Sensor::draw() 
 	{
-		bind_index = 0;
-
 		shader.use();
 		glBindVertexArray(gl_array_object);
-		glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_object);
+		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(Sensor_Attribs), &attribs, GL_STATIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, bind_index, gl_buffer_object);
-		glUniformBlockBinding(shader.program, glGetUniformBlockIndex(shader.program, "Sectors"), bind_index);
-		bind_index++;
+		shader.set_uniform("start", attribs.start);
+		shader.set_uniform("end", attribs.end);
+		shader.set_uniform("radius", attribs.radius);
+		shader.set_uniform("colour", attribs.colour);
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+		mat4 s = scale({attribs.radius * 2.f, attribs.radius * 2.f, 0.f});
+		mat4 t = transpose(translate({attribs.position.x, attribs.position.y, 0.f}));
+		mat4 r = rotate(0.f);
+		mat4 m = mult(mult(s, r), t);
 
-		glDrawArrays(GL_POINTS, 0, 1);
+		shader.set_uniform("model", m);
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
 	void Sensor::destroy() 

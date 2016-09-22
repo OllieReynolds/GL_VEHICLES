@@ -17,28 +17,10 @@ namespace simulation {
 			 0.f                       // Rotation
 		 };
 
-		 Sensor sl = {{
-			{0.f, 0.f, 1.f, 1.f}, // Colour
-			{140.f, 600.f},       // Position
-			{1.f, 0.f},           // Heading
-			{60.f},               // Angle
-			{256.f},              // Radius
-		 }};
-
-		Sensor sr = {{
-			{1.f, 0.f, 0.f, 1.f}, // Colour
-			{140.f, 500.f},       // Position
-			{1.f, 0.f},           // Heading
-			{60.f},               // Angle
-			{256.f},              // Radius
-		}};
-
 		vehicle = {
-			sl,
-			sr,
 			{100.f, 550.f},       // Position
 			{100.f, 100.f},       // Size
-			0.f,                  // Rotation
+			0.f,                 // Rotation
 			0.1f,                 // Speed
 			0.002f                // Turning force
 		};

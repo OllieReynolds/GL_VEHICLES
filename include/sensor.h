@@ -43,6 +43,5 @@ namespace simulation {
 
 	private:
 		static GLuint bind_index;
-		
 	};
 }
