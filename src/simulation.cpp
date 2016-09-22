@@ -20,7 +20,7 @@ namespace simulation {
 		vehicle = {
 			{100.f, 550.f},       // Position
 			{100.f, 100.f},       // Size
-			0.f,                 // Rotation
+			45.f,                 // Rotation
 			0.1f,                 // Speed
 			0.002f                // Turning force
 		};
@@ -36,6 +36,7 @@ namespace simulation {
 
 	void update() {
 		vehicle.set_obstacle_ptr(obstacle);
+
 		vehicle.update(cursor_position);
 		obstacle.update(cursor_position);
 	}

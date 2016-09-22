@@ -5,8 +5,6 @@
 namespace simulation {
 	const float PI = 3.14159265358979f;
 
-	GLuint Sensor::bind_index = 0;
-
 	Sensor_Attribs::Sensor_Attribs() 
 	{
 	}
@@ -14,7 +12,7 @@ namespace simulation {
 	Sensor_Attribs::Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, 
 		float theta, float radius) : colour(colour), position(position), radius(radius) 
 	{
-		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
+		float heading_angle = 45.f + atan2(heading.y, heading.x) * 180.f / PI;
 
 		float start_arm_angle_deg = heading_angle - theta * 0.5f;
 		float end_arm_angle_deg = heading_angle + theta * 0.5f;
@@ -24,6 +22,16 @@ namespace simulation {
 
 		start = {cos(start_arm_angle_rad), sin(start_arm_angle_rad)};
 		end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
+	}
+
+	void Sensor_Attribs::update_beam_headings(float rotation) {
+		mat4 m = rotate(rotation);
+
+		vec4 s_ = mult(m, vec4{start.x, start.y, 0.f, 1.f});
+		vec4 e_ = mult(m, vec4{end.x, end.y, 0.f, 1.f});
+
+		start = vec2{s_.x, s_.y};
+		end = vec2{e_.x, e_.y};
 	}
 
 	void Sensor::init() 
@@ -89,4 +97,6 @@ namespace simulation {
 		glDeleteVertexArrays(1, &gl_array_object);
 		shader.destroy();
 	}
+
+	
 }

@@ -10,10 +10,11 @@ namespace simulation {
 	
 	extern const float PI;
 
-
 	struct Sensor_Attribs {
 		Sensor_Attribs();
 		Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, float theta, float radius);
+
+		void update_beam_headings(float rotation);
 
 		vec4 colour;
 		vec2 position;
@@ -38,10 +39,6 @@ namespace simulation {
 		void draw();
 		void destroy();
 
-
 		Sensor_Attribs attribs;
-
-	private:
-		static GLuint bind_index;
 	};
 }

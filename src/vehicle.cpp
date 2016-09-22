@@ -50,6 +50,8 @@ namespace simulation {
 
 		right_sensor.init();
 		left_sensor.init();
+
+		
 		
 	}
 
@@ -64,7 +66,7 @@ namespace simulation {
 
 		mat4 s = scale({size.x, size.y, 0.f});
 		mat4 t = transpose(translate({position.x, position.y, 0.f}));
-		mat4 r = rotate(45.f);
+		mat4 r = rotate(rotation);
 		mat4 m = mult(mult(s, r), t);
 
 		shader.set_uniform("model", m);
@@ -73,7 +75,6 @@ namespace simulation {
 
 		left_sensor.draw();
 		right_sensor.draw();
-		
 	}
 
 	void Vehicle::destroy() {
@@ -94,22 +95,44 @@ namespace simulation {
 	void Vehicle::move() {
 
 		if (test_sensor_activity(left_sensor)) {
-			position.x += speed;
+			position.x -= speed;
+			rotation -= 0.1f;
+
+			vec2 vehicle_to_left_sensor = {0, 20.f};
+			vec2 vehicle_to_right_sensor = {0, -20.f};
+
+			mat4 r = rotate(-rotation);
+
+			vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
+			vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
+
+			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
+			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
+
+			left_sensor.attribs.update_beam_headings(0.1f);
+			right_sensor.attribs.update_beam_headings(0.1f);
 		}
 
 		if (test_sensor_activity(right_sensor)) {
 			position.x += speed;
+			rotation += 0.1f;
+
+			vec2 vehicle_to_left_sensor = {0, 20.f};
+			vec2 vehicle_to_right_sensor = {0, -20.f};
+
+			mat4 r = rotate(-rotation);
+
+			vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
+			vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
+
+			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
+			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
+
+			left_sensor.attribs.update_beam_headings(-0.1f);
+			right_sensor.attribs.update_beam_headings(-0.1f);
 		}
 
-		vec2 vehicle_to_left_sensor = {0, 50.f};
-		vec2 vehicle_to_right_sensor = {0, -50.f};
+		
 
-		mat4 r = rotate(45.f);
-
-		vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
-		vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
-
-		left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
-		right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
 	}
 }
