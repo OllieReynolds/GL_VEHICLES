@@ -28,13 +28,12 @@ namespace utils {
 
 		GLuint program;
 
+		GLint uniform_handle(const char* name);
 
 	private:
-		GLint uniform_handle(const char* name);
+	
 		std::string load_source(const char* filename);
 		void compile(GLuint shader, const char* src);
 		void link();
-
-		
 	};
 }

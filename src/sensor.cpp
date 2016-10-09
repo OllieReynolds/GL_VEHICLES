@@ -12,7 +12,7 @@ namespace simulation {
 	Sensor_Attribs::Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, 
 		float theta, float radius) : colour(colour), position(position), radius(radius) 
 	{
-		float heading_angle = 45.f + atan2(heading.y, heading.x) * 180.f / PI;
+		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
 
 		float start_arm_angle_deg = heading_angle - theta * 0.5f;
 		float end_arm_angle_deg = heading_angle + theta * 0.5f;
@@ -26,6 +26,7 @@ namespace simulation {
 
 	void Sensor_Attribs::update_beam_headings(float rotation) {
 		mat4 m = rotate(rotation);
+
 
 		vec4 s_ = mult(m, vec4{start.x, start.y, 0.f, 1.f});
 		vec4 e_ = mult(m, vec4{end.x, end.y, 0.f, 1.f});
@@ -89,6 +90,9 @@ namespace simulation {
 		shader.set_uniform("model", m);
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+		shader.release();
 	}
 
 	void Sensor::destroy() 

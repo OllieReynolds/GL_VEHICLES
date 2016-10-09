@@ -5,6 +5,7 @@
 
 #include "maths.h"
 #include "obstacle.h"
+#include "text.h"
 #include "vehicle.h"
 
 using namespace maths;
@@ -15,13 +16,18 @@ namespace simulation {
 	void update();
 	void draw();
 	void destroy();
-
+	
+	// General Settings
+	extern vec2 cursor_position;
 	extern vec2 resolution;
 	extern vec2 near_far;
 	extern mat4 resolution_matrix;
-	extern vec2 cursor_position;
-
-	extern Vehicle vehicle;
+	
+	// Simulation components
 	extern Obstacle obstacle;
+	extern Vehicle vehicle;
+
+	// GUI components
+	extern Text text;
 }
 

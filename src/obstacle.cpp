@@ -53,6 +53,9 @@ namespace simulation {
 		shader.set_uniform("model", m);
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		shader.release();
+		glBindVertexArray(0);
 	}
 
 	void Obstacle::destroy() {

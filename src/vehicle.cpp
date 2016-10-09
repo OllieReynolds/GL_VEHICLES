@@ -2,13 +2,14 @@
 
 namespace simulation {
 
-	Vehicle::Vehicle(const vec2& position, const vec2& size, float rotation, float speed, float turning_force)
-		: position(position), size(size), rotation(rotation), speed(speed), turning_force(turning_force), 
-		velocity(0.f), acceleration(0.f) 
+	Vehicle::Vehicle(const vec2& position, const vec2& size, const vec2& sensor_offset, 
+		float rotation, float speed, float turning_force) : 
+		position(position), size(size), sensor_offset(sensor_offset), rotation(rotation), speed(speed),
+		turning_force(turning_force), velocity(0.f), acceleration(0.f) 
 	{
 		left_sensor = {{
-			{0.f, 0.f, 1.f, 1.f},             // Colour
-			position + vec2{0.f, 50.f},       // Position
+			{1.f, 0.f, 0.f, 1.f},             // Colour
+			position + vec2{sensor_offset.x, sensor_offset.y},       // Position
 			{1.f, 1.f},                       // Heading
 			{60.f},                           // Angle
 			{256.f},                          // Radius
@@ -16,7 +17,7 @@ namespace simulation {
 
 		right_sensor = {{
 			{1.f, 0.f, 0.f, 1.f},             // Colour
-			position + vec2{0.f, -50.f},      // Position
+			position + vec2{sensor_offset.x, -sensor_offset.y},      // Position
 			{1.f, -1.f},                       // Heading
 			{60.f},                           // Angle
 			{256.f},                          // Radius
@@ -73,6 +74,10 @@ namespace simulation {
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+		shader.release();
+		glBindVertexArray(0);
+
+		///////////////////////////////////////////////////////////
 		left_sensor.draw();
 		right_sensor.draw();
 	}
@@ -93,43 +98,47 @@ namespace simulation {
 	}
 
 	void Vehicle::move() {
+		const static float speed = 0.00001f;
+		const static float force = 0.1f;
+
+		mat4 r = rotate(-rotation);
+		vec4 ls_p = mult(r, vec4{sensor_offset.x, sensor_offset.y, 0.f, 1.f});
+		vec4 rs_p = mult(r, vec4{sensor_offset.x, -sensor_offset.y, 0.f, 1.f});
 
 		if (test_sensor_activity(left_sensor)) {
-			position.x -= speed;
-			rotation -= 0.1f;
+			
+			vec2 desired_velocity = normalise(obstacle->position - left_sensor.attribs.position) * speed;
+			vec2 steering_force = (desired_velocity - velocity) * force;
+			acceleration += desired_velocity;
+			velocity += acceleration;
+			position += velocity;
+			acceleration = {0.f};
 
-			vec2 vehicle_to_left_sensor = {0, 20.f};
-			vec2 vehicle_to_right_sensor = {0, -20.f};
+			rotation -= force;
 
-			mat4 r = rotate(-rotation);
-
-			vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
-			vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
 
 			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
 			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
 
-			left_sensor.attribs.update_beam_headings(0.1f);
-			right_sensor.attribs.update_beam_headings(0.1f);
+			left_sensor.attribs.update_beam_headings(force);
+			right_sensor.attribs.update_beam_headings(force);
 		}
 
 		if (test_sensor_activity(right_sensor)) {
-			position.x += speed;
-			rotation += 0.1f;
+			vec2 desired_velocity = normalise(obstacle->position - right_sensor.attribs.position) * speed;
+			vec2 steering_force = (desired_velocity - velocity) * force;
+			acceleration += desired_velocity;
+			velocity += acceleration;
+			position += velocity;
+			acceleration = {0.f};
 
-			vec2 vehicle_to_left_sensor = {0, 20.f};
-			vec2 vehicle_to_right_sensor = {0, -20.f};
-
-			mat4 r = rotate(-rotation);
-
-			vec4 ls_p = mult(r, vec4{vehicle_to_left_sensor.x, vehicle_to_left_sensor.y, 0.f, 1.f});
-			vec4 rs_p = mult(r, vec4{vehicle_to_right_sensor.x, vehicle_to_right_sensor.y, 0.f, 1.f});
+			rotation += force;
 
 			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
 			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
 
-			left_sensor.attribs.update_beam_headings(-0.1f);
-			right_sensor.attribs.update_beam_headings(-0.1f);
+			left_sensor.attribs.update_beam_headings(-force);
+			right_sensor.attribs.update_beam_headings(-force);
 		}
 
 		
