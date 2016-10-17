@@ -30,7 +30,7 @@ namespace simulation {
 			"shaders/default.f.glsl",
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -51,12 +51,11 @@ namespace simulation {
 
 		right_sensor.init();
 		left_sensor.init();
-
-		
-		
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
+		left_sensor.update(cursor_pos);
+		right_sensor.update(cursor_pos);
 		move();
 	}
 
@@ -98,50 +97,13 @@ namespace simulation {
 	}
 
 	void Vehicle::move() {
-		const static float speed = 0.00001f;
-		const static float force = 0.1f;
-
-		mat4 r = rotate(-rotation);
-		vec4 ls_p = mult(r, vec4{sensor_offset.x, sensor_offset.y, 0.f, 1.f});
-		vec4 rs_p = mult(r, vec4{sensor_offset.x, -sensor_offset.y, 0.f, 1.f});
 
 		if (test_sensor_activity(left_sensor)) {
 			
-			vec2 desired_velocity = normalise(obstacle->position - left_sensor.attribs.position) * speed;
-			vec2 steering_force = (desired_velocity - velocity) * force;
-			acceleration += desired_velocity;
-			velocity += acceleration;
-			position += velocity;
-			acceleration = {0.f};
-
-			rotation -= force;
-
-
-			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
-			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
-
-			left_sensor.attribs.update_beam_headings(force);
-			right_sensor.attribs.update_beam_headings(force);
 		}
 
 		if (test_sensor_activity(right_sensor)) {
-			vec2 desired_velocity = normalise(obstacle->position - right_sensor.attribs.position) * speed;
-			vec2 steering_force = (desired_velocity - velocity) * force;
-			acceleration += desired_velocity;
-			velocity += acceleration;
-			position += velocity;
-			acceleration = {0.f};
-
-			rotation += force;
-
-			left_sensor.attribs.position = position + vec2{ls_p.x, ls_p.y};
-			right_sensor.attribs.position = position + vec2{rs_p.x, rs_p.y};
-
-			left_sensor.attribs.update_beam_headings(-force);
-			right_sensor.attribs.update_beam_headings(-force);
+			
 		}
-
-		
-
 	}
 }

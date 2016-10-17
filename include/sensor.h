@@ -4,6 +4,7 @@
 
 #include "drawable.h"
 #include "maths.h"
+#include "utils.h"
 
 namespace simulation {
 	using namespace maths;
@@ -14,7 +15,7 @@ namespace simulation {
 		Sensor_Attribs();
 		Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, float theta, float radius);
 
-		void update_beam_headings(float rotation);
+		void update_beam_headings(const mat4& model);
 
 		vec4 colour;
 		vec2 position;
@@ -40,5 +41,6 @@ namespace simulation {
 		void destroy();
 
 		Sensor_Attribs attribs;
+		mat4 model_matrix;
 	};
 }

@@ -3,6 +3,7 @@
 #include <glew.h>
 #include <glfw3.h>
 
+#include "boundary.h"
 #include "maths.h"
 #include "obstacle.h"
 #include "text.h"
@@ -24,6 +25,7 @@ namespace simulation {
 	extern mat4 resolution_matrix;
 	
 	// Simulation components
+	extern Boundary boundary;
 	extern Obstacle obstacle;
 	extern Vehicle vehicle;
 

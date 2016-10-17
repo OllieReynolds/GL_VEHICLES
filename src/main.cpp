@@ -43,7 +43,8 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
+	// Make this available to all classes
+	GLFWwindow* window = glfwCreateWindow(1366, 1000, "Vehicles", NULL, NULL);
 
 	if (!window) {
 		glfwTerminate();
@@ -53,6 +54,7 @@ int main() {
 
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, &cursor_position_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		
 	// Glew
 	glewExperimental = GL_TRUE;

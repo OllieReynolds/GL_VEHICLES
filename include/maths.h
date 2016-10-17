@@ -55,6 +55,8 @@ namespace maths {
 		vec3(const float v) : n{v, v, v} {}
 		vec3(const float x, const float y, const float z) : n{x, y, z} {}
 		
+		vec2 XY() { return vec2{x, y}; }
+
 		vec3& operator  = (const vec3& v) { x  = v.x; y  = v.y; z  = v.z; return *this; }
 		vec3& operator += (const vec3& v) { x += v.x; y += v.y; z += v.z; return *this; }
 		vec3& operator -= (const vec3& v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
@@ -93,6 +95,9 @@ namespace maths {
 		vec4(const float v) : n{v, v, v, v} {}
 		vec4(const float x, const float y, const float z, const float w) : n{x, y, z, w} {}
 
+		vec2 XY() { return vec2{x, y}; }
+		vec3 XYZ() { return vec3(x, y, z); }
+
 		vec4& operator  = (const vec4& v) { x = v.x; y = v.y; z = v.z; w = v.w; return *this; }
 		vec4& operator += (const vec4& v) { x += v.x; y += v.y; z += v.z; w += v.w; return *this; }
 		vec4& operator -= (const vec4& v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w; return *this; }
@@ -127,7 +132,6 @@ namespace maths {
 		};
 	};
 
-	// Types for 2D and 3D Matrix
 	class mat4 {
 	public:
 		mat4() : n{{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0},{0, 0, 0, 1}} {}
@@ -171,7 +175,6 @@ namespace maths {
 
 	vec3 cross_product(const vec3& a, const vec3& b);
 
-	// Make this work for 2d Matrix
 	float determinant(const vec2& a, const vec2& b);
 
 	float distance(const vec2& a, const vec2& b);

@@ -6,6 +6,7 @@ namespace simulation {
 	mat4 resolution_matrix;
 	vec2 cursor_position;
 
+	Boundary boundary;
 	Obstacle obstacle;
 	Vehicle vehicle;
 
@@ -13,12 +14,17 @@ namespace simulation {
 
 	void init() {
 		cursor_position   = vec2{0.f, 0.f};
-		resolution        = vec2{1366.f, 768.f};
+		resolution        = vec2{1366.f, 1000.f};
 		near_far          = vec2{-1.f, 1.f};
 		resolution_matrix = orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
 
+		boundary = Boundary{
+			resolution / 2.f,         // Position
+			resolution - 64.f         // Size
+		};
+
 		obstacle = Obstacle{
-			vec4{1.f, 1.f, 1.f, 1.f}, // Colour
+			vec4{0.f, 1.f, 1.f, 1.f}, // Colour
 			vec2{600.f, 450},         // Position
 			vec2{32.f, 32.f},         // Size
 			0.f                       // Rotation
@@ -33,15 +39,19 @@ namespace simulation {
 			0.002f                    // Turning force
 		};
 
-		text = Text{64};
+		text = Text{
+			32                        // Size
+		};
 	
-
-		vehicle.init();
+		boundary.init();
 		obstacle.init();
+		vehicle.init();
 		text.init_text();
 	}
 
 	void update() {
+		boundary.update(cursor_position);
+
 		obstacle.update(cursor_position);
 
 		vehicle.set_obstacle_ptr(obstacle);
@@ -49,10 +59,15 @@ namespace simulation {
 	}
 
 	void draw() {
+		boundary.draw();
+
 		obstacle.draw();
 
 		vehicle.draw();
 
+		text.draw_text("ACTIVE CURSOR: OBSTACLE", vec2(10.f, 214.f));
+		text.draw_text("LEFT SENSOR: SEEKING", vec2(10.f, 144.f));
+		text.draw_text("RIGHT SENSOR: SEEKING", vec2(10.f, 74.f));
 		text.draw_text("ACTIVE VEHICLE: EXCITORY", vec2{10.f, 10.f});
 	}
 

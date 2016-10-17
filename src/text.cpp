@@ -60,7 +60,7 @@ namespace simulation {
 			};
 
 			shader.set_uniform("colour", vec3(1.f, 1.f, 1.f));
-			shader.set_uniform("projection", orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, mat4()));
+			shader.set_uniform("projection", orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, mat4()));
 		}
 	}
 

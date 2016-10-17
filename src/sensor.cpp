@@ -24,15 +24,9 @@ namespace simulation {
 		end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
 	}
 
-	void Sensor_Attribs::update_beam_headings(float rotation) {
-		mat4 m = rotate(rotation);
-
-
-		vec4 s_ = mult(m, vec4{start.x, start.y, 0.f, 1.f});
-		vec4 e_ = mult(m, vec4{end.x, end.y, 0.f, 1.f});
-
-		start = vec2{s_.x, s_.y};
-		end = vec2{e_.x, e_.y};
+	void Sensor_Attribs::update_beam_headings(const mat4& model) {
+		start = mult(model, vec4{start.x, start.y, 0.f, 1.f}).XY();
+		end= mult(model, vec4{end.x, end.y, 0.f, 1.f}).XY();
 	}
 
 	void Sensor::init() 
@@ -42,7 +36,7 @@ namespace simulation {
 			"shaders/sensor.f.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -68,7 +62,7 @@ namespace simulation {
 
 	void Sensor::update(const maths::vec2& cursor_pos) 
 	{
-
+		
 	}
 
 	void Sensor::draw() 
