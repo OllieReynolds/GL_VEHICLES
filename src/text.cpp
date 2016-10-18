@@ -8,7 +8,7 @@ namespace simulation {
 			FT_Face ff;
 
 			FT_Init_FreeType(&ft_lib);
-			FT_New_Face(ft_lib, "data/NotoSans-Regular.ttf", 0, &ff);
+			FT_New_Face(ft_lib, font.c_str(), 0, &ff);
 			FT_Set_Pixel_Sizes(ff, 0, pixel_size);
 
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -59,14 +59,15 @@ namespace simulation {
 				"shaders/text.f.glsl"
 			};
 
-			shader.set_uniform("colour", vec3(1.f, 1.f, 1.f));
-			shader.set_uniform("projection", orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, mat4()));
+			shader.set_uniform("colour", vec4(1.f, 1.f, 1.f, 1.f));
+			shader.set_uniform("projection", orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, mat4()));
 		}
 	}
 
 
 	void Text::draw_text(const std::string& msg, const vec2& position) {
 		shader.use();
+		shader.set_uniform("colour", colour);
 
 		glBindVertexArray(vao);
 

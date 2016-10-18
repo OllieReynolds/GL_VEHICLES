@@ -1,33 +1,7 @@
 #include "..\include\sensor.h"
 
-// Revise bracket style across project
-
 namespace simulation {
 	const float PI = 3.14159265358979f;
-
-	Sensor_Attribs::Sensor_Attribs() 
-	{
-	}
-
-	Sensor_Attribs::Sensor_Attribs(const vec4& colour, const vec2& position, const vec2& heading, 
-		float theta, float radius) : colour(colour), position(position), radius(radius) 
-	{
-		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
-
-		float start_arm_angle_deg = heading_angle - theta * 0.5f;
-		float end_arm_angle_deg = heading_angle + theta * 0.5f;
-
-		float start_arm_angle_rad = start_arm_angle_deg * PI / 180.f;
-		float end_arm_angle_rad = end_arm_angle_deg * PI / 180.f;
-
-		start = {cos(start_arm_angle_rad), sin(start_arm_angle_rad)};
-		end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
-	}
-
-	void Sensor_Attribs::update_beam_headings(const mat4& model) {
-		start = mult(model, vec4{start.x, start.y, 0.f, 1.f}).XY();
-		end= mult(model, vec4{end.x, end.y, 0.f, 1.f}).XY();
-	}
 
 	void Sensor::init() 
 	{
@@ -36,7 +10,7 @@ namespace simulation {
 			"shaders/sensor.f.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -62,26 +36,60 @@ namespace simulation {
 
 	void Sensor::update(const maths::vec2& cursor_pos) 
 	{
-		
+		scan(cursor_pos);
 	}
 
-	void Sensor::draw() 
-	{
+	void Sensor::scan(const maths::vec2& position) {
+		
+		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
+
+		bool test_intersect_of_point = point_segment_intersect(
+			position,
+			arms_AB.first,
+			transform.position,
+			arms_AB.second,
+			transform.size.x * 0.5f
+		);
+
+		detected_object = test_intersect_of_point;
+	}
+
+	std::pair<vec2, vec2> Sensor::get_sensor_arms_AB() {
+		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
+
+		float start_arm_angle_deg = heading_angle - angle * 0.5f;
+		float end_arm_angle_deg = heading_angle + angle * 0.5f;
+
+		float start_arm_angle_rad = start_arm_angle_deg * PI / 180.f;
+		float end_arm_angle_rad = end_arm_angle_deg * PI / 180.f;
+
+		vec2 start = {cos(start_arm_angle_rad), sin(start_arm_angle_rad)};
+		vec2 end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
+
+		return std::pair<vec2, vec2>(start, end);
+	}
+
+	void Sensor::draw() {
 		shader.use();
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		
-		shader.set_uniform("start", attribs.start);
-		shader.set_uniform("end", attribs.end);
-		shader.set_uniform("radius", attribs.radius);
-		shader.set_uniform("colour", attribs.colour);
+		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
 
-		mat4 s = scale({attribs.radius * 2.f, attribs.radius * 2.f, 0.f});
-		mat4 t = transpose(translate({attribs.position.x, attribs.position.y, 0.f}));
+		shader.set_uniform("start", arms_AB.first);
+		shader.set_uniform("end", arms_AB.second);
+		shader.set_uniform("radius", transform.size.x * 0.5f);
+		shader.set_uniform("colour", colour);
+		shader.set_uniform("time", utils::elapsed_time());
+
+		mat4 s = scale({transform.size.x * 2.f, transform.size.y * 2.f * 2.f, 0.f});
+		mat4 t = transpose(translate({transform.position, 0.f}));
 		mat4 r = rotate(0.f);
 		mat4 m = mult(mult(s, r), t);
 
-		shader.set_uniform("model", m);
+		parent_model = mult(parent_model, m);
+
+		shader.set_uniform("model", parent_model);
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

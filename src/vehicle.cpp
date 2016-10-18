@@ -1,36 +1,13 @@
 #include "..\include\vehicle.h"
 
 namespace simulation {
-
-	Vehicle::Vehicle(const vec2& position, const vec2& size, const vec2& sensor_offset, 
-		float rotation, float speed, float turning_force) : 
-		position(position), size(size), sensor_offset(sensor_offset), rotation(rotation), speed(speed),
-		turning_force(turning_force), velocity(0.f), acceleration(0.f) 
-	{
-		left_sensor = {{
-			{1.f, 0.f, 0.f, 1.f},             // Colour
-			position + vec2{sensor_offset.x, sensor_offset.y},       // Position
-			{1.f, 1.f},                       // Heading
-			{60.f},                           // Angle
-			{256.f},                          // Radius
-		}};
-
-		right_sensor = {{
-			{1.f, 0.f, 0.f, 1.f},             // Colour
-			position + vec2{sensor_offset.x, -sensor_offset.y},      // Position
-			{1.f, -1.f},                       // Heading
-			{60.f},                           // Angle
-			{256.f},                          // Radius
-		}};
-	}
-
 	void Vehicle::init() {
 		shader = {
 			"shaders/default.v.glsl",
 			"shaders/default.f.glsl",
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -53,20 +30,16 @@ namespace simulation {
 		left_sensor.init();
 	}
 
-	void Vehicle::update(const maths::vec2& cursor_pos) {
-		left_sensor.update(cursor_pos);
-		right_sensor.update(cursor_pos);
-		move();
-	}
+	
 
 	void Vehicle::draw() {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		shader.use();
 
-		mat4 s = scale({size.x, size.y, 0.f});
-		mat4 t = transpose(translate({position.x, position.y, 0.f}));
-		mat4 r = rotate(rotation);
+		mat4 s = scale({transform.size, 0.f});
+		mat4 t = transpose(translate({transform.position, 0.f}));
+		mat4 r = rotate(transform.rotation);
 		mat4 m = mult(mult(s, r), t);
 
 		shader.set_uniform("model", m);
@@ -77,7 +50,10 @@ namespace simulation {
 		glBindVertexArray(0);
 
 		///////////////////////////////////////////////////////////
+		left_sensor.parent_model = m;
 		left_sensor.draw();
+		
+		right_sensor.parent_model = m;
 		right_sensor.draw();
 	}
 
@@ -90,20 +66,29 @@ namespace simulation {
 		right_sensor.destroy();
 	}
 
+	void Vehicle::update(const maths::vec2& cursor_pos) {
+		left_sensor.update(cursor_pos);
+		right_sensor.update(cursor_pos);
 
-
-	bool Vehicle::test_sensor_activity(const Sensor& s) {
-		return (maths::point_segment_intersect(obstacle->position, s.attribs.start, s.attribs.position, s.attribs.end, s.attribs.radius));
+		move();
 	}
 
 	void Vehicle::move() {
+		velocity = {cos(transform.rotation), sin(transform.rotation)};
 
-		if (test_sensor_activity(left_sensor)) {
-			
-		}
+		/*position += velocity;
+		left_sensor.attribs.position += velocity;
+		right_sensor.attribs.position += velocity;*/
+	}
 
-		if (test_sensor_activity(right_sensor)) {
-			
-		}
+	std::vector<std::string> Vehicle::string_attribs() {
+		std::vector<std::string> attribs;
+
+		attribs.push_back("     ROTATION: " + std::to_string(transform.rotation));
+		attribs.push_back("TURNING FORCE: " + std::to_string(turning_force));
+		attribs.push_back("     VELOCITY: " + to_string(velocity));
+		attribs.push_back(" ACCELERATION: " + to_string(acceleration));
+
+		return attribs;
 	}
 }

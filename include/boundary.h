@@ -9,19 +9,17 @@ namespace simulation {
 
 	class Boundary : public Drawable {
 	public:
-		Boundary();
-		Boundary(const vec2& pos, const vec2& sz);
+		Boundary()
+			: Drawable(Transform(), 0.f) { }
+
+		Boundary(const Transform& transform, const vec4& colour)
+			: Drawable(transform, colour) { }
+
+		~Boundary() { }
 
 		void init();
 		void update(const maths::vec2& cursor_pos);
 		void draw();
 		void destroy();
-
-		
-
-	private:
-		vec2 position;
-		vec2 size;
-		
 	};
 }

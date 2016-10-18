@@ -1,20 +1,13 @@
 #include "..\include\obstacle.h"
 
 namespace simulation {
-	Obstacle::Obstacle(const vec4& colour, const vec2& position, const vec2& size, const float rotation) : 
-		colour(colour), position(position), size(size), rotation(rotation)
-	{
-
-	}
-
-
 	void Obstacle::init() {
 		shader = {
 			"shaders/obstacle.v.glsl",
 			"shaders/obstacle.f.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -45,9 +38,9 @@ namespace simulation {
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		shader.use();
 
-		mat4 s = scale({size.x, size.y, 0.f});
-		mat4 t = transpose(translate({position.x, position.y, 0.f}));
-		mat4 r = rotate(rotation);
+		mat4 s = scale(vec3{transform.size, 0.f});
+		mat4 t = transpose(translate(vec3{transform.position, 0.f}));
+		mat4 r = rotate(transform.rotation);
 		mat4 m = mult(mult(s, r), t);
 
 		shader.set_uniform("model", m);
@@ -67,6 +60,6 @@ namespace simulation {
 
 
 	void Obstacle::move(const vec2& cursor_position) {
-		position = cursor_position;
+		transform.position = cursor_position;
 	}
 }

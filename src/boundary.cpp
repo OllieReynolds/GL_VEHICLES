@@ -1,20 +1,13 @@
 #include "..\include\boundary.h"
 
 namespace simulation {
-
-	Boundary::Boundary() :
-	    position(0.f), size(0.f) { }
-
-	Boundary::Boundary(const vec2& pos, const vec2& sz) :
-		position(pos), size(sz) { }
-
 	void Boundary::init() {
 		shader = {
 			"shaders/boundary.v.glsl",
 			"shaders/boundary.f.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 1000.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		glGenVertexArrays(1, &gl_array_object);
 		glBindVertexArray(gl_array_object);
@@ -23,11 +16,13 @@ namespace simulation {
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
 		vec2 points[4] = {
-			{-0.5f,  0.5f},
 			{-0.5f, -0.5f},
-			{ 0.5f, -0.5f},
-			{ 0.5f,  0.5f}
+			{-0.5f,  0.5f},
+			{ 0.5f,  0.5f},
+		    { 0.5f, -0.5f}
 		};
+
+		
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * 4, &points, GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -43,12 +38,17 @@ namespace simulation {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
-		mat4 s = scale({size.x, size.y, 0.f});
-		mat4 t = transpose(translate({position.x, position.y, 0.f}));
+		mat4 s = scale({transform.size, 0.f});
+		mat4 t = transpose(translate({transform.position, 0.f}));
 		mat4 m = mult(s, t);
 		shader.set_uniform("model", m);
 
+		shader.set_uniform("uniform_colour", colour);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+		shader.set_uniform("uniform_colour", vec4{1.f, 1.f, 1.f, 0.3f});
 		glDrawArrays(GL_LINE_LOOP, 0, 4);
+
 
 		glBindVertexArray(0);
 		shader.release();

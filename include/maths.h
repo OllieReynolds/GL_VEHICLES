@@ -40,6 +40,10 @@ namespace maths {
 			return os; 
 		}
 
+		friend std::string to_string(const vec2& v) {
+			return std::to_string(v.x) + ", " + std::to_string(v.y);
+		}
+
 		union {
 			float n[2];
 			struct {
@@ -54,6 +58,7 @@ namespace maths {
 		vec3() : n{0.f, 0.f, 0.f} {}
 		vec3(const float v) : n{v, v, v} {}
 		vec3(const float x, const float y, const float z) : n{x, y, z} {}
+		vec3(const vec2& v, const float z) : n{v.x, v.y, z} {}
 		
 		vec2 XY() { return vec2{x, y}; }
 
@@ -161,6 +166,8 @@ namespace maths {
 		};
 	};
 
+	float to_degrees(const float rads);
+	float to_radians(const float degs);
 
 	mat4 transpose(const mat4& m);
 
@@ -173,6 +180,7 @@ namespace maths {
 	
 	bool almost_equal(float x, float y, float error_factor);
 
+	vec2 cross_product(const vec2& a, const vec2& b);
 	vec3 cross_product(const vec3& a, const vec3& b);
 
 	float determinant(const vec2& a, const vec2& b);

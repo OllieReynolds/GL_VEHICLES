@@ -46,6 +46,12 @@ namespace maths {
 		return diff < error_factor;
 	}
 
+	vec2 cross_product(const vec2& a, const vec2& b) {
+		return{
+
+		};
+	}
+
 	vec3 cross_product(const vec3& a, const vec3& b) {
 		return {
 			a.y * b.z - a.z * b.y,
@@ -168,6 +174,15 @@ namespace maths {
 		m.y.y = size.y;
 		m.z.z = size.z;
 		return m;
+	}
+
+	float to_degrees(const float rads) {
+		return rads / 180.f * PI;
+
+	}
+
+	float to_radians(const float degs) {
+		return degs * 180.f / PI;
 	}
 
 	mat4 transpose(const mat4& m) {
