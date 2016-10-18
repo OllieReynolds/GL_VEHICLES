@@ -4,6 +4,9 @@
 Vehicles.vcxproj
 Vehicles.vcxproj.filters
 
+# Data
+*.ttf
+
 # User-specific files
 *.suo
 *.user
