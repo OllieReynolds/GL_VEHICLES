@@ -30,8 +30,6 @@ namespace simulation {
 		left_sensor.init();
 	}
 
-	
-
 	void Vehicle::draw() {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
@@ -50,10 +48,10 @@ namespace simulation {
 		glBindVertexArray(0);
 
 		///////////////////////////////////////////////////////////
-		left_sensor.parent_model = m;
+		left_sensor.parent_transform = transform;
 		left_sensor.draw();
 		
-		right_sensor.parent_model = m;
+		right_sensor.parent_transform = transform;
 		right_sensor.draw();
 	}
 
@@ -74,7 +72,7 @@ namespace simulation {
 	}
 
 	void Vehicle::move() {
-		velocity = {cos(transform.rotation), sin(transform.rotation)};
+		//velocity = {cos(transform.rotation), sin(transform.rotation)};
 
 		/*position += velocity;
 		left_sensor.attribs.position += velocity;

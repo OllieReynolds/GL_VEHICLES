@@ -74,6 +74,18 @@ namespace simulation {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		
+		transform.position = parent_transform.position;
+		transform.rotation = parent_transform.rotation;
+
+		mat4 s = scale(vec3{transform.size, 0.f});
+		mat4 t = transpose(translate(vec3{transform.position, 0.f}));
+		mat4 r = rotate(transform.rotation);
+		mat4 m = mult(mult(s, r), t);
+
+		//parent_model = mult(s, parent_model);
+		shader.set_uniform("model", m);
+
+
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
 
 		shader.set_uniform("start", arms_AB.first);
@@ -82,14 +94,7 @@ namespace simulation {
 		shader.set_uniform("colour", colour);
 		shader.set_uniform("time", utils::elapsed_time());
 
-		mat4 s = scale({transform.size.x * 2.f, transform.size.y * 2.f * 2.f, 0.f});
-		mat4 t = transpose(translate({transform.position, 0.f}));
-		mat4 r = rotate(0.f);
-		mat4 m = mult(mult(s, r), t);
-
-		parent_model = mult(parent_model, m);
-
-		shader.set_uniform("model", parent_model);
+		
 
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
