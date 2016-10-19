@@ -36,6 +36,17 @@ namespace simulation {
 
 	void Sensor::update(const maths::vec2& cursor_pos) 
 	{
+		transform.position = parent_transform.position;
+
+		
+		float d = parent_transform.rotation + transform.rotation;
+		float r = d * PI / 180.f;
+		heading = vec2{cos(r), sin(r)};
+
+		//heading.x = cos(utils::elapsed_time());
+
+		//transform.rotation = atan2(heading.y, heading.x) * 180.f / PI;
+
 		scan(cursor_pos);
 	}
 
@@ -73,14 +84,12 @@ namespace simulation {
 		shader.use();
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
-		
-		transform.position = parent_transform.position;
-		transform.rotation = parent_transform.rotation;
 
 		mat4 s = scale(vec3{transform.size, 0.f});
 		mat4 t = transpose(translate(vec3{transform.position, 0.f}));
-		mat4 r = rotate(transform.rotation);
-		mat4 m = mult(mult(s, r), t);
+		//mat4 r = rotate(transform.rotation);
+		//mat4 m = mult(mult(s, r), t);
+		mat4 m = mult(s, t);
 
 		shader.set_uniform("model", m);
 
