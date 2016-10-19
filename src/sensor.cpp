@@ -1,8 +1,6 @@
 #include "..\include\sensor.h"
 
 namespace simulation {
-	const float PI = 3.14159265358979f;
-
 	void Sensor::init() 
 	{
 		shader = {
@@ -38,21 +36,15 @@ namespace simulation {
 	{
 		transform.position = parent_transform.position;
 
-		
-		float d = parent_transform.rotation + transform.rotation;
-		float r = d * PI / 180.f;
-		heading = vec2{cos(r), sin(r)};
-
-		//heading.x = cos(utils::elapsed_time());
-
-		//transform.rotation = atan2(heading.y, heading.x) * 180.f / PI;
+		float degrees = -(parent_transform.rotation - transform.rotation);
+		heading = polar_to_cartesian(to_radians(degrees));
 
 		scan(cursor_pos);
 	}
 
 	void Sensor::scan(const maths::vec2& position) {
 		
-		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
+		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
 		bool test_intersect_of_point = point_segment_intersect(
 			position,
@@ -65,19 +57,13 @@ namespace simulation {
 		detected_object = test_intersect_of_point;
 	}
 
-	std::pair<vec2, vec2> Sensor::get_sensor_arms_AB() {
-		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
+	std::pair<vec2, vec2> Sensor::get_sensor_arms() {
+		float heading_angle = to_degrees(cartesian_to_polar(heading));
 
-		float start_arm_angle_deg = heading_angle - 50.f * 0.5f;
-		float end_arm_angle_deg = heading_angle + 50.f * 0.5f;
+		float s = to_radians(heading_angle - 30.f);
+		float e = to_radians(heading_angle + 30.f);
 
-		float start_arm_angle_rad = start_arm_angle_deg * PI / 180.f;
-		float end_arm_angle_rad = end_arm_angle_deg * PI / 180.f;
-
-		vec2 start = {cos(start_arm_angle_rad), sin(start_arm_angle_rad)};
-		vec2 end = {cos(end_arm_angle_rad), sin(end_arm_angle_rad)};
-
-		return std::pair<vec2, vec2>(start, end);
+		return std::pair<vec2, vec2>(polar_to_cartesian(s), polar_to_cartesian(e));
 	}
 
 	void Sensor::draw() {
@@ -93,7 +79,7 @@ namespace simulation {
 
 		shader.set_uniform("model", m);
 
-		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
+		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
 
 

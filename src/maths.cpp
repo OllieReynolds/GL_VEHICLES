@@ -3,6 +3,14 @@
 namespace maths {
 	const float PI = 3.14159265358979f;
 
+	vec2 polar_to_cartesian(const float theta) {
+		return vec2{cos(theta), sin(theta)};
+	}
+
+	float cartesian_to_polar(const vec2& v) {
+		return atan2(v.y, v.x);
+	}
+
 	vec4 mult(const mat4& m, const vec4& v) {
 		float x = (m.x.x * v.x) + (m.x.y * v.y) + (m.x.z * v.z) + m.x.w;
 		float y = (m.y.x * v.x) + (m.y.y * v.y) + (m.y.z * v.z) + m.y.w;
@@ -177,12 +185,12 @@ namespace maths {
 	}
 
 	float to_degrees(const float rads) {
-		return rads / 180.f * PI;
+		return rads * 180.f / PI;
 
 	}
 
 	float to_radians(const float degs) {
-		return degs * 180.f / PI;
+		return degs / 180.f * PI;
 	}
 
 	mat4 transpose(const mat4& m) {

@@ -15,19 +15,42 @@ namespace simulation {
 		glGenBuffers(1, &gl_buffer_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
-		vec2 points[4] = {
-			{-0.5f, -0.5f},
-			{-0.5f,  0.5f},
-			{0.5f, -0.5f},
-			{0.5f,  0.5f}
+		vec4 points[4] = {
+			{-0.5f, -0.5f, 0.f, 0.f},
+			{-0.5f,  0.5f, 0.f, 1.f},
+			{0.5f, -0.5f, 1.f, 0.f},
+			{0.5f,  0.5f, 1.f, 1.f}
 		};
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * 4, &points, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+
 		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), (GLvoid*)(sizeof(float) * 2));
 
 		right_sensor.init();
 		left_sensor.init();
+	}
+
+	void Vehicle::update(const maths::vec2& cursor_pos) {
+		/*transform.position += 
+		transform.rotation += 0.1f;
+*/
+		left_sensor.parent_transform = transform;
+		left_sensor.update(cursor_pos);
+
+		right_sensor.parent_transform = transform;
+		right_sensor.update(cursor_pos);
+
+		if (left_sensor.detected_object) {
+
+		}
+
+		if (right_sensor.detected_object) {
+
+		}
 	}
 
 	void Vehicle::draw() {
@@ -58,14 +81,6 @@ namespace simulation {
 
 		left_sensor.destroy();
 		right_sensor.destroy();
-	}
-
-	void Vehicle::update(const maths::vec2& cursor_pos) {
-		left_sensor.parent_transform = transform;
-		left_sensor.update(cursor_pos);
-
-		right_sensor.parent_transform = transform;
-		right_sensor.update(cursor_pos);
 	}
 
 	std::vector<std::string> Vehicle::string_attribs() {

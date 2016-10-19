@@ -9,7 +9,6 @@
 namespace simulation {
 	using namespace maths;
 	
-	extern const float PI;
 	class Sensor : public Drawable {
 	public:
 		Sensor() 
@@ -23,7 +22,7 @@ namespace simulation {
 		void draw();
 		void destroy();
 
-		std::pair<vec2, vec2> get_sensor_arms_AB();
+		std::pair<vec2, vec2> get_sensor_arms();
 		void scan(const vec2& position);
 
 		vec2 heading;
