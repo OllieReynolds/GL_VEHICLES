@@ -57,8 +57,8 @@ namespace simulation {
 	std::pair<vec2, vec2> Sensor::get_sensor_arms_AB() {
 		float heading_angle = atan2(heading.y, heading.x) * 180.f / PI;
 
-		float start_arm_angle_deg = heading_angle - angle * 0.5f;
-		float end_arm_angle_deg = heading_angle + angle * 0.5f;
+		float start_arm_angle_deg = heading_angle - 10.f * 0.5f;
+		float end_arm_angle_deg = heading_angle + 10.f * 0.5f;
 
 		float start_arm_angle_rad = start_arm_angle_deg * PI / 180.f;
 		float end_arm_angle_rad = end_arm_angle_deg * PI / 180.f;
@@ -82,11 +82,11 @@ namespace simulation {
 		mat4 r = rotate(transform.rotation);
 		mat4 m = mult(mult(s, r), t);
 
-		//parent_model = mult(s, parent_model);
 		shader.set_uniform("model", m);
 
-
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms_AB();
+
+
 
 		shader.set_uniform("start", arms_AB.first);
 		shader.set_uniform("end", arms_AB.second);

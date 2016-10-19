@@ -72,11 +72,7 @@ namespace simulation {
 	}
 
 	void Vehicle::move() {
-		//velocity = {cos(transform.rotation), sin(transform.rotation)};
 
-		/*position += velocity;
-		left_sensor.attribs.position += velocity;
-		right_sensor.attribs.position += velocity;*/
 	}
 
 	std::vector<std::string> Vehicle::string_attribs() {
