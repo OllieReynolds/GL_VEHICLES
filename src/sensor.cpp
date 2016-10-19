@@ -38,23 +38,29 @@ namespace simulation {
 
 		float degrees = -(parent_transform.rotation - transform.rotation);
 		heading = polar_to_cartesian(to_radians(degrees));
-
-		scan(cursor_pos);
 	}
 
-	void Sensor::scan(const maths::vec2& position) {
-		
+	bool Sensor::scan(const std::vector<maths::vec2>& points) {
+		detected_object = false;
+
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
-		bool test_intersect_of_point = point_segment_intersect(
-			position,
-			arms_AB.first,
-			transform.position,
-			arms_AB.second,
-			transform.size.x * 0.5f
-		);
+		for (maths::vec2 p : points) {
+			bool test_intersect_of_point = point_segment_intersect(
+				p,
+				arms_AB.first,
+				transform.position,
+				arms_AB.second,
+				transform.size.x * 0.5f
+			);
 
-		detected_object = test_intersect_of_point;
+			if (test_intersect_of_point) {
+				detected_object = true;
+				return detected_object;
+			}
+		}
+
+		return detected_object;
 	}
 
 	std::pair<vec2, vec2> Sensor::get_sensor_arms() {

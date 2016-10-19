@@ -23,11 +23,12 @@ namespace simulation {
 		void destroy();
 
 		std::pair<vec2, vec2> get_sensor_arms();
-		void scan(const vec2& position);
+		bool scan(const std::vector<vec2>& points);
 
 		vec2 heading;
 		mat4 parent_model;
 		Transform parent_transform;
+
 		bool detected_object;
 	};
 }

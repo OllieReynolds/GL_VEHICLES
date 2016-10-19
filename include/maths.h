@@ -166,7 +166,7 @@ namespace maths {
 		};
 	};
 
-	vec2 polar_to_cartesian(const float theta);
+	vec2 polar_to_cartesian(float theta);
 	float cartesian_to_polar(const vec2& v);
 
 	float to_degrees(const float rads);

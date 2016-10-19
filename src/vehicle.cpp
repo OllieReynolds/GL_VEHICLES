@@ -35,21 +35,31 @@ namespace simulation {
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
-		/*transform.position += 
-		transform.rotation += 0.1f;
-*/
+		vec2 vehicle_heading = polar_to_cartesian(to_radians(transform.rotation));
+		velocity = normalise(vehicle_heading);
+		velocity.y = -velocity.y;
+
+		transform.position += velocity * 0.5;
+
 		left_sensor.parent_transform = transform;
 		left_sensor.update(cursor_pos);
 
 		right_sensor.parent_transform = transform;
 		right_sensor.update(cursor_pos);
 
-		if (left_sensor.detected_object) {
 
+		std::vector<vec2> points = {
+			vec2{0.f, 0.f},
+			cursor_pos
+		};
+
+
+		if (left_sensor.scan(points)) {
+			transform.rotation -= 0.3f;
 		}
 
-		if (right_sensor.detected_object) {
-
+		if (right_sensor.scan(points)) {
+			transform.rotation += 0.3f;
 		}
 	}
 

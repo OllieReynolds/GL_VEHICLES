@@ -3,8 +3,10 @@
 namespace maths {
 	const float PI = 3.14159265358979f;
 
-	vec2 polar_to_cartesian(const float theta) {
-		return vec2{cos(theta), sin(theta)};
+	vec2 polar_to_cartesian(float theta) {
+		float c = cos(theta);
+		float s = sin(theta);
+		return vec2{c, s};
 	}
 
 	float cartesian_to_polar(const vec2& v) {
