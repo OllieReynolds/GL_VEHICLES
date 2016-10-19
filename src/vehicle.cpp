@@ -47,11 +47,7 @@ namespace simulation {
 		shader.release();
 		glBindVertexArray(0);
 
-		///////////////////////////////////////////////////////////
-		left_sensor.parent_transform = transform;
 		left_sensor.draw();
-		
-		right_sensor.parent_transform = transform;
 		right_sensor.draw();
 	}
 
@@ -65,14 +61,11 @@ namespace simulation {
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
+		left_sensor.parent_transform = transform;
 		left_sensor.update(cursor_pos);
+
+		right_sensor.parent_transform = transform;
 		right_sensor.update(cursor_pos);
-
-		move();
-	}
-
-	void Vehicle::move() {
-
 	}
 
 	std::vector<std::string> Vehicle::string_attribs() {
