@@ -85,7 +85,7 @@ int main() {
 
 	while (check_running(window, 6000)) {
 		glClear(GL_COLOR_BUFFER_BIT);
-			
+
 		simulation::update();
 		simulation::draw();
 			

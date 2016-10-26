@@ -12,6 +12,8 @@ namespace simulation {
 
 	Text text;
 
+	int state;
+
 	void init() {
 		cursor_position   = vec2{0.f, 0.f};
 		resolution        = vec2{1366.f, 768.f};
@@ -24,7 +26,7 @@ namespace simulation {
 		Transform obstacle_transform = Transform{vec2{600.f, 450}, vec2{16.f, 16.f}, 0.f};
 		obstacle = Obstacle{obstacle_transform, vec4{1.f, 1.f, 1.f, 0.7f}};
 
-		Transform vehicle_transform = Transform{vec2{900.f, 550.f}, vec2{100.f, 50.f}, 190.f};
+		Transform vehicle_transform = Transform{vec2{500.f, 550.f}, vec2{100.f, 50.f}, 0.f};
 		vehicle = Vehicle{vehicle_transform, vec4{1.f, 1.f, 1.f, 1.f}, 0.002f};
 
 		text = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
@@ -33,13 +35,18 @@ namespace simulation {
 		obstacle.init();
 		vehicle.init();
 		text.init_text();
+
+		state = 1;
 	}
 
 	void update() {
-		boundary.update(cursor_position);
-		obstacle.update(cursor_position);
+		
 
-		vehicle.update(cursor_position);
+		if (state == 1) {
+			boundary.update(cursor_position);
+			obstacle.update(cursor_position);
+			vehicle.update(cursor_position);
+		}
 	}
 
 	void draw() {
@@ -73,7 +80,7 @@ namespace simulation {
 				text.draw_text("RIGHT SENSOR:", vec2(left, text_pos_y + vertical_text_pos_offset * 2));
 
 								
-				if (vehicle.left_sensor.detected_object) {
+				if (vehicle.left_sensor.detected_object && state == 1) {
 					text.colour = vec4{0.f, 1.f, 0.f, alpha8};
 					text.draw_text("<detected>", vec2(640.f, text_pos_y + vertical_text_pos_offset * 3));
 				} else {
@@ -81,7 +88,7 @@ namespace simulation {
 					text.draw_text("<seeking>", vec2(640.f, text_pos_y + vertical_text_pos_offset * 3));
 				}
 
-				if (vehicle.right_sensor.detected_object) {
+				if (vehicle.right_sensor.detected_object && state == 1) {
 					text.colour = vec4{0.f, 1.f, 0.f, alpha8};
 					text.draw_text("<detected>", vec2(640.f, text_pos_y + vertical_text_pos_offset * 2));
 				} else {

@@ -12,6 +12,7 @@
 using namespace maths;
 using namespace utils;
 
+
 namespace simulation {
 	void init();
 	void update();
@@ -31,5 +32,6 @@ namespace simulation {
 
 	// GUI components
 	extern Text text;
+	extern int state;
 }
 

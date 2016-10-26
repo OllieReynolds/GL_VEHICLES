@@ -146,7 +146,7 @@ namespace maths {
 	}
 
 	bool check_clockwise(vec2 v1, vec2 v2) {
-		return (-v1.x * v2.y) + (v1.y * v2.x) > 0;
+		return (-v1.x * v2.y) + (v1.y * v2.x) >= 0;
 	}
 
 	bool point_segment_intersect(const vec2& p, const vec2& start, const vec2& o, const vec2& end, const float radius) {

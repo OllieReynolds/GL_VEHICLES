@@ -39,28 +39,25 @@ namespace simulation {
 		velocity = normalise(vehicle_heading);
 		velocity.y = -velocity.y;
 
-		transform.position += velocity * 0.5;
+		transform.position += velocity * 0.25f;
 
 		left_sensor.parent_transform = transform;
 		left_sensor.update(cursor_pos);
 
 		right_sensor.parent_transform = transform;
 		right_sensor.update(cursor_pos);
+	
 
-
+		{
 		std::vector<vec2> points = {
-			vec2{0.f, 0.f},
 			cursor_pos
 		};
-
-
-		if (left_sensor.scan(points)) {
-			transform.rotation -= 0.3f;
+		if (left_sensor.scan(points)) transform.rotation += 0.15f;
+		if (right_sensor.scan(points)) transform.rotation -= 0.15f;
 		}
 
-		if (right_sensor.scan(points)) {
-			transform.rotation += 0.3f;
-		}
+		
+		
 	}
 
 	void Vehicle::draw() {
@@ -104,3 +101,28 @@ namespace simulation {
 		return attribs;
 	}
 }
+
+
+/*{
+vec2 top = {transform.position.x, 750.f};
+float distance = maths::distance(transform.position, top);
+if (distance < left_sensor.transform.size.x * 0.5f) transform.rotation += 0.4f;
+}
+
+{
+vec2 bottom = {transform.position.x, 174.f};
+float distance = maths::distance(transform.position, bottom);
+if (distance < left_sensor.transform.size.x * 0.5f) transform.rotation += 0.4f;
+}
+
+{
+vec2 left = {34.f, transform.position.y};
+float distance = maths::distance(transform.position, left);
+if (distance < left_sensor.transform.size.x * 0.5f) transform.rotation += 0.4f;
+}
+
+{
+vec2 right = {1334.f, transform.position.y};
+float distance = maths::distance(transform.position, right);
+if (distance < left_sensor.transform.size.x * 0.5f) transform.rotation += 0.4f;
+}*/
