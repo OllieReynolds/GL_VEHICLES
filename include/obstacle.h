@@ -10,16 +10,18 @@ namespace simulation {
 	class Obstacle : public Drawable {
 	public:
 		Obstacle()
-			: Drawable(Transform(), 0.f) { }
+			: Drawable({0.f, 0.f, 0.f}, 0.f) 
+		{
+		}
 
-		Obstacle(const Transform& transform, const vec4& colour = 0.f) 
-			: Drawable(transform, colour) { }
+		Obstacle(const Transform& t, const vec4& colour = 0.f) 
+			: Drawable(t, colour) 
+		{ 
+		}
 
 		void init();
 		void update(const maths::vec2& cursor_pos);
 		void draw();
 		void destroy();
-
-		void move(const vec2& cursor_position);
 	};
 }

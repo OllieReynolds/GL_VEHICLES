@@ -13,16 +13,11 @@ namespace simulation {
 		Vehicle(const Transform& transform, const vec4& colour, float turning_force)
 			: Drawable(transform, colour), turning_force(turning_force), velocity(0.f), acceleration(0.f) 
 		{
-			vec2 left_sensor_position  = vec2{0.f, 0.f};
-			vec2 left_sensor_size      = vec2{250.f, 250.f};
-			float left_sensor_rotation = 45.f;
-			Transform left_sensor_transform = Transform(left_sensor_position, left_sensor_size, left_sensor_rotation);
+
+			Transform left_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{250.f, 250.f}, 45.f};
 			left_sensor = Sensor(left_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, 1.f});
 
-			vec2 right_sensor_position  = vec2{0.f, 0.f};
-			vec2 right_sensor_size      = vec2{250.f, 250.f};
-			float right_sensor_rotation = -45.f;
-			Transform right_sensor_transform = Transform(right_sensor_position, right_sensor_size, right_sensor_rotation);
+			Transform right_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{250.f, 250.f}, -45.f};
 			right_sensor = Sensor(right_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, -1.f});
 		}
 

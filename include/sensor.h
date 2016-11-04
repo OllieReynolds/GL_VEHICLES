@@ -12,10 +12,12 @@ namespace simulation {
 	class Sensor : public Drawable {
 	public:
 		Sensor() 
-			: Drawable(Transform(), 0.f), detected_object(false) { }
+			: Drawable({0.f, 0.f, 0.f}, 0.f), detected_object(0) 
+		{ 
+		}
 
-		Sensor(const Transform& transform, const vec4& colour, const vec2& heading) 
-			: Drawable(transform, colour), heading(heading), detected_object(false) { }
+		Sensor(const Transform& t, const vec4& colour, const vec2& heading) 
+			: Drawable(t, colour), heading(heading), detected_object(0) { }
 
 		void init();
 		void update(const maths::vec2& cursor_pos);

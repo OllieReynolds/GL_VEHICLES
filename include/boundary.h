@@ -10,10 +10,11 @@ namespace simulation {
 	class Boundary : public Drawable {
 	public:
 		Boundary()
-			: Drawable(Transform(), 0.f) { }
+			: Drawable({0.f, 0.f, 0.f}, 0.f) {
+		}
 
-		Boundary(const Transform& transform, const vec4& colour)
-			: Drawable(transform, colour) { }
+		Boundary(const Transform& t, const vec4& colour)
+			: Drawable(t, colour) { }
 
 		~Boundary() { }
 
