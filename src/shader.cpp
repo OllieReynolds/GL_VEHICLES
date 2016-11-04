@@ -15,6 +15,9 @@ namespace utils {
 	}
 
 	Shader::Shader(const char* vertex_shader_filename, const char* fragment_shader_filename) {
+		v_shader_filename = vertex_shader_filename;
+		f_shader_filename = fragment_shader_filename;
+
 		GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 		std::string v_src = load_source(vertex_shader_filename);
 		compile(vertShader, v_src.c_str());
@@ -55,6 +58,34 @@ namespace utils {
 		use();
 	}
 
+	Shader::Shader(const char* vertex_shader_filename, const char* tess_control_shader_filename, const char* tess_eval_shader_filename, const char* fragment_shader_filename) {
+		GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+		std::string v_src = load_source(vertex_shader_filename);
+		compile(vertShader, v_src.c_str());
+
+		GLuint tcShader = glCreateShader(GL_TESS_CONTROL_SHADER);
+		std::string tc_src = load_source(tess_control_shader_filename);
+		compile(tcShader, tc_src.c_str());
+
+		GLuint teShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
+		std::string te_src = load_source(tess_eval_shader_filename);
+		compile(teShader, te_src.c_str());
+
+		GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+		std::string f_src = load_source(fragment_shader_filename);
+		compile(fragShader, f_src.c_str());
+
+		program = glCreateProgram();
+
+		glAttachShader(program, vertShader);
+		glAttachShader(program, tcShader);
+		glAttachShader(program, teShader);
+		glAttachShader(program, fragShader);
+
+		link();
+		use();
+	}
+
 	void Shader::compile(GLuint shader, const char* src) {
 		GLint status;
 		GLchar infoLog[512];
@@ -90,6 +121,10 @@ namespace utils {
 		glDeleteProgram(program);
 	}
 
+	void Shader::set_uniform(const char* name, const bool b) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform1i(uniform_location, b);
+	}
 
 	void Shader::set_uniform(const char* name, const float v) {
 		GLuint uniform_location = uniform_handle(name);

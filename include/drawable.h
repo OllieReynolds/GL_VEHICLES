@@ -29,6 +29,16 @@ namespace simulation {
 		virtual void draw() = 0;
 		virtual void destroy() = 0;
 
+		void set_gl_buffer_data(GLsizeiptr size, const void* data) {
+			glGenVertexArrays(1, &gl_array_object);
+			glBindVertexArray(gl_array_object);
+
+			glGenBuffers(1, &gl_buffer_object);
+			glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
+
+			glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+		}
+
 		// OpenGL
 		GLuint gl_array_object;
 		GLuint gl_buffer_object;

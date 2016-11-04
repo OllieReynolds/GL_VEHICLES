@@ -1,7 +1,9 @@
 #pragma once
 
 #include <chrono>
+#include <iomanip>
 #include <random>
+#include <sstream>
 
 #include "maths.h"
 
@@ -17,5 +19,14 @@ namespace utils {
 		static std::mt19937 mt(rd());
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(mt);
+	}
+
+	static std::string friendly_float(const float f) {
+		std::string str = std::to_string(f);
+		int offset = (f < 0.f) ? 4 : 3;
+		str.erase(str.begin() + offset, str.end());
+		if (f >= 0.f)
+			str = " " + str;
+		return str;
 	}
 }
