@@ -14,10 +14,13 @@ namespace simulation {
 			: Drawable(transform, colour), turning_force(turning_force), velocity(0.f), acceleration(0.f) 
 		{
 
-			Transform left_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{250.f, 250.f}, 45.f};
+
+			float sz = utils::gen_random(250.f, 500.f);
+
+			Transform left_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{sz, sz}, 40.f};
 			left_sensor = Sensor(left_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, 1.f});
 
-			Transform right_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{250.f, 250.f}, -45.f};
+			Transform right_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{sz, sz}, -40.f};
 			right_sensor = Sensor(right_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, -1.f});
 		}
 

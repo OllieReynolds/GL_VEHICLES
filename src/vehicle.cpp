@@ -30,8 +30,8 @@ namespace simulation {
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
 
-		static float rotation_interval = 1.2f;
-		static float movement_interval = 2.5f;
+		static float rotation_interval = 5.5f;
+		static float movement_interval = 5.5f;
 
 		/////////////////////////////////////////////////////////////////
 
@@ -57,10 +57,10 @@ namespace simulation {
 			rotation -= rotation_interval;
 
 
-		std::pair<vec2, vec2> top = {{34.f, 748.f},{1332.f, 748.f}};
-		std::pair<vec2, vec2> right = {top.second, {1332.f, 172.f}};
-		std::pair<vec2, vec2> bottom = {right.second, {34.f, 172.f}};
-		std::pair<vec2, vec2> left = {bottom.second, top.first};
+		const static std::pair<vec2, vec2> top = {{34.f, 748.f},{1332.f, 748.f}};
+		const static std::pair<vec2, vec2> right = {top.second, {1332.f, 172.f}};
+		const static std::pair<vec2, vec2> bottom = {right.second, {34.f, 172.f}};
+		const static std::pair<vec2, vec2> left = {bottom.second, top.first};
 
 		if (
 			   left_sensor.intersects_line(top.first, top.second) 
@@ -74,25 +74,6 @@ namespace simulation {
 			|| right_sensor.intersects_line(bottom.first, bottom.second)
 			|| right_sensor.intersects_line(left.first, left.second))
 			    rotation -= rotation_interval;
-	
-	/*	if (left_sensor.intersects_line(right.first, right.second))
-			rotation += rotation_interval;
-		else if (right_sensor.intersects_line(right.first, right.second))
-			rotation -= rotation_interval;
-
-		if (left_sensor.intersects_line(bottom.first, bottom.second))
-			rotation += rotation_interval;
-		else if (right_sensor.intersects_line(bottom.first, bottom.second))
-			rotation -= rotation_interval;
-
-		if (left_sensor.intersects_line(left.first, left.second))
-			rotation += rotation_interval;
-		else if (right_sensor.intersects_line(left.first, left.second))
-			rotation -= rotation_interval;*/
-
-
-
-		/////////////////////////////////////////////////////////////////
 		
 	}
 

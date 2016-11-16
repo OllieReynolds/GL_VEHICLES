@@ -28,7 +28,7 @@ namespace simulation {
 	// Simulation components
 	extern Boundary boundary;
 	extern Obstacle obstacle;
-	extern Vehicle vehicle;
+	extern std::vector<Vehicle*> vehicles;
 
 	// GUI components
 	extern Text text;
