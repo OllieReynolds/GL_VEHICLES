@@ -3,6 +3,20 @@
 namespace maths {
 	const float PI = 3.14159265358979f;
 
+	float min(float x, float y) {
+		if (y < x) 
+			return y;
+		else 
+			return x;
+	}
+
+	float max(float x, float y) {
+		if (y > x)
+			return y;
+		else
+			return x;
+	}
+
 	vec2 polar_to_cartesian(float theta) {
 		float c = cos(theta);
 		float s = sin(theta);
@@ -159,7 +173,18 @@ namespace maths {
 		return b1 && b2 && b3;
 	}
 
-	mat4 rotate(float degrees) {
+	mat4 rotate_y(float degrees) {
+		float rads = degrees * (PI / 180.f);
+
+		return mat4{
+			{cos(rads),  0.f,       sin(rads), 0.f},
+			{0.f,        1.f,       0.f,       0.f},
+			{-sin(rads), 0.f,       cos(rads), 0.f},
+			{0.f,        0.f,       0.f,       1.f}
+		};
+	}
+
+	mat4 rotate_z(float degrees) {
 		float rads = degrees * (PI / 180.f);
 
 		return mat4{

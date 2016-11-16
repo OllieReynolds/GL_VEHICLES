@@ -3,7 +3,8 @@
 in vec2 uv;
 out vec4 colour;
 
-void main() {
+uniform float time;
 
-	colour = vec4(uv, 0.0, 1.0);
+void main() {
+	colour = vec4(1.0, 0.0, 1.0, 1.0);
 }

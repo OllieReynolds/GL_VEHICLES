@@ -34,6 +34,7 @@ namespace maths {
 		friend vec2 operator - (const vec2& a, const vec2& b) { return { a.x - b.x, a.y - b.y }; }
 		friend vec2 operator * (const vec2& a, const float v) { return { a.x * v, a.y * v }; }
 		friend vec2 operator / (const vec2& a, const float v) { return { a.x / v, a.y / v }; }
+		friend vec2 operator / (const vec2& a, const vec2& b) { return { a.x / b.x, a.y / b.y}; }
 
 		friend std::ostream& operator << (std::ostream& os, const vec2& v) { 
 			os << "(" << v.x << ", " << v.y << ")"; 
@@ -172,12 +173,16 @@ namespace maths {
 	float to_degrees(const float rads);
 	float to_radians(const float degs);
 
+	float min(float x, float y);
+	float max(float x, float y);
+
 	mat4 transpose(const mat4& m);
 
 	vec4 mult(const mat4& m, const vec4& v);
 	mat4 mult(const mat4& a, const mat4& b);
 
-	mat4 rotate(float degrees);
+	mat4 rotate_y(float degrees);
+	mat4 rotate_z(float degrees);
 	mat4 translate(const vec3& position);
 	mat4 scale(const vec3& size);
 	

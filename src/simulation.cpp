@@ -26,7 +26,7 @@ namespace simulation {
 		Transform obstacle_transform = Transform{vec2{600.f, 450}, vec2{16.f, 16.f}, 0.f};
 		obstacle = Obstacle{obstacle_transform, vec4{1.f, 1.f, 1.f, 0.7f}};
 
-		Transform vehicle_transform = Transform{vec2{500.f, 550.f}, vec2{100.f, 50.f}, 0.f};
+		Transform vehicle_transform = Transform{vec2{500.f, 550.f}, vec2{75.f, 50.f}, 45.f};
 		vehicle = Vehicle{vehicle_transform, vec4{1.f, 1.f, 1.f, 1.f}, 0.002f};
 
 		text = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
@@ -56,6 +56,11 @@ namespace simulation {
 
 		text.draw_text("  CURSOR: Obstacle", vec2(1366.f * 0.5f, 128.f), true);
 		text.draw_text(" VEHICLE: Excitory", vec2{1366.f * 0.5f, 64.f}, true);
+
+		
+		int cX = cursor_position.x;
+		int cY = cursor_position.y;
+		text.draw_text(std::to_string(cX) + " " + std::to_string(cY), vec2{cursor_position.x, cursor_position.y}, true);
 	}
 
 	void destroy() {
@@ -105,9 +110,5 @@ namespace simulation {
 //		}
 //	}
 
-//	text.colour = vec4{0.f, 1.f, 1.f, 1.f};
-//	int cX = cursor_position.x;
-//	int cY = cursor_position.y;
-
-//	text.draw_text(std::to_string(cX) + ", " + std::to_string(cY), vec2{cursor_position.x, cursor_position.y - 32.f});			
+	
 //}

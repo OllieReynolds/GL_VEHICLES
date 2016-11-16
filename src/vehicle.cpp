@@ -29,11 +29,17 @@ namespace simulation {
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
+
+		static float rotation_interval = 1.2f;
+		static float movement_interval = 2.5f;
+
+		/////////////////////////////////////////////////////////////////
+
 		vec2 vehicle_heading = polar_to_cartesian(to_radians(rotation));
 		velocity = normalise(vehicle_heading);
 		velocity.y = -velocity.y;
 
-		position += velocity * 0.25f;
+		position += velocity * movement_interval;
 
 		left_sensor.parent_transform = {position, size, rotation};
 		left_sensor.update(cursor_pos);
@@ -41,16 +47,52 @@ namespace simulation {
 		right_sensor.parent_transform = {position, size, rotation};
 		right_sensor.update(cursor_pos);
 	
+		/////////////////////////////////////////////////////////////////
 
-		{
-		std::vector<vec2> points = {
-			cursor_pos
-		};
-		if (left_sensor.scan(points)) rotation += 0.15f;
-		if (right_sensor.scan(points)) rotation -= 0.15f;
-		}
-
+		std::vector<vec2> points = {cursor_pos};
 		
+		if (left_sensor.intersects(points))
+			rotation += rotation_interval;
+		else if (right_sensor.intersects(points))
+			rotation -= rotation_interval;
+
+
+		std::pair<vec2, vec2> top = {{34.f, 748.f},{1332.f, 748.f}};
+		std::pair<vec2, vec2> right = {top.second, {1332.f, 172.f}};
+		std::pair<vec2, vec2> bottom = {right.second, {34.f, 172.f}};
+		std::pair<vec2, vec2> left = {bottom.second, top.first};
+
+		if (
+			   left_sensor.intersects_line(top.first, top.second) 
+			|| left_sensor.intersects_line(right.first, right.second) 
+			|| left_sensor.intersects_line(bottom.first, bottom.second) 
+			|| left_sensor.intersects_line(left.first, left.second)) 
+			    rotation += rotation_interval;
+		else if (
+			   right_sensor.intersects_line(top.first, top.second)
+			|| right_sensor.intersects_line(right.first, right.second)
+			|| right_sensor.intersects_line(bottom.first, bottom.second)
+			|| right_sensor.intersects_line(left.first, left.second))
+			    rotation -= rotation_interval;
+	
+	/*	if (left_sensor.intersects_line(right.first, right.second))
+			rotation += rotation_interval;
+		else if (right_sensor.intersects_line(right.first, right.second))
+			rotation -= rotation_interval;
+
+		if (left_sensor.intersects_line(bottom.first, bottom.second))
+			rotation += rotation_interval;
+		else if (right_sensor.intersects_line(bottom.first, bottom.second))
+			rotation -= rotation_interval;
+
+		if (left_sensor.intersects_line(left.first, left.second))
+			rotation += rotation_interval;
+		else if (right_sensor.intersects_line(left.first, left.second))
+			rotation -= rotation_interval;*/
+
+
+
+		/////////////////////////////////////////////////////////////////
 		
 	}
 
@@ -61,10 +103,11 @@ namespace simulation {
 
 		mat4 s = scale({size, 0.f});
 		mat4 t = transpose(translate({position, 0.f}));
-		mat4 r = rotate(rotation);
+		mat4 r = rotate_z(rotation);
 		mat4 m = mult(mult(s, r), t);
 
 		shader.set_uniform("model", m);
+		shader.set_uniform("time", utils::elapsed_time());
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

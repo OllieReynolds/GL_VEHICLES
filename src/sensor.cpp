@@ -34,27 +34,35 @@ namespace simulation {
 		heading = polar_to_cartesian(to_radians(degrees));
 	}
 
-	bool Sensor::scan(const std::vector<maths::vec2>& points) {
-		detected_object = false;
+	bool Sensor::intersects(const std::vector<maths::vec2>& points) {
 
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
 		for (maths::vec2 p : points) {
-			bool test_intersect_of_point = point_segment_intersect(
-				p,
-				arms_AB.first,
-				position,
-				arms_AB.second,
-				size.x * 0.5f
-			);
-
-			if (test_intersect_of_point) {
-				detected_object = true;
-				return detected_object;
-			}
+			if (point_segment_intersect(p, arms_AB.first, position, arms_AB.second, size.x * 0.5f)) 
+				return true;
 		}
 
-		return detected_object;
+		return false;
+	}
+
+	bool Sensor::intersects_line(const vec2& a, const vec2& b) {
+
+		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
+
+		vec2 l_a = position;
+		vec2 l_b = position + (arms_AB.second * (size.y * 0.5f));
+
+		vec2 r_a = position;
+		vec2 r_b = position + (arms_AB.first * (size.x * 0.5f));
+
+
+		if (shared::line_intersect(l_a, l_b, a, b))
+			return true;
+		else if (shared::line_intersect(r_a, r_b, a, b))
+			return true;
+		else
+			return false;
 	}
 
 	std::pair<vec2, vec2> Sensor::get_sensor_arms() {

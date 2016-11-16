@@ -39,7 +39,7 @@ namespace simulation {
 		mat4 gen_model_matrix() {
 			mat4 s = scale(vec3{size, 0.f});
 			mat4 t = transpose(translate(vec3{position, 0.f}));
-			mat4 r = rotate(rotation);
+			mat4 r = rotate_y(rotation);
 			return mult(mult(s, r), t);
 		}
 
