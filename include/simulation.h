@@ -4,6 +4,7 @@
 #include <glfw3.h>
 
 #include "boundary.h"
+#include "cube.h"
 #include "maths.h"
 #include "obstacle.h"
 #include "text.h"
@@ -38,7 +39,10 @@ namespace simulation {
 		Text text;
 		int state;
 
+		// Misc.
 		bool draw_sensors;
+		//Cube cube;
+		std::vector<Cube*> cubes;
 	};
 }
 

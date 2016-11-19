@@ -46,7 +46,7 @@ namespace simulation {
 		other_vehicle_locations.push_back(cursor_pos);
 
 		other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
-			return almost_equal(v, position, 1.f);
+			return almost_equal(v, position.XY(), 1.f);
 		}), other_vehicle_locations.end());
 		
 		const static std::pair<vec2, vec2> top = {{34.f, 748.f},{1332.f, 748.f}};
@@ -89,8 +89,8 @@ namespace simulation {
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		shader.use();
 
-		mat4 s = scale({size, 0.f});
-		mat4 t = transpose(translate({position, 0.f}));
+		mat4 s = scale(size);
+		mat4 t = transpose(translate(position));
 		mat4 r = rotate_z(rotation);
 		mat4 m = mult(mult(s, r), t);
 

@@ -24,7 +24,8 @@ namespace simulation {
 
 
 	void Obstacle::update(const maths::vec2& cursor_pos) {
-		position = cursor_pos;
+		position.x = cursor_pos.x;
+		position.y = cursor_pos.y;
 	}
 
 

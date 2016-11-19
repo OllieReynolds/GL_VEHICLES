@@ -31,7 +31,7 @@ namespace simulation {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
-		shader.set_uniform("model", gen_model_matrix(size, position));
+		shader.set_uniform("model", gen_model_matrix(size.XY(), position.XY()));
 
 		shader.set_uniform("uniform_colour", colour);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

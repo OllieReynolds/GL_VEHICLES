@@ -89,9 +89,10 @@ int main() {
 #endif
 
 	// GL Config
-	glEnable(GL_BLEND);
+	/*glEnable(GL_BLEND);
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);*/
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
 	simulation::Simulation simulation;
@@ -100,7 +101,7 @@ int main() {
 	glfwSetWindowUserPointer(window, &simulation);
 
 	while (check_running(window, 6000)) {
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		simulation.update();
 		simulation.draw();

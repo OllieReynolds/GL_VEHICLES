@@ -17,10 +17,10 @@ namespace simulation {
 
 			float sz = utils::gen_random(100.f, 200.f);
 
-			Transform left_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{sz, sz}, 45.f};
+			Transform left_sensor_transform = Transform{vec3{0.f}, vec3{sz, sz, 0.f}, 45.f};
 			left_sensor = Sensor(left_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, 1.f});
 
-			Transform right_sensor_transform = Transform{vec2{0.f, 0.f}, vec2{sz, sz}, -45.f};
+			Transform right_sensor_transform = Transform{vec3{0.f}, vec3{sz, sz, 0.f}, -45.f};
 			right_sensor = Sensor(right_sensor_transform, {1.f, 1.f, 0.f, 1.f}, {1.f, -1.f});
 		}
 

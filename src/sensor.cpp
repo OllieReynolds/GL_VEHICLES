@@ -39,7 +39,7 @@ namespace simulation {
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
 		for (maths::vec2 p : points) {
-			if (point_segment_intersect(p, arms_AB.first, position, arms_AB.second, size.x * 0.5f)) 
+			if (point_segment_intersect(p, arms_AB.first, position.XY(), arms_AB.second, size.x * 0.5f)) 
 				return true;
 		}
 
@@ -50,11 +50,11 @@ namespace simulation {
 
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms();
 
-		vec2 l_a = position;
-		vec2 l_b = position + (arms_AB.second * (size.y * 0.5f));
+		vec2 l_a = position.XY();
+		vec2 l_b = position.XY() + (arms_AB.second * (size.y * 0.5f));
 
-		vec2 r_a = position;
-		vec2 r_b = position + (arms_AB.first * (size.x * 0.5f));
+		vec2 r_a = position.XY();
+		vec2 r_b = position.XY() + (arms_AB.first * (size.x * 0.5f));
 
 
 		if (shared::line_intersect(l_a, l_b, a, b))
@@ -84,7 +84,7 @@ namespace simulation {
 		shader.set_uniform("radius", size.x * 0.5f);
 		shader.set_uniform("colour", colour);
 		shader.set_uniform("time", utils::elapsed_time());
-		shader.set_uniform("model", gen_model_matrix(size, position));
+		shader.set_uniform("model", gen_model_matrix(size.XY(), position.XY()));
 
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);

@@ -64,6 +64,7 @@ namespace maths {
 		vec2 XY() { return vec2{x, y}; }
 
 		vec3& operator  = (const vec3& v) { x  = v.x; y  = v.y; z  = v.z; return *this; }
+		vec3& operator += (const vec2& v) { x += v.x; y += v.y; return *this; }
 		vec3& operator += (const vec3& v) { x += v.x; y += v.y; z += v.z; return *this; }
 		vec3& operator -= (const vec3& v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
 		vec3& operator *= (const float v) { x *= v; y *= v; z *= v; return *this; }

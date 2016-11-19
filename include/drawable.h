@@ -9,8 +9,8 @@ namespace simulation {
 	using namespace maths;
 
 	struct Transform {
-		vec2 position;
-		vec2 size;
+		vec3 position;
+		vec3 size;
 		float rotation;
 	};
 
@@ -37,9 +37,9 @@ namespace simulation {
 		}
 
 		mat4 gen_model_matrix() {
-			mat4 s = scale(vec3{size, 0.f});
-			mat4 t = transpose(translate(vec3{position, 0.f}));
-			mat4 r = rotate_z(rotation);
+			mat4 s = scale(size);
+			mat4 t = transpose(translate(position));
+			mat4 r = rotate_y(rotation);
 			return mult(mult(s, r), t);
 		}
 
@@ -53,8 +53,8 @@ namespace simulation {
 		GLuint gl_buffer_object;
 		utils::Shader shader;
 
-		vec2 position;
-		vec2 size;
+		vec3 position;
+		vec3 size;
 		float rotation;
 		vec4 colour;
 	};
