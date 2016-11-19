@@ -14,24 +14,31 @@ using namespace utils;
 
 
 namespace simulation {
-	void init();
-	void update();
-	void draw();
-	void destroy();
-	
-	// General Settings
-	extern vec2 cursor_position;
-	extern vec2 resolution;
-	extern vec2 near_far;
-	extern mat4 resolution_matrix;
-	
-	// Simulation components
-	extern Boundary boundary;
-	extern Obstacle obstacle;
-	extern std::vector<Vehicle*> vehicles;
 
-	// GUI components
-	extern Text text;
-	extern int state;
+	class Simulation {
+
+	public:
+		void init();
+		void update();
+		void draw();
+		void destroy();
+	
+		// General Settings
+		vec2 cursor_position;
+		vec2 resolution;
+		vec2 near_far;
+		mat4 resolution_matrix;
+	
+		// Simulation components
+		Boundary boundary;
+		Obstacle obstacle;
+		std::vector<Vehicle*> vehicles;
+
+		// GUI components
+		Text text;
+		int state;
+
+		bool draw_sensors;
+	};
 }
 

@@ -26,10 +26,23 @@ namespace {
 	}
 
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-		vec2* cursor_position = reinterpret_cast<maths::vec2*>(glfwGetWindowUserPointer(window));
-		cursor_position->x = (float)xpos;
-		cursor_position->y = 768.f - (float)ypos;
+		simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+		s->cursor_position.x = (float)xpos;
+		s->cursor_position.y = 768.f - (float)ypos;
 	}
+
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (action == GLFW_PRESS) {
+			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+
+			switch (key) {
+			case GLFW_KEY_S:
+				s->draw_sensors = !s->draw_sensors;
+				break;
+			}
+		}
+	}
+
 }
 
 int main() {
@@ -53,6 +66,7 @@ int main() {
 
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, &cursor_position_callback);
+	glfwSetKeyCallback(window, &key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		
 	// Glew
@@ -80,20 +94,22 @@ int main() {
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
-	simulation::init();
-	glfwSetWindowUserPointer(window, &simulation::cursor_position);
+	simulation::Simulation simulation;
+
+	simulation.init();
+	glfwSetWindowUserPointer(window, &simulation);
 
 	while (check_running(window, 6000)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		simulation::update();
-		simulation::draw();
+		simulation.update();
+		simulation.draw();
 			
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 
-	simulation::destroy();
+	simulation.destroy();
 	glfwTerminate();
 
 	return 0;

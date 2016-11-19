@@ -29,17 +29,13 @@ namespace simulation {
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
-
-		static float rotation_interval = 5.5f;
-		static float movement_interval = 5.5f;
-
 		/////////////////////////////////////////////////////////////////
 
 		vec2 vehicle_heading = polar_to_cartesian(to_radians(rotation));
 		velocity = normalise(vehicle_heading);
 		velocity.y = -velocity.y;
 
-		position += velocity * movement_interval;
+		position += velocity * speed;
 
 		left_sensor.parent_transform = {position, size, rotation};
 		left_sensor.update(cursor_pos);
@@ -47,33 +43,44 @@ namespace simulation {
 		right_sensor.parent_transform = {position, size, rotation};
 		right_sensor.update(cursor_pos);
 	
-		/////////////////////////////////////////////////////////////////
+		other_vehicle_locations.push_back(cursor_pos);
 
-		std::vector<vec2> points = {cursor_pos};
+		other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
+			return almost_equal(v, position, 1.f);
+		}), other_vehicle_locations.end());
 		
-		if (left_sensor.intersects(points))
-			rotation += rotation_interval;
-		else if (right_sensor.intersects(points))
-			rotation -= rotation_interval;
-
-
 		const static std::pair<vec2, vec2> top = {{34.f, 748.f},{1332.f, 748.f}};
 		const static std::pair<vec2, vec2> right = {top.second, {1332.f, 172.f}};
 		const static std::pair<vec2, vec2> bottom = {right.second, {34.f, 172.f}};
 		const static std::pair<vec2, vec2> left = {bottom.second, top.first};
 
-		if (
-			   left_sensor.intersects_line(top.first, top.second) 
-			|| left_sensor.intersects_line(right.first, right.second) 
-			|| left_sensor.intersects_line(bottom.first, bottom.second) 
-			|| left_sensor.intersects_line(left.first, left.second)) 
-			    rotation += rotation_interval;
-		else if (
-			   right_sensor.intersects_line(top.first, top.second)
+		bool l = (
+			left_sensor.intersects_line(top.first, top.second)
+			|| left_sensor.intersects_line(right.first, right.second)
+			|| left_sensor.intersects_line(bottom.first, bottom.second)
+			|| left_sensor.intersects_line(left.first, left.second)
+			|| left_sensor.intersects(other_vehicle_locations));
+
+		bool r = (
+			right_sensor.intersects_line(top.first, top.second)
 			|| right_sensor.intersects_line(right.first, right.second)
 			|| right_sensor.intersects_line(bottom.first, bottom.second)
-			|| right_sensor.intersects_line(left.first, left.second))
-			    rotation -= rotation_interval;
+			|| right_sensor.intersects_line(left.first, left.second)
+			|| right_sensor.intersects(other_vehicle_locations));
+
+		if (l && r) {
+			rotation += turning_force * 2.f;
+			speed = max(speed - 0.004f, .5f);
+		} else if (l) {
+			rotation += turning_force;
+			speed += 0.002f;
+		} else if (r) { 
+			rotation -= turning_force;
+			speed += 0.002f;
+		}
+		else {
+			speed = max(speed - 0.001f, .5f);
+		}
 		
 	}
 
@@ -94,7 +101,9 @@ namespace simulation {
 
 		shader.release();
 		glBindVertexArray(0);
+	}
 
+	void Vehicle::draw_sensors() {
 		left_sensor.draw();
 		right_sensor.draw();
 	}

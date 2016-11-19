@@ -68,8 +68,8 @@ namespace simulation {
 	std::pair<vec2, vec2> Sensor::get_sensor_arms() {
 		float heading_angle = to_degrees(cartesian_to_polar(heading));
 
-		float s = to_radians(heading_angle - 20.f);
-		float e = to_radians(heading_angle + 20.f);
+		float s = to_radians(heading_angle - 60.f);
+		float e = to_radians(heading_angle + 60.f);
 
 		return std::pair<vec2, vec2>(polar_to_cartesian(s), polar_to_cartesian(e));
 	}

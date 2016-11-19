@@ -70,6 +70,12 @@ namespace maths {
 		return diff < error_factor;
 	}
 
+	bool almost_equal(const vec2& a, const vec2& b, float error_factor) {
+		float diff_x = std::abs(a.x - b.x);
+		float diff_y = std::abs(a.y - b.y);
+		return diff_x < error_factor && diff_y < error_factor;
+	}
+
 	vec2 cross_product(const vec2& a, const vec2& b) {
 		return{
 

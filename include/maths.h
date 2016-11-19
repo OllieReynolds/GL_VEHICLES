@@ -187,6 +187,7 @@ namespace maths {
 	mat4 scale(const vec3& size);
 	
 	bool almost_equal(float x, float y, float error_factor);
+	bool almost_equal(const vec2& a, const vec2& b, float error_factor);
 
 	vec2 cross_product(const vec2& a, const vec2& b);
 	vec3 cross_product(const vec3& a, const vec3& b);
