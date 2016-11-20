@@ -77,7 +77,6 @@ int main() {
 		return 1;
 	}
 
-#ifdef _DEBUG
 	{ // Check everything initialised correctly
 		std::stringstream ss;
 		ss << "Device Vendor: " << glGetString(GL_VENDOR) << std::endl;
@@ -86,13 +85,10 @@ int main() {
 		ss << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 		std::cout << ss.str() << std::endl;
 	}
-#endif
 
 	// GL Config
-	/*glEnable(GL_BLEND);
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);*/
-	glEnable(GL_DEPTH_TEST);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
 	simulation::Simulation simulation;

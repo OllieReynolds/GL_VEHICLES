@@ -9,20 +9,54 @@ namespace simulation {
 
 		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
-		vec4 points[4] = {
-			{-0.5f, -0.5f, 0.f, 0.f},
-			{-0.5f,  0.5f, 0.f, 1.f},
-			{0.5f, -0.5f, 1.f, 0.f},
-			{0.5f,  0.5f, 1.f, 1.f}
+		float points[] = {
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			-1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f
 		};
 
 		set_gl_buffer_data(sizeof(points), &points);
 
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), 0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vec4), (GLvoid*)(sizeof(float) * 2));
 
 		right_sensor.init();
 		left_sensor.init();
@@ -93,11 +127,10 @@ namespace simulation {
 		mat4 t = transpose(translate(position));
 		mat4 r = rotate_z(rotation);
 		mat4 m = mult(mult(s, r), t);
-
 		shader.set_uniform("model", m);
-		shader.set_uniform("time", utils::elapsed_time());
 		
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		shader.set_uniform("uniform_colour", maths::vec4(1.f, 0.f, 1.f, 1.f));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		shader.release();
 		glBindVertexArray(0);
