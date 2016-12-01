@@ -1,13 +1,14 @@
 #include "..\include\obstacle.h"
 
 namespace simulation {
-	void Obstacle::init() {
+	void Obstacle::init(const mat4& projection_matrix) {
 		shader = {
 			"shaders/obstacle.v.glsl",
 			"shaders/obstacle.f.glsl"
 		};
 
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+		shader.set_uniform("projection", projection_matrix);
+		//shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		vec2 points[4] = {
 			{-0.5f, -0.5f},
@@ -29,7 +30,7 @@ namespace simulation {
 	}
 
 
-	void Obstacle::draw() {
+	void Obstacle::draw(const mat4& view_matrix) {
 		
 		shader.use();
 

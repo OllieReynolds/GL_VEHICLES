@@ -2,14 +2,15 @@
 
 namespace simulation {
 
-	void Cube::init() {
+	void Cube::init(const mat4& projection_matrix) {
 		shader = {
 			"shaders/cube.v.glsl",
 			"shaders/cube.f.glsl"
 		};
 
+		shader.set_uniform("projection", projection_matrix);
 		//shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
-		shader.set_uniform("projection", shared::perspective_matrix(90.f, 1.7786f, 0.1f, 250.f));
+		//shader.set_uniform("projection", shared::perspective_matrix(90.f, 1.7786f, 0.1f, 250.f));
 		
 		//shader.set_uniform("projection", shared::perspective(180.f, 1366.f, 768.f, 0.1f, 100.f));
 
@@ -65,18 +66,21 @@ namespace simulation {
 	}
 
 	void Cube::update(const maths::vec2& cursor_pos) {
-		rotation = sin(utils::elapsed_time()) * 180.f;
+		//rotation = sin(utils::elapsed_time()) * 180.f;
 	}
 
-	void Cube::draw() {
+	void Cube::draw(const mat4& view_matrix) {
 		shader.use();
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 
 
-		//float x = sin(utils::elapsed_time()) * 2.f;
-		//float z = cos(utils::elapsed_time()) * 2.f;
-		shader.set_uniform("view", shared::view_matrix({-2.f, 2.f, -0.f}, {5.f, -5.f, 5.f}, {0.f, 1.f, 0.f}));
+		shader.set_uniform("view", shared::view_matrix(
+		    {0.f, 5.f, -5.f}, 
+		    {0.f, 0.f, 2.f}, 
+		    {0.f, 1.f, 0.f}
+		));
+
 		shader.set_uniform("model", gen_model_matrix());
 
 		shader.set_uniform("uniform_colour", maths::vec4(1.f, 0.f, 1.f, 1.f));

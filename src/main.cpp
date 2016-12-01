@@ -39,10 +39,19 @@ namespace {
 			case GLFW_KEY_S:
 				s->draw_sensors = !s->draw_sensors;
 				break;
+			case (GLFW_KEY_LEFT):
+				s->selection_vehicle--;
+				if (s->selection_vehicle < 0)
+					s->selection_vehicle = s->vehicles.size() - 1;
+				break;
+			case (GLFW_KEY_RIGHT):
+				s->selection_vehicle++;
+				if (s->selection_vehicle > s->vehicles.size() - 1)
+					s->selection_vehicle = 0;
+				break;
 			}
 		}
 	}
-
 }
 
 int main() {

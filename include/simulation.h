@@ -5,6 +5,7 @@
 
 #include "boundary.h"
 #include "cube.h"
+#include "draw_line.h"
 #include "maths.h"
 #include "obstacle.h"
 #include "text.h"
@@ -28,7 +29,7 @@ namespace simulation {
 		vec2 cursor_position;
 		vec2 resolution;
 		vec2 near_far;
-		mat4 resolution_matrix;
+		//mat4 resolution_matrix;
 	
 		// Simulation components
 		Boundary boundary;
@@ -38,11 +39,19 @@ namespace simulation {
 		// GUI components
 		Text text;
 		int state;
+		int num_vehicles;
 
 		// Misc.
 		bool draw_sensors;
 		//Cube cube;
 		std::vector<Cube*> cubes;
+
+		Draw_Line line;
+
+		int selection_vehicle;
+
+
+		mat4 view_matrix;
 	};
 }
 

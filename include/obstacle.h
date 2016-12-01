@@ -19,9 +19,9 @@ namespace simulation {
 		{ 
 		}
 
-		void init();
+		void init(const mat4& projection_matrix);
 		void update(const maths::vec2& cursor_pos);
-		void draw();
+		void draw(const mat4& view_matrix);
 		void destroy();
 	};
 }

@@ -21,9 +21,9 @@ namespace simulation {
 
 		~Drawable() { }
 
-		virtual void init() = 0;
+		virtual void init(const mat4& projection_matrix) = 0;
 		virtual void update(const maths::vec2& cursor_pos) = 0;
-		virtual void draw() = 0;
+		virtual void draw(const mat4& view_matrix) = 0;
 		virtual void destroy() = 0;
 
 		void set_gl_buffer_data(GLsizeiptr size, const void* data) {
