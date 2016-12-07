@@ -49,6 +49,12 @@ namespace {
 				if (s->selection_vehicle > s->vehicles.size() - 1)
 					s->selection_vehicle = 0;
 				break;
+			case (GLFW_KEY_UP):
+				s->fov -= 3.f;
+				break;
+			case (GLFW_KEY_DOWN):
+				s->fov += 3.f;
+				break;
 			}
 		}
 	}

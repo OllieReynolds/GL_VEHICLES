@@ -75,7 +75,7 @@ namespace simulation {
 		return std::pair<vec2, vec2>(polar_to_cartesian(s), polar_to_cartesian(e));
 	}
 
-	void Sensor::draw(const mat4& view_matrix) {
+	void Sensor::draw(const mat4& view_matrix, const mat4& projection_matrix) {
 		shader.use();
 
 		std::pair<vec2, vec2> arms_AB = get_sensor_arms();

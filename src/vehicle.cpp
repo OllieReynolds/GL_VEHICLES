@@ -63,14 +63,14 @@ namespace simulation {
 	}
 
 	void Vehicle::update(const maths::vec2& cursor_pos) {
+		detected = false;
+		
 		other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
 			return almost_equal(v, position.XZ(), 1.f);
 		}), other_vehicle_locations.end());
 
 		direction = polar_to_cartesian(to_radians(rotation));
 		
-		//rotation = (rotation > 360.f) ? 0.f : rotation;
-
 		if (position.z > 100) {
 			if (rotation <= 90)
 				rotation -= turning_force;
@@ -107,18 +107,20 @@ namespace simulation {
 		std::for_each(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 pos) -> auto {
 			float d = distance(position.XZ(), pos);
 			if (d < 20.f) {
-
 				vec2 c = pos - position.XZ();
 				c = normalise(c);
 				float d = dot_product(direction, c);
 				float e = to_degrees(acosf(d));
 
-				if (e < 90.f)
-					rotation -= turning_force;
-				else if (e > 270.f && e < 360.f)
+				if (e < 90.f) {
 					rotation += turning_force;
+					detected = true;
+				} 
+				else if (e > 270.f && e < 360.f) {
+					rotation -= turning_force;
+					detected = true;
+				}	
 			}
-
 		});
 
 		velocity = direction * speed;
@@ -198,7 +200,7 @@ namespace simulation {
 		
 	}
 
-	void Vehicle::draw(const mat4& view_matrix) {
+	void Vehicle::draw(const mat4& view_matrix, const mat4& projection_matrix) {
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		shader.use();
@@ -216,6 +218,7 @@ namespace simulation {
 		
 
 		shader.set_uniform("view", view_matrix);
+		shader.set_uniform("projection", projection_matrix);
 		
 		shader.set_uniform("uniform_colour", maths::vec4(1.f, 0.f, 1.f, 1.f));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -230,9 +233,9 @@ namespace simulation {
 		glBindVertexArray(0);
 	}
 
-	void Vehicle::draw_sensors(const mat4& view_matrix) {
-		left_sensor.draw(view_matrix);
-		right_sensor.draw(view_matrix);
+	void Vehicle::draw_sensors(const mat4& view_matrix, const mat4& projection_matrix) {
+		left_sensor.draw(view_matrix, projection_matrix);
+		right_sensor.draw(view_matrix, projection_matrix);
 	}
 
 	void Vehicle::destroy() {

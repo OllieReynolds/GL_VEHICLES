@@ -26,7 +26,7 @@ namespace simulation {
 
 	}
 
-	void Boundary::draw(const mat4& view_matrix) {
+	void Boundary::draw(const mat4& view_matrix, const mat4& projection_matrix) {
 		shader.use();
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);

@@ -20,7 +20,7 @@ namespace simulation {
 
 		void init(const mat4& projection_matrix);
 		void update(const maths::vec2& cursor_pos);
-		void draw(const mat4& view_matrix);
+		void draw(const mat4& view_matrix, const mat4& projection_matrix);
 		void destroy();
 
 		std::pair<vec2, vec2> get_sensor_arms();

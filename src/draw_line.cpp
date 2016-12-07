@@ -21,7 +21,7 @@ void Draw_Line::init_line(const mat4& projection_matrix) {
 }
 
 
-void Draw_Line::draw_line(const mat4& view_matrix, const vec3& a, const vec3& b) {
+void Draw_Line::draw_line(const mat4& view_matrix,const mat4& projection_matrix, const vec3& a, const vec3& b) {
 	shader.use();
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -35,6 +35,7 @@ void Draw_Line::draw_line(const mat4& view_matrix, const vec3& a, const vec3& b)
 	vec3 still_pos = {0.f, 30.f, 150.f};
 
 	shader.set_uniform("view", view_matrix);
+	shader.set_uniform("projection", projection_matrix);
 
 	mat4 s = scale(1.f);
 	mat4 t = transpose(translate(0.f));

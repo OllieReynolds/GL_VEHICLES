@@ -52,6 +52,9 @@ namespace simulation {
 
 
 		mat4 view_matrix;
+		mat4 perspective_matrix;
+
+		float fov;
 	};
 }
 

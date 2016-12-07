@@ -30,7 +30,7 @@ namespace simulation {
 	}
 
 
-	void Obstacle::draw(const mat4& view_matrix) {
+	void Obstacle::draw(const mat4& view_matrix, const mat4& projection_matrix) {
 		
 		shader.use();
 

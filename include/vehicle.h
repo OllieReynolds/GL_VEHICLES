@@ -11,7 +11,7 @@ namespace simulation {
 			: Drawable(Transform(), 0.f), turning_force(0.f), speed(0.f), velocity(0.f), acceleration(0.f) { }
 
 		Vehicle(const Transform& transform, const vec4& colour, float turning_force, float speed)
-			: Drawable(transform, colour), turning_force(turning_force), speed(speed), velocity(0.f), acceleration(0.f) 
+			: Drawable(transform, colour), turning_force(turning_force), speed(speed), velocity(0.f), acceleration(0.f), detected(false)
 		{
 			float sz = 50.f;
 
@@ -26,12 +26,14 @@ namespace simulation {
 
 		void init(const mat4& projection_matrix);
 		void update(const maths::vec2& cursor_pos);
-		void draw_sensors(const mat4& view_matrix);
-		void draw(const mat4& view_matrix);
+		void draw_sensors(const mat4& view_matrix, const mat4& projection_matrix);
+		void draw(const mat4& view_matrix, const mat4& projection_matrix);
 		void destroy();
 
 		Sensor left_sensor;
 		Sensor right_sensor;
+
+		bool detected;
 
 		vec2 direction;
 
