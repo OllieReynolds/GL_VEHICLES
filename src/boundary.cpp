@@ -3,10 +3,11 @@
 namespace simulation {
 	void Boundary::init(const mat4& projection_matrix) {
 		shader = {
-			"shaders/boundary.v.glsl",
-			"shaders/boundary.f.glsl"
+			"shaders/uniform_MP.v.glsl",
+			"shaders/uniform_colour.f.glsl"
 		};
 
+		shader.set_uniform("projection", colour);
 		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		vec2 points[4] = {

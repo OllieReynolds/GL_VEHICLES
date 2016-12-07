@@ -3,12 +3,11 @@
 namespace simulation {
 	void Obstacle::init(const mat4& projection_matrix) {
 		shader = {
-			"shaders/obstacle.v.glsl",
-			"shaders/obstacle.f.glsl"
+			"shaders/uniform_MP.v.glsl",
+			"shaders/uniform_colour.f.glsl"
 		};
 
 		shader.set_uniform("projection", projection_matrix);
-		//shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
 		vec2 points[4] = {
 			{-0.5f, -0.5f},
@@ -35,7 +34,7 @@ namespace simulation {
 		shader.use();
 
 		shader.set_uniform("model", gen_model_matrix());
-		shader.set_uniform("colour", colour);
+		shader.set_uniform("uniform_colour", colour);
 
 		glBindVertexArray(gl_array_object);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);

@@ -4,7 +4,6 @@
 #include <glfw3.h>
 
 #include "boundary.h"
-#include "cube.h"
 #include "draw_line.h"
 #include "maths.h"
 #include "obstacle.h"
@@ -14,9 +13,7 @@
 using namespace maths;
 using namespace utils;
 
-
 namespace simulation {
-
 	class Simulation {
 
 	public:
@@ -43,18 +40,13 @@ namespace simulation {
 
 		// Misc.
 		bool draw_sensors;
-		//Cube cube;
-		std::vector<Cube*> cubes;
-
-		Draw_Line line;
-
 		int selection_vehicle;
-
+		float fov;
 
 		mat4 view_matrix;
 		mat4 perspective_matrix;
 
-		float fov;
+		Draw_Line line;
 	};
 }
 

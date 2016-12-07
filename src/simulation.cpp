@@ -10,7 +10,6 @@ namespace simulation {
 		cursor_position   = vec2{0.f, 0.f};
 		resolution        = vec2{1366.f, 768.f};
 		near_far          = vec2{-1.f, 1.f};
-		//resolution_matrix = orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
 
 		vec3 still_pos = {0.f, 30.f, 150.f};
 		view_matrix = shared::view_matrix(
@@ -132,20 +131,13 @@ namespace simulation {
 	}
 
 	void Simulation::destroy() {
-		for (Cube* c : cubes) {
-			c->destroy();
-			delete c;
-		}
-
 		obstacle.destroy();
+		line.destroy_line();
+		text.destroy_text();
 
 		for (Vehicle* v : vehicles) {
 			v->destroy();
 			delete v;
 		}
-
-		line.destroy_line();
-
-		text.destroy_text();
 	}
 }

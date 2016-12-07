@@ -2,10 +2,11 @@
 
 void Draw_Line::init_line(const mat4& projection_matrix) {
 	shader = {
-		"shaders/cube.v.glsl",
-		"shaders/cube.f.glsl"
+		"shaders/uniform_MVP.v.glsl",
+		"shaders/uniform_colour.f.glsl"
 	};
 
+	shader.set_uniform("uniform_colour", colour);
 	shader.set_uniform("projection", projection_matrix);
 
 	glGenVertexArrays(1, &vao);

@@ -3,8 +3,8 @@
 namespace simulation {
 	void Vehicle::init(const mat4& projection_matrix) {
 		shader = {
-			"shaders/default.v.glsl",
-			"shaders/default.f.glsl",
+			"shaders/uniform_MVP.v.glsl",
+			"shaders/uniform_colour.f.glsl",
 		};
 
 		shader.set_uniform("projection", projection_matrix);

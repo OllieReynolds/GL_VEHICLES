@@ -9,13 +9,8 @@ namespace simulation {
 
 	class Boundary : public Drawable {
 	public:
-		Boundary()
-			: Drawable({0.f, 0.f, 0.f}, 0.f) {
-		}
-
-		Boundary(const Transform& t, const vec4& colour)
-			: Drawable(t, colour) { }
-
+		Boundary() : Drawable({0.f, 0.f, 0.f}, 0.f) { }
+		Boundary(const Transform& t, const vec4& colour) : Drawable(t, colour) { }
 		~Boundary() { }
 
 		void init(const mat4& projection_matrix);
