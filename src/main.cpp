@@ -82,7 +82,6 @@ int main() {
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, &cursor_position_callback);
 	glfwSetKeyCallback(window, &key_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		
 	// Glew
 	glewExperimental = GL_TRUE;
@@ -104,6 +103,7 @@ int main() {
 	// GL Config
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	glEnable(GL_BLEND);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
 	simulation::Simulation simulation;

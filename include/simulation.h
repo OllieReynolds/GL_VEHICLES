@@ -15,7 +15,6 @@ using namespace utils;
 
 namespace simulation {
 	class Simulation {
-
 	public:
 		void init();
 		void update();
@@ -23,30 +22,26 @@ namespace simulation {
 		void destroy();
 	
 		// General Settings
-		vec2 cursor_position;
-		vec2 resolution;
-		vec2 near_far;
-		//mat4 resolution_matrix;
-	
-		// Simulation components
-		Boundary boundary;
-		Obstacle obstacle;
-		std::vector<Vehicle*> vehicles;
-
-		// GUI components
-		Text text;
-		int state;
-		int num_vehicles;
-
-		// Misc.
 		bool draw_sensors;
 		int selection_vehicle;
 		float fov;
 
+		vec2 cursor_position;
+		vec2 resolution;
+		vec2 near_far;
+		vec3 observer_position;
 		mat4 view_matrix;
 		mat4 perspective_matrix;
 
+		// Simulation components
+		Boundary boundary;
 		Draw_Line line;
+		std::vector<Vehicle*> vehicles;
+		
+		// GUI components
+		Text text;
+		int state;
+		int num_vehicles;
 	};
 }
 

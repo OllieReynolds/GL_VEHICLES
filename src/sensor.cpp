@@ -3,22 +3,11 @@
 namespace simulation {
 	void Sensor::init(const mat4& projection_matrix)
 	{
-		shader = {
-			"shaders/sensor.v.glsl",
-			"shaders/sensor.f.glsl"
-		};
+		shader = {"shaders/sensor.v.glsl", "shaders/sensor.f.glsl"};
 
 		shader.set_uniform("projection", projection_matrix);
-		//shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
 
-		vec4 points[4] = {
-			{-0.5f, -0.5f, 0.f, 0.f},
-			{-0.5f,  0.5f, 0.f, 1.f},
-			{0.5f, -0.5f, 1.f, 0.f},
-			{0.5f,  0.5f, 1.f, 1.f}
-		};
-
-		set_gl_buffer_data(sizeof(points), &points);
+		set_gl_buffer_data(sizeof(utils::quad_points_and_uvs), &utils::quad_points_and_uvs);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);

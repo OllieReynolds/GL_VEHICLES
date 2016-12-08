@@ -2,15 +2,16 @@
 
 #include <vector>
 
+#include "draw_line.h"
 #include "obstacle.h"
 #include "sensor.h"
+#include "global_data.h"
 
 namespace simulation {
 	struct Vehicle : Drawable {
-		Vehicle()
-			: Drawable(Transform(), 0.f), turning_force(0.f), speed(0.f), velocity(0.f), acceleration(0.f) { }
+		Vehicle() : Drawable(Transform(), 0.f), turning_force(0.f), speed(0.f), velocity(0.f), acceleration(0.f) { }
 
-		Vehicle(const Transform& transform, const vec4& colour, float turning_force, float speed)
+		Vehicle(const Transform& transform, const vec4& colour, float turning_force, float speed, Draw_Line* draw_line)
 			: Drawable(transform, colour), turning_force(turning_force), speed(speed), velocity(0.f), acceleration(0.f), detected(false)
 		{
 			float sz = 50.f;
@@ -29,6 +30,8 @@ namespace simulation {
 		void draw_sensors(const mat4& view_matrix, const mat4& projection_matrix);
 		void draw(const mat4& view_matrix, const mat4& projection_matrix);
 		void destroy();
+
+		Draw_Line* dl;
 
 		Sensor left_sensor;
 		Sensor right_sensor;

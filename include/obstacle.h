@@ -3,21 +3,16 @@
 #include "drawable.h"
 #include "maths.h"
 #include "vehicle.h"
+#include "global_data.h"
 
 namespace simulation {
 	using namespace maths;
 
 	class Obstacle : public Drawable {
 	public:
-		Obstacle()
-			: Drawable({0.f, 0.f, 0.f}, 0.f) 
-		{
-		}
+		Obstacle() : Drawable({0.f, 0.f, 0.f}, 0.f) { }
 
-		Obstacle(const Transform& t, const vec4& colour = 0.f) 
-			: Drawable(t, colour) 
-		{ 
-		}
+		Obstacle(const Transform& t, const vec4& colour = 0.f) : Drawable(t, colour) { }
 
 		void init(const mat4& projection_matrix);
 		void update(const maths::vec2& cursor_pos);

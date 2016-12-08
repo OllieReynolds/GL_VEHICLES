@@ -9,25 +9,16 @@ namespace simulation {
 
 		shader.set_uniform("projection", projection_matrix);
 
-		vec2 points[4] = {
-			{-0.5f, -0.5f},
-			{-0.5f,  0.5f},
-			{0.5f, -0.5f},
-			{0.5f,  0.5f}
-		};
-
-		set_gl_buffer_data(sizeof(points), &points);
+		set_gl_buffer_data(sizeof(utils::quad_points), &utils::quad_points);
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);	
 	}
 
-
 	void Obstacle::update(const maths::vec2& cursor_pos) {
 		position.x = cursor_pos.x;
 		position.y = cursor_pos.y;
 	}
-
 
 	void Obstacle::draw(const mat4& view_matrix, const mat4& projection_matrix) {
 		

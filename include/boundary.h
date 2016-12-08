@@ -1,5 +1,6 @@
 #pragma once
 
+#include "global_data.h"
 #include "maths.h"
 #include "drawable.h"
 
@@ -9,7 +10,7 @@ namespace simulation {
 
 	class Boundary : public Drawable {
 	public:
-		Boundary() : Drawable({0.f, 0.f, 0.f}, 0.f) { }
+		Boundary() : Drawable(Transform(), utils::colour::black) { }
 		Boundary(const Transform& t, const vec4& colour) : Drawable(t, colour) { }
 		~Boundary() { }
 

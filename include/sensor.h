@@ -6,6 +6,7 @@
 #include "maths.h"
 #include "shared.h"
 #include "utils.h"
+#include "global_data.h"
 
 namespace simulation {
 	using namespace maths;

@@ -16,9 +16,7 @@ namespace simulation {
 
 	class Drawable {
 	public:
-		Drawable(const Transform& t, const vec4& colour)
-			: position(t.position), size(t.size), rotation(t.rotation), colour(colour) { }
-
+		Drawable(const Transform& t, const vec4& colour) : position(t.position), size(t.size), rotation(t.rotation), colour(colour) { }
 		~Drawable() { }
 
 		virtual void init(const mat4& projection_matrix) = 0;
