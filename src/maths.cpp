@@ -179,6 +179,10 @@ namespace maths {
 		return b1 && b2 && b3;
 	}
 
+	bool point_quad_intersect(const vec2& p, float left, float right, float top, float bottom) {
+		return p.x >= left && p.x <= right && p.y >= bottom && p.y <= top;
+	}
+
 	mat4 rotate_y(float degrees) {
 		float rads = degrees * (PI / 180.f);
 

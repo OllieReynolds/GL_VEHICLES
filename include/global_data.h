@@ -13,4 +13,5 @@ namespace utils {
 	extern vec2 quad_points[4];
 	extern vec4 quad_points_and_uvs[4];
 	extern float cube_points[108];
+	extern float cube_vertices_normals[216];
 };

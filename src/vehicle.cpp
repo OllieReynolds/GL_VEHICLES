@@ -1,6 +1,7 @@
 #include "..\include\vehicle.h"
 
 namespace simulation {
+
 	void Vehicle::init(const mat4& projection_matrix) {
 		shader = {
 			"shaders/uniform_MVP.v.glsl",
@@ -18,50 +19,23 @@ namespace simulation {
 		left_sensor.init(projection_matrix);
 	}
 
+
 	void Vehicle::update(const maths::vec2& cursor_pos) {
 		detected = false;
 		
-		other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
-			return almost_equal(v, position.XZ(), 1.f);
-		}), other_vehicle_locations.end());
+		other_vehicle_locations.erase(
+			std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
+			    return almost_equal(v, position.XZ(), 5.f);
+		    }), other_vehicle_locations.end()
+		);
 
 		direction = polar_to_cartesian(to_radians(rotation));
 		
-		if (position.z > 100) {
-			if (rotation <= 90)
-				rotation -= turning_force;
-			else
-				rotation += turning_force;
+		if (!point_quad_intersect(position.XZ(), -100, 100, 100, -100)) rotation += turning_force;
 
-			rotation = (rotation > 360.f) ? 0.f : rotation;
-		}
-		else if (position.x < -100) {
-			if (rotation <= 180)
-				rotation -= turning_force;
-			else
-				rotation += turning_force;
-
-			rotation = (rotation > 360.f) ? 0.f : rotation;
-		}
-		else if (position.z < -100) {
-			if (rotation <= 270)
-				rotation -= turning_force;
-			else
-				rotation += turning_force;
-
-			rotation = (rotation > 360.f) ? 0.f : rotation;
-		}
-		else if (position.x > 100) {
-			if (rotation <= 360)
-				rotation -= turning_force;
-			else
-				rotation += turning_force;
-
-			rotation = (rotation > 360.f) ? 0.f : rotation;
-		}
-		
 		std::for_each(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 pos) -> auto {
 			float d = distance(position.XZ(), pos);
+
 			if (d < 20.f) {
 				vec2 c = pos - position.XZ();
 				c = normalise(c);
@@ -81,79 +55,6 @@ namespace simulation {
 
 		velocity = direction * speed;
 		position += velocity;
-	
-
-		
-
-		/*if (position.z > 50 || position.z < -50 || position.x > 50 || position.x < -50)
-			rotation += turning_force;*/
-	
-		
-		/*const static std::pair<vec2, vec2> top = {{-50.f, 50.f}, {50.f, 50.f}};
-		const static std::pair<vec2, vec2> right = {top.second, {50.f, -50.f}};
-		const static std::pair<vec2, vec2> bottom = {right.second, {-50.f, -50.f}};
-		const static std::pair<vec2, vec2> left = {bottom.second, top.first};
-
-
-		bool l = (
-		left_sensor.intersects_line(top.first, top.second)
-		|| left_sensor.intersects_line(right.first, right.second)
-		|| left_sensor.intersects_line(bottom.first, bottom.second)
-		|| left_sensor.intersects_line(left.first, left.second));
-
-		if (l) {
-				rotation += turning_force;
-				speed += 0.002f;
-		}*/
-
-		/*vec2 vehicle_heading = polar_to_cartesian(to_radians(rotation));
-		velocity = normalise(vehicle_heading);
-		position += velocity * speed;
-
-
-
-		left_sensor.parent_transform = {position, size, rotation};
-		right_sensor.parent_transform = {position, size, rotation};
-
-		left_sensor.update(cursor_pos);
-		right_sensor.update(cursor_pos);*/
-
-		/*other_vehicle_locations.push_back(cursor_pos);
-
-		other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
-		return almost_equal(v, position.XZ(), 1.f);
-		}), other_vehicle_locations.end());*/
-
-		//bool l = (
-		//	left_sensor.intersects_line(top.first, top.second)
-		//	|| left_sensor.intersects_line(right.first, right.second)
-		//	|| left_sensor.intersects_line(bottom.first, bottom.second)
-		//	|| left_sensor.intersects_line(left.first, left.second)
-		//	|| left_sensor.intersects(other_vehicle_locations));
-
-		//bool r = (
-		//	right_sensor.intersects_line(top.first, top.second)
-		//	|| right_sensor.intersects_line(right.first, right.second)
-		//	|| right_sensor.intersects_line(bottom.first, bottom.second)
-		//	|| right_sensor.intersects_line(left.first, left.second)
-		//	|| right_sensor.intersects(other_vehicle_locations));
-
-		//if (l && r) {
-		//	rotation += turning_force * 2.f;
-		//	speed = max(speed - 0.004f, .5f);
-		//} else if (l) {
-		//	rotation += turning_force;
-		//	speed += 0.002f;
-		//} else if (r) { 
-		//	rotation -= turning_force;
-		//	speed += 0.002f;
-		//}
-		//else {
-		//	//speed = max(speed - 0.001f, .5f);
-		//	rotation += 2;
-		//	//speed += 0.002f;
-		//}
-		
 	}
 
 	void Vehicle::draw(const mat4& view_matrix, const mat4& projection_matrix) {
@@ -216,3 +117,75 @@ namespace simulation {
 		return attribs;
 	}
 }
+
+
+
+
+/*if (position.z > 50 || position.z < -50 || position.x > 50 || position.x < -50)
+rotation += turning_force;*/
+
+
+/*const static std::pair<vec2, vec2> top = {{-50.f, 50.f}, {50.f, 50.f}};
+const static std::pair<vec2, vec2> right = {top.second, {50.f, -50.f}};
+const static std::pair<vec2, vec2> bottom = {right.second, {-50.f, -50.f}};
+const static std::pair<vec2, vec2> left = {bottom.second, top.first};
+
+
+bool l = (
+left_sensor.intersects_line(top.first, top.second)
+|| left_sensor.intersects_line(right.first, right.second)
+|| left_sensor.intersects_line(bottom.first, bottom.second)
+|| left_sensor.intersects_line(left.first, left.second));
+
+if (l) {
+rotation += turning_force;
+speed += 0.002f;
+}*/
+
+/*vec2 vehicle_heading = polar_to_cartesian(to_radians(rotation));
+velocity = normalise(vehicle_heading);
+position += velocity * speed;
+
+
+
+left_sensor.parent_transform = {position, size, rotation};
+right_sensor.parent_transform = {position, size, rotation};
+
+left_sensor.update(cursor_pos);
+right_sensor.update(cursor_pos);*/
+
+/*other_vehicle_locations.push_back(cursor_pos);
+
+other_vehicle_locations.erase(std::remove_if(other_vehicle_locations.begin(), other_vehicle_locations.end(), [&](vec2 v) -> bool {
+return almost_equal(v, position.XZ(), 1.f);
+}), other_vehicle_locations.end());*/
+
+//bool l = (
+//	left_sensor.intersects_line(top.first, top.second)
+//	|| left_sensor.intersects_line(right.first, right.second)
+//	|| left_sensor.intersects_line(bottom.first, bottom.second)
+//	|| left_sensor.intersects_line(left.first, left.second)
+//	|| left_sensor.intersects(other_vehicle_locations));
+
+//bool r = (
+//	right_sensor.intersects_line(top.first, top.second)
+//	|| right_sensor.intersects_line(right.first, right.second)
+//	|| right_sensor.intersects_line(bottom.first, bottom.second)
+//	|| right_sensor.intersects_line(left.first, left.second)
+//	|| right_sensor.intersects(other_vehicle_locations));
+
+//if (l && r) {
+//	rotation += turning_force * 2.f;
+//	speed = max(speed - 0.004f, .5f);
+//} else if (l) {
+//	rotation += turning_force;
+//	speed += 0.002f;
+//} else if (r) { 
+//	rotation -= turning_force;
+//	speed += 0.002f;
+//}
+//else {
+//	//speed = max(speed - 0.001f, .5f);
+//	rotation += 2;
+//	//speed += 0.002f;
+//}

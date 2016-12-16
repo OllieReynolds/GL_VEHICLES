@@ -25,8 +25,8 @@ namespace simulation {
 		boundary.init(orthographic_matrix);
 		text.init_text(resolution);
 
-		line = Draw_Line();
-		line.init_line(perspective_matrix);
+		line = new Draw_Line();
+		line->init_line(perspective_matrix);
 
 		for (int i = 0; i < num_vehicles; i++) {
 			float random_x = utils::gen_random(-80.f, 80.f);
@@ -40,7 +40,7 @@ namespace simulation {
 			float    speed = utils::gen_random(0.2f, 0.5f);
 			float steering = utils::gen_random(3.5f, 4.5f);
 
-			Vehicle*     v = new Vehicle{t, colour, steering, speed, &line};
+			Vehicle*     v = new Vehicle{t, colour, steering, speed};
 			
 			v->init(perspective_matrix);
 			vehicles.push_back(v);
@@ -80,14 +80,15 @@ namespace simulation {
 			vec2 scaled_direction = v->direction * 20.f;
 			vec3 line_end = vec3{v->position.x + scaled_direction.x, 0.f, v->position.z + scaled_direction.y};
 
-			line.colour = (v->detected) ? vec4{0.f, 1.f, 0.f, 1.f} : vec4{1.f, 1.f, 0.f, 1.f};
-			
-			line.draw_line(view_matrix, perspective_matrix, line_end, v->position);
+			line->colour = (v->detected) ? vec4{0.f, 1.f, 0.f, 1.f} : vec4{1.f, 1.f, 0.f, 1.f};
+			line->draw_line(view_matrix, perspective_matrix, line_end, v->position);
 		}
 
-		line.colour = {1.f, 0.f, 0.f, 1.f};
-		line.draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
+		line->colour = {1.f, 0.f, 0.f, 1.f};
+		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 		glDisable(GL_DEPTH_TEST);
+		
+		
 		boundary.draw(view_matrix, perspective_matrix);
 
 		float rel = 0.8f;
@@ -98,7 +99,9 @@ namespace simulation {
 	}
 
 	void Simulation::destroy() {
-		line.destroy_line();
+		line->destroy_line();
+		delete line;
+
 		text.destroy_text();
 
 		for (Vehicle* v : vehicles) {

@@ -35,7 +35,7 @@ namespace simulation {
 
 		// Simulation components
 		Boundary boundary;
-		Draw_Line line;
+		Draw_Line* line;
 		std::vector<Vehicle*> vehicles;
 		
 		// GUI components
