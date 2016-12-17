@@ -85,7 +85,7 @@ namespace simulation {
 			float y = (768.f * 0.5f) + sin((inc * i) + t) * 100.f;
 
 			vec2 quad_position = {x, y};
-			quad_renderer.draw_quad(view_matrix, perspective_matrix, quad_position, quad_size, {1.f, 0.f, 0.f, 1.f});
+			quad_renderer.draw_quad_2D(view_matrix, orthographic_matrix, quad_position, quad_size, {1.f, 0.f, 0.f, 1.f});
 		}
 
 		float rel = 0.8f;

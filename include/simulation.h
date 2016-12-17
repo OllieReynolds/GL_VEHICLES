@@ -6,7 +6,6 @@
 #include "draw_line.h"
 #include "draw_quad.h"
 #include "maths.h"
-#include "obstacle.h"
 #include "text.h"
 #include "vehicle.h"
 
@@ -24,16 +23,13 @@ namespace simulation {
 		// General Settings
 		bool draw_sensors;
 		int selection_vehicle;
-		float fov;
+		
 
 		vec2 cursor_position;
-		vec2 resolution;
-		vec2 near_far;
+		
 		vec3 observer_position;
 
-		mat4 view_matrix;
-		mat4 perspective_matrix;
-		mat4 orthographic_matrix;
+		
 
 		// Simulation components
 		Draw_Line* line;
@@ -44,6 +40,17 @@ namespace simulation {
 		Text text;
 		int state;
 		int num_vehicles;
+
+
+
+
+		float fov;
+		vec2 resolution;
+		vec2 near_far;
+
+		mat4 view_matrix;
+		mat4 perspective_matrix;
+		mat4 orthographic_matrix;
 	};
 }
 

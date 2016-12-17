@@ -6,11 +6,11 @@ namespace utils {
 		vec4 white = {1.f, 1.f, 1.f, 1.f};
 	};
 
-	maths::vec2 quad_points[4] = {
-		{-0.5f, -0.5f},
-		{-0.5f,  0.5f},
-		{ 0.5f, -0.5f},
-		{ 0.5f,  0.5f}
+	maths::vec3 quad_points[4] = {
+		{-0.5f, -0.5f, 0.f},
+		{-0.5f,  0.5f, 0.f},
+		{ 0.5f, -0.5f, 0.f},
+		{ 0.5f,  0.5f, 0.f}
 	};
 
 	maths::vec4 quad_points_and_uvs[4] = {

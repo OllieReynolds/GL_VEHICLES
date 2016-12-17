@@ -33,4 +33,11 @@ namespace utils {
 		mat4 t = transpose(translate(vec3{position, 0.f}));
 		return mult(s, t);
 	}
+
+	static mat4 gen_model_matrix(const vec3& size, const vec3& position, float rotation) {
+		mat4 s = scale(size);
+		mat4 t = transpose(translate(position));
+		mat4 r = rotate_y(rotation);
+		return mult(mult(s, r), t);
+	}
 }

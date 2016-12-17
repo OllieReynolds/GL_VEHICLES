@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "draw_line.h"
-#include "obstacle.h"
 #include "sensor.h"
 #include "global_data.h"
 
