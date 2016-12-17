@@ -2,31 +2,27 @@
 
 namespace simulation {
 	void Simulation::init() {
-		state              = 1;
-		selection_vehicle  = 0;
-		num_vehicles       = 50;
-		fov                = 90.f;
-		draw_sensors       = false;
-		cursor_position    = vec2{   0.f,   0.f};
-		resolution         = vec2{1366.f, 768.f};
-		near_far           = vec2{  -1.f,   1.f};
-		observer_position  = vec3{   0.f, 100.f, 0.f};
-		view_matrix        = shared::view_matrix(observer_position, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f});
-		perspective_matrix = shared::perspective_matrix(fov, 1.7786f, 0.1f, 5000.f);
-
-		Transform boundary_transform = Transform{vec3{resolution.x * 0.665f, resolution.y * 0.73f, 0.f}, vec3{340.f, 200.f, 0.f}, 0.f};
-		Transform obstacle_transform = Transform{vec3{600.f, 450, 0.f}, vec3{16.f, 16.f, 0.f}, 0.f};
-
-		boundary = Boundary{boundary_transform, vec4{1.f, 1.f, 1.f, 0.05f}};
-		text     = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
-
-		mat4 orthographic_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
+		state               = 1;
+		selection_vehicle   = 0;
+		num_vehicles        = 50;
+		fov                 = 90.f;
+		draw_sensors        = false;
+		cursor_position     = vec2{   0.f,   0.f};
+		resolution          = vec2{1366.f, 768.f};
+		near_far            = vec2{  -1.f,   1.f};
+		observer_position   = vec3{   0.f, 100.f, 0.f};
+		view_matrix         = shared::view_matrix(observer_position, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f});
+		perspective_matrix  = shared::perspective_matrix(fov, 1.7786f, 0.1f, 5000.f);
+		orthographic_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
+		boundary            = Boundary{Transform{vec3{resolution.x * 0.665f, resolution.y * 0.73f, 0.f}, vec3{340.f, 200.f, 0.f}, 0.f}, vec4{1.f, 1.f, 1.f, 0.05f}};
+		text                = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
+		line                = new Draw_Line();
+		quad_renderer       = DrawQuad();
 
 		boundary.init(orthographic_matrix);
 		text.init_text(resolution);
-
-		line = new Draw_Line();
 		line->init_line(perspective_matrix);
+		quad_renderer.init_quad(orthographic_matrix);
 
 		for (int i = 0; i < num_vehicles; i++) {
 			float random_x = utils::gen_random(-80.f, 80.f);
@@ -49,12 +45,7 @@ namespace simulation {
 
 	void Simulation::update() {
 		perspective_matrix = shared::perspective_matrix(fov, 1.7786f, 0.1f, 1000.f);
-
-		view_matrix = shared::view_matrix(
-			observer_position,
-			vehicles.at(selection_vehicle)->position,
-			{0.f, 1.f, 0.f}
-		);
+		view_matrix = shared::view_matrix(observer_position, vehicles.at(selection_vehicle)->position, {0.f, 1.f, 0.f});
 
 		if (state == 1) {
 			boundary.update(cursor_position);
@@ -87,9 +78,11 @@ namespace simulation {
 		line->colour = {1.f, 0.f, 0.f, 1.f};
 		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 		glDisable(GL_DEPTH_TEST);
-		
+
 		
 		boundary.draw(view_matrix, perspective_matrix);
+
+		quad_renderer.draw_quad(view_matrix, perspective_matrix, {00.f, 0.f}, {340.f, 200.f});
 
 		float rel = 0.8f;
 		for (std::string s : vehicles.at(selection_vehicle)->string_attribs()) {
@@ -101,6 +94,8 @@ namespace simulation {
 	void Simulation::destroy() {
 		line->destroy_line();
 		delete line;
+
+		quad_renderer.destroy_quad();
 
 		text.destroy_text();
 

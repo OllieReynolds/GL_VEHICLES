@@ -7,8 +7,8 @@ namespace simulation {
 			"shaders/uniform_colour.f.glsl"
 		};
 
-		shader.set_uniform("projection", colour);
-		shader.set_uniform("projection", maths::orthographic_matrix({1366.f, 768.f}, -1.f, 1.f, maths::mat4()));
+		//shader.set_uniform("projection", colour);
+		shader.set_uniform("projection", projection_matrix);
 
 		vec2 points[4] = {
 			{-0.5f, -0.5f},

@@ -5,6 +5,7 @@
 
 #include "boundary.h"
 #include "draw_line.h"
+#include "draw_quad.h"
 #include "maths.h"
 #include "obstacle.h"
 #include "text.h"
@@ -30,12 +31,15 @@ namespace simulation {
 		vec2 resolution;
 		vec2 near_far;
 		vec3 observer_position;
+
 		mat4 view_matrix;
 		mat4 perspective_matrix;
+		mat4 orthographic_matrix;
 
 		// Simulation components
 		Boundary boundary;
 		Draw_Line* line;
+		DrawQuad quad_renderer;
 		std::vector<Vehicle*> vehicles;
 		
 		// GUI components

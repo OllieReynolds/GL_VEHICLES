@@ -27,4 +27,10 @@ namespace utils {
 			str = " " + str;
 		return str;
 	}
+
+	static mat4 gen_model_matrix(const vec2& size, const vec2& position) {
+		mat4 s = scale(vec3{size, 0.f});
+		mat4 t = transpose(translate(vec3{position, 0.f}));
+		return mult(s, t);
+	}
 }
