@@ -30,11 +30,11 @@ void DrawQuad::init_quad(const mat4& projection_matrix) {
 	glEnableVertexAttribArray(0);
 }
 
-void DrawQuad::draw_quad(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size) {
+void DrawQuad::draw_quad(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size, const vec4& colour) {
 	shader.use();
 	glBindVertexArray(vao);
 
-	shader.set_uniform("uniform_colour", vec4{1.f, 1.f, 1.f, 1.f});
+	shader.set_uniform("uniform_colour", colour);
 	shader.set_uniform("model", utils::gen_model_matrix(size, position));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

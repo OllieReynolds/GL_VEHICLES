@@ -3,7 +3,6 @@
 #include <glew.h>
 #include <glfw3.h>
 
-#include "boundary.h"
 #include "draw_line.h"
 #include "draw_quad.h"
 #include "maths.h"
@@ -37,7 +36,6 @@ namespace simulation {
 		mat4 orthographic_matrix;
 
 		// Simulation components
-		Boundary boundary;
 		Draw_Line* line;
 		DrawQuad quad_renderer;
 		std::vector<Vehicle*> vehicles;

@@ -14,12 +14,10 @@ namespace simulation {
 		view_matrix         = shared::view_matrix(observer_position, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f});
 		perspective_matrix  = shared::perspective_matrix(fov, 1.7786f, 0.1f, 5000.f);
 		orthographic_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
-		boundary            = Boundary{Transform{vec3{resolution.x * 0.665f, resolution.y * 0.73f, 0.f}, vec3{340.f, 200.f, 0.f}, 0.f}, vec4{1.f, 1.f, 1.f, 0.05f}};
 		text                = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
 		line                = new Draw_Line();
 		quad_renderer       = DrawQuad();
 
-		boundary.init(orthographic_matrix);
 		text.init_text(resolution);
 		line->init_line(perspective_matrix);
 		quad_renderer.init_quad(orthographic_matrix);
@@ -48,8 +46,6 @@ namespace simulation {
 		view_matrix = shared::view_matrix(observer_position, vehicles.at(selection_vehicle)->position, {0.f, 1.f, 0.f});
 
 		if (state == 1) {
-			boundary.update(cursor_position);
-
 			std::vector<vec2> locations;
 			for (Vehicle* v : vehicles) {
 				locations.push_back(v->position.XZ());
@@ -79,10 +75,18 @@ namespace simulation {
 		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 		glDisable(GL_DEPTH_TEST);
 
-		
-		boundary.draw(view_matrix, perspective_matrix);
 
-		quad_renderer.draw_quad(view_matrix, perspective_matrix, {00.f, 0.f}, {340.f, 200.f});
+		float t = utils::elapsed_time();
+		static vec2 quad_size = {50.f, 50.f};
+
+		for (int i = 0; i < 6; i++) {
+			float inc = 2 * PI / 6;
+			float x = (1366.f * 0.5f) + cos((inc * i) + t) * 100.f;
+			float y = (768.f * 0.5f) + sin((inc * i) + t) * 100.f;
+
+			vec2 quad_position = {x, y};
+			quad_renderer.draw_quad(view_matrix, perspective_matrix, quad_position, quad_size, {1.f, 0.f, 0.f, 1.f});
+		}
 
 		float rel = 0.8f;
 		for (std::string s : vehicles.at(selection_vehicle)->string_attribs()) {

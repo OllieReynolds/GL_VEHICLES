@@ -12,6 +12,8 @@
 
 																													   
 namespace maths {
+	extern double PI;
+
 	class vec2 {
 	public:
 		vec2() : n{0.f, 0.f} {}

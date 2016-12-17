@@ -1,7 +1,7 @@
 #include "..\include\maths.h"
 
 namespace maths {
-	const float PI = 3.14159265358979f;
+	double PI = 3.14159265358979;
 
 	float min(float x, float y) {
 		if (y < x) 
