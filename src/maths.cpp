@@ -183,6 +183,25 @@ namespace maths {
 		return p.x >= left && p.x <= right && p.y >= bottom && p.y <= top;
 	}
 
+	mat4 rotate(const vec3& rotation) {
+		mat4 x = rotate_x(rotation.x);
+		mat4 y = rotate_y(rotation.y);
+		mat4 z = rotate_z(rotation.z);
+
+		return mult(mult(z, y), x);
+	}
+
+	mat4 rotate_x(float degrees) {
+		float rads = degrees * (PI / 180.f);
+
+		return mat4{
+			{1.f, 0.f,        0.f,       0.f},
+			{0.f, cos(rads), -sin(rads), 0.f},
+			{0.f, sin(rads),  cos(rads), 0.f},
+			{0.f, 0.f,        0.f,       1.f}
+		};
+	}
+
 	mat4 rotate_y(float degrees) {
 		float rads = degrees * (PI / 180.f);
 

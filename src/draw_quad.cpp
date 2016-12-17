@@ -38,7 +38,7 @@ void DrawQuad::draw_quad_2D(const mat4& view_matrix, const mat4& projection_matr
 	shader_2D.release();
 }
 
-void DrawQuad::draw_quad_3D(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, float rotation, const vec4& colour) {
+void DrawQuad::draw_quad_3D(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, const vec3& rotation, const vec4& colour) {
 	shader_3D.use();
 	glBindVertexArray(vao);
 

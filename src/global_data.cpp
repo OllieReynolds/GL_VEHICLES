@@ -2,8 +2,13 @@
 
 namespace utils {
 	namespace colour {
-		vec4 black = {0.f};
+		vec4 black = {0.f, 0.f, 0.f, 1.f};
 		vec4 white = {1.f, 1.f, 1.f, 1.f};
+		vec4   red = {1.f, 0.f, 0.f, 1.f};
+		vec4 green = {0.f, 1.f, 0.f, 1.f};
+		vec4  blue = {0.f, 0.f, 1.f, 1.f};
+		vec4  grey = {.5f, .5f, .5f, 1.f};
+		vec4 dark_grey = {.25f, .25f, .25f, 1.f};
 	};
 
 	maths::vec3 quad_points[4] = {

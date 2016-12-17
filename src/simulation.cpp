@@ -25,7 +25,7 @@ namespace simulation {
 		for (int i = 0; i < num_vehicles; i++) {
 			float random_x = utils::gen_random(-80.f, 80.f);
 			float random_z = utils::gen_random(-80.f, 80.f);
-			vec3  position = vec3{random_x, 0.f, random_z};
+			vec3  position = vec3{random_x, 4.f, random_z};
 			vec3      size = vec3{4.f, 2.f, 2.f};
 			float rotation = utils::gen_random(0.f, 360.f);
 			Transform    t = Transform{position, size, rotation};
@@ -71,12 +71,15 @@ namespace simulation {
 			line->draw_line(view_matrix, perspective_matrix, line_end, v->position);
 		}
 
-		line->colour = {1.f, 0.f, 0.f, 1.f};
-		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
+		
+		float t = utils::elapsed_time();
+		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {200.f}, {90.f, 0.f, t * 32.f}, utils::colour::dark_grey);
+
 		glDisable(GL_DEPTH_TEST);
 
+		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 
-		float t = utils::elapsed_time();
+
 		static vec2 quad_size = {50.f, 50.f};
 
 		for (int i = 0; i < 6; i++) {

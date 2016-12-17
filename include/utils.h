@@ -40,4 +40,12 @@ namespace utils {
 		mat4 r = rotate_y(rotation);
 		return mult(mult(s, r), t);
 	}
+
+	static mat4 gen_model_matrix(const vec3& size, const vec3& position, const vec3& rotation) {
+		mat4 s = scale(size);
+		mat4 t = transpose(translate(position));
+		mat4 r = rotate(rotation);
+		
+		return mult(mult(s, r), t);
+	}
 }
