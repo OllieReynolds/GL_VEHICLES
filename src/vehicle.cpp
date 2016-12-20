@@ -55,6 +55,8 @@ namespace simulation {
 
 		velocity = direction * speed;
 		position += velocity;
+
+		direction = polar_to_cartesian(to_radians(rotation));
 	}
 
 	void Vehicle::draw(const mat4& view_matrix, const mat4& projection_matrix) {
@@ -79,12 +81,6 @@ namespace simulation {
 		
 		shader.set_uniform("uniform_colour", maths::vec4(1.f, 0.f, 1.f, 1.f));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-		glLineWidth(2.f);
-		shader.set_uniform("uniform_colour", maths::vec4(0.f, 1.f, 1.f, 1.f));
-		glDrawArrays(GL_LINE_STRIP, 0, 36);
 
 		shader.release();
 		glBindVertexArray(0);

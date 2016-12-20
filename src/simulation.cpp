@@ -43,7 +43,21 @@ namespace simulation {
 
 	void Simulation::update() {
 		perspective_matrix = shared::perspective_matrix(fov, 1.7786f, 0.1f, 1000.f);
-		view_matrix = shared::view_matrix(observer_position, vehicles.at(selection_vehicle)->position, {0.f, 1.f, 0.f});
+
+		observer_position = vehicles.at(selection_vehicle)->position;
+		observer_position.y += 10.f;
+		
+
+		vec2 direction = vehicles.at(selection_vehicle)->direction;
+		vec3 target = observer_position + vec3{direction.x, 0.f, direction.y};
+
+		float dist = 10.f;
+		observer_position.x -= (direction.x * dist);
+		observer_position.z -= (direction.y * dist);
+
+		view_matrix = shared::view_matrix(observer_position, target, {0.f, 1.f, 0.f});
+
+		
 
 		if (state == 1) {
 			std::vector<vec2> locations;
@@ -70,7 +84,7 @@ namespace simulation {
 			line->colour = (v->detected) ? vec4{0.f, 1.f, 0.f, 1.f} : vec4{1.f, 1.f, 0.f, 1.f};
 			line->draw_line(view_matrix, perspective_matrix, line_end, v->position);
 		}
-		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {200.f}, {90.f, 0.f, 0.f}, utils::colour::dark_grey);
+		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {400.f}, {90.f, 0.f, 0.f}, utils::colour::dark_grey);
 		glDisable(GL_DEPTH_TEST);
 
 		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
