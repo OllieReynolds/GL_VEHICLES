@@ -14,7 +14,7 @@ namespace simulation {
 		view_matrix         = shared::view_matrix(observer_position, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f});
 		perspective_matrix  = shared::perspective_matrix(fov, 1.7786f, 0.1f, 5000.f);
 		orthographic_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
-		text                = Text{24, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
+		text                = Text{18, "data/ShareTechMono-Regular.ttf", vec4{1.f, 1.f, 1.f, 1.f}};
 		line                = new Draw_Line();
 		quad_renderer       = DrawQuad();
 
@@ -26,11 +26,11 @@ namespace simulation {
 			float random_x = utils::gen_random(-80.f, 80.f);
 			float random_z = utils::gen_random(-80.f, 80.f);
 			vec3  position = vec3{random_x, 4.f, random_z};
-			vec3      size = vec3{4.f, 2.f, 2.f};
+			vec3      size = vec3{8.f, 4.f, 4.f};
 			float rotation = utils::gen_random(0.f, 360.f);
 			Transform    t = Transform{position, size, rotation};
 
-			vec4    colour = vec4{1.f};
+			vec4    colour = vec4{1.f, 0.f, 1.f, 0.f};
 			float    speed = utils::gen_random(0.2f, 0.5f);
 			float steering = utils::gen_random(3.5f, 4.5f);
 
@@ -42,20 +42,7 @@ namespace simulation {
 	}
 
 	void Simulation::update() {
-		perspective_matrix = shared::perspective_matrix(fov, 1.7786f, 0.1f, 1000.f);
-
-		observer_position = vehicles.at(selection_vehicle)->position;
-		observer_position.y += 10.f;
 		
-
-		vec2 direction = vehicles.at(selection_vehicle)->direction;
-		vec3 target = observer_position + vec3{direction.x, 0.f, direction.y};
-
-		float dist = 10.f;
-		observer_position.x -= (direction.x * dist);
-		observer_position.z -= (direction.y * dist);
-
-		view_matrix = shared::view_matrix(observer_position, target, {0.f, 1.f, 0.f});
 
 		
 
@@ -70,11 +57,26 @@ namespace simulation {
 				v->update(cursor_position);
 			}
 		}
+
+
+		perspective_matrix = shared::perspective_matrix(fov, 1.7786f, 0.1f, 1000.f);
+
+		observer_position = vehicles.at(selection_vehicle)->position;
+		observer_position.y += 10.f;
+
+
+		vec2 direction = vehicles.at(selection_vehicle)->direction;
+		vec3 target = observer_position + vec3{direction.x, 0.f, direction.y};
+
+		float dist = 20.f;
+		observer_position.x -= (direction.x * dist);
+		observer_position.z -= (direction.y * dist);
+		view_matrix = shared::view_matrix(observer_position, target, {0.f, 1.f, 0.f});
 	}
 
 	void Simulation::draw() {
+		
 		glEnable(GL_DEPTH_TEST);
-
 		for (Vehicle* v : vehicles) {
 			v->draw(view_matrix, perspective_matrix);
 			
@@ -87,15 +89,17 @@ namespace simulation {
 		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {400.f}, {90.f, 0.f, 0.f}, utils::colour::dark_grey);
 		glDisable(GL_DEPTH_TEST);
 
+		glEnable(GL_BLEND);
 		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 
-		for (int i = 0; i < 6; i++) {
-			float inc = 2 * PI / 6;
-			float x = (1366.f * 0.5f) + cos((inc * i)) * 100.f;
-			float y = (768.f * 0.5f) + sin((inc * i)) * 100.f;
+		float inc = 1366.f / 6.f;
 
-			vec2 quad_position = {x, y};
-			quad_renderer.draw_quad_2D(view_matrix, orthographic_matrix, quad_position, {50.f}, {1.f, 0.f, 0.f, 1.f});
+		for (int i = 0; i < 6; i++) {
+			float x = (inc * 0.5f) + (i * inc);
+			float y = 24.f;
+
+			quad_renderer.draw_quad_2D(view_matrix, orthographic_matrix, {x, y}, {1366.f / 6.2f, 64.f * 0.6f}, {0.1f, 0.1f, 0.1f, 1.f});
+			text.draw_text("test", {x, y}, true);
 		}
 
 		float rel = 0.8f;
@@ -103,6 +107,7 @@ namespace simulation {
 			text.draw_text(s, vec2{1366.f * 0.55f, 768.f * rel}, false);
 			rel -= 0.05f;
 		}
+		glDisable(GL_BLEND);
 	}
 
 	void Simulation::destroy() {

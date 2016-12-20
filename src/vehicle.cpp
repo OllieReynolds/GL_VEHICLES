@@ -4,16 +4,19 @@ namespace simulation {
 
 	void Vehicle::init(const mat4& projection_matrix) {
 		shader = {
-			"shaders/uniform_MVP.v.glsl",
-			"shaders/uniform_colour.f.glsl",
+			"shaders/MVP_NORMALS.v.glsl",
+			"shaders/DIFFUSE.f.glsl",
 		};
 
 		shader.set_uniform("projection", projection_matrix);
 
-		set_gl_buffer_data(sizeof(utils::cube_points), &utils::cube_points);
+		set_gl_buffer_data(sizeof(utils::cube_vertices_normals), &utils::cube_vertices_normals);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
+		
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
 
 		right_sensor.init(projection_matrix);
 		left_sensor.init(projection_matrix);
@@ -70,16 +73,16 @@ namespace simulation {
 		mat4 m = mult(mult(s, r), t);
 		shader.set_uniform("model", m);
 
-		vec3 camera_pos;
+		/*vec3 camera_pos;
 		camera_pos.x = cos(utils::elapsed_time() * 0.5f) * 100.f;
 		camera_pos.y = 100.f + cos(utils::elapsed_time() * 0.2f) * 95.f;
-		camera_pos.z = sin(utils::elapsed_time() * 0.5f) * 100.f;
+		camera_pos.z = sin(utils::elapsed_time() * 0.5f) * 100.f;*/
 		
 
 		shader.set_uniform("view", view_matrix);
 		shader.set_uniform("projection", projection_matrix);
-		
-		shader.set_uniform("uniform_colour", maths::vec4(1.f, 0.f, 1.f, 1.f));
+		shader.set_uniform("uniform_colour", colour);
+		shader.set_uniform("light_position", vec3{0.f, 30.f, 0.f});
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		shader.release();
