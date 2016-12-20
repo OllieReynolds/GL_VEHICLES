@@ -3,6 +3,7 @@
 #include "global_data.h"
 #include "maths.h"
 #include "shader.h"
+#include "texture.h"
 #include "utils.h"
 
 using namespace maths;
@@ -24,4 +25,5 @@ private:
 	GLuint vbo;
 	Shader shader_2D;
 	Shader shader_3D;
+	Texture texture_A;
 };

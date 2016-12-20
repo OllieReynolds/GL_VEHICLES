@@ -70,25 +70,18 @@ namespace simulation {
 			line->colour = (v->detected) ? vec4{0.f, 1.f, 0.f, 1.f} : vec4{1.f, 1.f, 0.f, 1.f};
 			line->draw_line(view_matrix, perspective_matrix, line_end, v->position);
 		}
-
-		
-		float t = utils::elapsed_time();
-		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {200.f}, {90.f, 0.f, t * 32.f}, utils::colour::dark_grey);
-
+		quad_renderer.draw_quad_3D(view_matrix, perspective_matrix, {0.f, 0.f, 0.f}, {200.f}, {90.f, 0.f, 0.f}, utils::colour::dark_grey);
 		glDisable(GL_DEPTH_TEST);
 
 		line->draw_line(view_matrix, perspective_matrix, vehicles.at(selection_vehicle)->position, {0.f, 50.f, 0.f});
 
-
-		static vec2 quad_size = {50.f, 50.f};
-
 		for (int i = 0; i < 6; i++) {
 			float inc = 2 * PI / 6;
-			float x = (1366.f * 0.5f) + cos((inc * i) + t) * 100.f;
-			float y = (768.f * 0.5f) + sin((inc * i) + t) * 100.f;
+			float x = (1366.f * 0.5f) + cos((inc * i)) * 100.f;
+			float y = (768.f * 0.5f) + sin((inc * i)) * 100.f;
 
 			vec2 quad_position = {x, y};
-			quad_renderer.draw_quad_2D(view_matrix, orthographic_matrix, quad_position, quad_size, {1.f, 0.f, 0.f, 1.f});
+			quad_renderer.draw_quad_2D(view_matrix, orthographic_matrix, quad_position, {50.f}, {1.f, 0.f, 0.f, 1.f});
 		}
 
 		float rel = 0.8f;

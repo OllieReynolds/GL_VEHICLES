@@ -2,6 +2,7 @@
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "freetype265MT.lib")
+#pragma comment(lib, "SOIL.lib")
 
 #include <sstream>
 

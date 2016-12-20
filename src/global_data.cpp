@@ -18,6 +18,13 @@ namespace utils {
 		{ 0.5f,  0.5f, 0.f}
 	};
 
+	float quad_points_textured[20] = {
+		-0.5f, -0.5f, 0.f, 1.f, 1.f,
+		-0.5f,  0.5f, 0.f, 0.f, 1.f,
+		 0.5f, -0.5f, 0.f, 1.f, 0.f,
+		 0.5f,  0.5f, 0.f, 0.f, 0.f
+	};
+
 	maths::vec4 quad_points_and_uvs[4] = {
 		{-0.5f, -0.5f, 0.f, 0.f},
 		{-0.5f,  0.5f, 0.f, 1.f},
