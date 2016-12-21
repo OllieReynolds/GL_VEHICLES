@@ -19,35 +19,26 @@ namespace simulation {
 		void update();
 		void draw();
 		void destroy();
-	
-		// General Settings
-		bool draw_sensors;
-		int selection_vehicle;
-		
 
-		vec2 cursor_position;
-		
-		vec3 observer_position;
 
-		
-
-		// Simulation components
 		Draw_Line* line;
 		DrawQuad quad_renderer;
-		std::vector<Vehicle*> vehicles;
-		
-		// GUI components
 		Text text;
+
+		std::vector<Vehicle*> vehicles;		
+
+		vec2 cursor_position;		
+		vec3 observer_position;
+
 		int state;
 		int num_vehicles;
-
-
-
+		bool draw_sensors;
+		bool follow_vehicle;
+		int selection_vehicle;
 
 		float fov;
 		vec2 resolution;
 		vec2 near_far;
-
 		mat4 view_matrix;
 		mat4 perspective_matrix;
 		mat4 orthographic_matrix;

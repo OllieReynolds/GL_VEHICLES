@@ -37,6 +37,9 @@ namespace {
 			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
 
 			switch (key) {
+			case GLFW_KEY_F:
+				s->follow_vehicle = !s->follow_vehicle;
+				break;
 			case GLFW_KEY_S:
 				s->draw_sensors = !s->draw_sensors;
 				break;

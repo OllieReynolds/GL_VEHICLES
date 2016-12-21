@@ -7,10 +7,11 @@ namespace simulation {
 		num_vehicles        = 50;
 		fov                 = 90.f;
 		draw_sensors        = false;
-		cursor_position     = vec2{   0.f,   0.f};
+		follow_vehicle      = false;
+		cursor_position     = vec2{0.f, 0.f};
 		resolution          = vec2{1366.f, 768.f};
-		near_far            = vec2{  -1.f,   1.f};
-		observer_position   = vec3{   0.f, 100.f, 0.f};
+		near_far            = vec2{-1.f, 1.f};
+		observer_position   = vec3{0.f, 100.f, 0.f};
 		view_matrix         = shared::view_matrix(observer_position, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f});
 		perspective_matrix  = shared::perspective_matrix(fov, 1.7786f, 0.1f, 5000.f);
 		orthographic_matrix = maths::orthographic_matrix(resolution, near_far.x, near_far.y, maths::mat4());
