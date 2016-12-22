@@ -3,8 +3,9 @@
 #include <glew.h>
 #include <glfw3.h>
 
-#include "draw_line.h"
-#include "draw_quad.h"
+#include "hud.h"
+#include "line_renderer.h"
+#include "quad_renderer.h"
 #include "maths.h"
 #include "text.h"
 #include "vehicle.h"
@@ -20,10 +21,10 @@ namespace simulation {
 		void draw();
 		void destroy();
 
+		Line_Renderer line;
+		Quad_Renderer quad_renderer;
 
-		Draw_Line* line;
-		DrawQuad quad_renderer;
-		Text text;
+		Hud hud;
 
 		std::vector<Vehicle*> vehicles;		
 

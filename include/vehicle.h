@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "draw_line.h"
+#include "line_renderer.h"
 #include "drawable.h"
 #include "global_data.h"
 #include "utils.h"

@@ -1,8 +1,6 @@
-#include "../include/draw_line.h"
+#include "../include/line_renderer.h"
 
-
-
-void Draw_Line::init_line(const mat4& projection_matrix) {
+void Line_Renderer::init_line(const mat4& projection_matrix) {
 	shader = {
 		"shaders/uniform_MVP.v.glsl",
 		"shaders/uniform_colour.f.glsl"
@@ -24,7 +22,7 @@ void Draw_Line::init_line(const mat4& projection_matrix) {
 }
 
 
-void Draw_Line::draw_line(const mat4& view_matrix,const mat4& projection_matrix, const vec3& a, const vec3& b) {
+void Line_Renderer::draw_line(const mat4& view_matrix,const mat4& projection_matrix, const vec3& a, const vec3& b) {
 	shader.use();
 	glBindVertexArray(vao);
 
@@ -46,7 +44,7 @@ void Draw_Line::draw_line(const mat4& view_matrix,const mat4& projection_matrix,
 	glDrawArrays(GL_LINES, 0, 2);
 }
 
-void Draw_Line::destroy_line() {
+void Line_Renderer::destroy_line() {
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 	shader.destroy();

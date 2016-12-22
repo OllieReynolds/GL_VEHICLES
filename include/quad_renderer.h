@@ -9,9 +9,9 @@
 using namespace maths;
 using namespace utils;
 
-class DrawQuad {
+class Quad_Renderer {
 public:
-	DrawQuad(const vec4& colour = utils::colour::black) : colour(colour) {}
+	Quad_Renderer(const vec4& colour = utils::colour::black) : colour(colour) {}
 
 	void init_quad(const mat4& projection_matrix);
 	void draw_quad_2D(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size, const vec4& colour);
