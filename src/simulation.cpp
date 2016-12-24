@@ -2,87 +2,121 @@
 
 namespace simulation {
 	void Simulation::init() {
-		state               = 1;
-		selection_vehicle   = 0;
-		num_vehicles        = 50;
-		fov                 = 90.f;
+		state				= 1;
+		selection_vehicle	= 0;
+		num_vehicles		= 50;
+		active_button       = -1;
+		pressed_button		= -1;
+		num_buttons         = 6;
+		fov					= 90.f;
 		follow_cam_distance = 20.f;
-		draw_sensors        = false;
-		follow_vehicle      = false;
-		mouse_pressed       = false;
-		cursor_position     = vec2{0.f, 0.f};
-		resolution          = vec2{1366.f, 768.f};
-		near_far_ortho      = vec2{-1.f, 1.f};
-		near_far_persp      = vec2{0.1f, 1000.f};
-		cam_position        = vec3{0.f, 100.f, 0.f};
-		cam_target          = vec3{0.f, 0.f, 0.f };
-		up                  = vec3{0.f, 1.f, 0.f };
-		aspect              = resolution.x / resolution.y;
-		view_matrix         = shared::view_matrix(cam_position, cam_target, up);
-		perspective_matrix  = shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
+		draw_sensors		= false;
+		follow_vehicle		= false;
+		mouse_pressed		= false;
+		cursor_position		= vec2{ 0.f, 0.f };
+		resolution			= vec2{ 1366.f, 768.f };
+		near_far_ortho		= vec2{ -1.f, 1.f };
+		near_far_persp		= vec2{ 0.1f, 1000.f };
+		cam_position		= vec3{ 0.f, 100.f, 0.f };
+		cam_target			= vec3{ 0.f, 0.f, 0.f };
+		up					= vec3{ 0.f, 1.f, 0.f };
+		aspect				= resolution.x / resolution.y;
+		view_matrix			= shared::view_matrix(cam_position, cam_target, up);
+		perspective_matrix	= shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
 		orthographic_matrix = maths::orthographic_matrix(resolution, near_far_ortho.x, near_far_ortho.y, maths::mat4());
-		
 		cube_renderer		= Cube_Renderer();
 		line_renderer		= Line_Renderer();
 		quad_renderer		= Quad_Renderer();
-		hud                 = Hud();
+		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
+
+		vehicle_transforms = new utils::Transform[num_vehicles];
+		vehicle_attributes = new Vehicle_Attributes[num_vehicles];
+		for (int i = 0; i < num_vehicles; i++) {
+			vehicle_transforms[i] = {
+				vec3{ 0.f, 4.f, 0.f },
+				vec3{ 8.f, 4.f, 4.f },
+				utils::gen_random(0.f, 360.f)
+			};
+
+			vehicle_attributes[i] = {
+				utils::gen_random(0.2f, 0.5f),
+				utils::gen_random(2.5f, 3.5f)
+			};
+		}
+
+		button_attributes = new Button_Attributes[num_buttons];
+		button_attributes[0] = { { 100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "add vehicle" };
+		button_attributes[1] = { { 300.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "remove vehicle" };
+		button_attributes[2] = { { 500.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "follow vehicle" };
+		button_attributes[3] = { { 700.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "pause" };
+		button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
+		button_attributes[5] = { { 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
 
 		cube_renderer.init();
 		line_renderer.init();
 		quad_renderer.init("C:/Users/Ollie/Desktop/debug.png");
-		hud.init();
-
-		for (int i = 0; i < num_vehicles; i++)
-			add_vehicle();
+		text_renderer.init(resolution);
 	}
 
 	void Simulation::update() {
-		if (state == 1)
-			update_vehicles();
-
+		for (int i = 0; i < num_vehicles; i++)
+			update_vehicle(vehicle_transforms[i], vehicle_attributes[i]);
+		update_camera();
 		update_ui();
 
-		hud.update(cursor_position, mouse_pressed);
 		mouse_pressed = false;
 	}
 
-	void Simulation::update_vehicles() {
-		std::vector<vec2> locations;
-		for (Vehicle* v : vehicles) {
-			locations.push_back(v->position.XZ());
-		}
+	void Simulation::update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs) {
+		if (!point_quad_intersect(transform.position.XZ(), -100, 100, 100, -100))
+			transform.rotation += attribs.turning_speed;
 
-		for (Vehicle* v : vehicles) {
-			v->other_vehicle_locations = locations;
-			v->update(cursor_position);
-		}
+		vec2 direction = polar_to_cartesian(to_radians(transform.rotation));
+		vec2 velocity = direction * attribs.forward_speed;
+		transform.position += {velocity.x, 0.f, velocity.y};
 	}
 
-	void Simulation::update_ui() {
+	void Simulation::update_camera() {
 		if (follow_vehicle) {
-			vec2 direction = vehicles.at(selection_vehicle)->direction;
+			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[selection_vehicle].rotation));
 			cam_target = cam_position + vec3{ direction.x, 0.f, direction.y };
 
 			direction *= follow_cam_distance;
 
-			cam_position = vehicles.at(selection_vehicle)->position;
+			cam_position = vehicle_transforms[selection_vehicle].position;
 			cam_position.x -= direction.x;
 			cam_position.y += follow_cam_distance;
 			cam_position.z -= direction.y;
 		}
 		else {
 			cam_position = vec3{ 0.f, 100.f, 0.f };
-			cam_target = vehicles.at(selection_vehicle)->position;
+			cam_target = vehicle_transforms[selection_vehicle].position;
 		}
 
 		perspective_matrix = shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
 		view_matrix = shared::view_matrix(cam_position, cam_target, up);
 	}
 
+	void Simulation::update_ui() {
+		active_button = -1;
+		pressed_button = -1;
+		for (int i = 0; i < num_buttons; i++) {
+			float l = button_attributes[i].position.x - (button_attributes[i].size.x * 0.5f);
+			float r = button_attributes[i].position.x + (button_attributes[i].size.x * 0.5f);
+			float u = button_attributes[i].position.y + (button_attributes[i].size.y * 0.5f);
+			float d = button_attributes[i].position.y - (button_attributes[i].size.y * 0.5f);
+			if (utils::point_quad_intersect(cursor_position, l, r, u, d))
+				active_button = i;
+		}
+
+		if (mouse_pressed && active_button != -1)
+			pressed_button = active_button;
+	}
+
 	void Simulation::draw() {
 		glEnable(GL_DEPTH_TEST);
-		draw_vehicles();
-		draw_floor();
+		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::green);
+		quad_renderer.draw_3D(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, utils::data::colour::dark_grey);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
@@ -90,42 +124,31 @@ namespace simulation {
 		glDisable(GL_BLEND);
 	}
 
+	void Simulation::draw_ui() {
+		for (int i = 0; i < num_buttons; i++) {
+			quad_renderer.draw_2D(view_matrix, orthographic_matrix, button_attributes[i].position, button_attributes[i].size, button_attributes[i].colour);
+			text_renderer.draw(button_attributes[i].label, button_attributes[i].position, true, data::colour::white);
+		}
+
+		if (active_button != -1) {
+			text_renderer.draw("wow", button_attributes[active_button].position, true, data::colour::white);
+		}
+
+		if (pressed_button != -1) {
+			vec2 position = { button_attributes[active_button].position.x, button_attributes[active_button].position.y - 50 };
+			text_renderer.draw("go", position, true, data::colour::white);
+		}
+	}
+
 	void Simulation::destroy() {
 		cube_renderer.destroy();
 		line_renderer.destroy();
 		quad_renderer.destroy();
-		hud.destroy();
+		text_renderer.destroy();
 
-		for (Vehicle* v : vehicles) {
-			v->destroy();
-			delete v;
-		}
-	}
-
-
-	void Simulation::add_vehicle() {
-		vec3  position = vec3{ 0.f, 4.f, 0.f };
-		vec3      size = vec3{ 8.f, 4.f, 4.f };
-		float rotation = utils::gen_random(0.f, 360.f);
-		Transform    t = Transform{ position, size, rotation };
-
-		vec4    colour = vec4{ 1.f, 0.f, 1.f, 0.f };
-		float    speed = utils::gen_random(0.2f, 0.5f);
-		float steering = utils::gen_random(3.5f, 4.5f);
-
-		Vehicle*     v = new Vehicle{ t, colour, steering, speed };
-
-		v->init(perspective_matrix);
-		vehicles.push_back(v);
-	}
-
-	void Simulation::remove_vehicle() {
-		vehicles.back()->destroy();
-		delete vehicles.back();
-	}
-
-	void Simulation::edit_vehicle() {
-
+		delete[] vehicle_transforms;
+		delete[] vehicle_attributes;
+		delete[] button_attributes;
 	}
 
 	void Simulation::play() {
@@ -134,30 +157,5 @@ namespace simulation {
 
 	void Simulation::pause() {
 		state = -1;
-	}
-
-	void Simulation::draw_floor() {
-		quad_renderer.draw_3D(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, utils::data::colour::dark_grey);
-	}
-
-	void Simulation::draw_vehicles() {
-
-		
-
-		//cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, )
-
-		for (Vehicle* v : vehicles) {
-			cube_renderer.draw(view_matrix, perspective_matrix, v->position, v->size, v->rotation, v->colour);
-
-			vec2 scaled_direction = v->direction * 20.f;
-			vec3 line_end = vec3{ v->position.x + scaled_direction.x, 0.f, v->position.z + scaled_direction.y };
-
-			line_renderer.colour = (v->detected) ? data::colour::green : data::colour::red;
-			line_renderer.draw(view_matrix, perspective_matrix, line_end, v->position);
-		}
-	}
-
-	void Simulation::draw_ui() {
-		hud.draw(orthographic_matrix, view_matrix);
 	}
 }

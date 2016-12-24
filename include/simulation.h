@@ -3,19 +3,27 @@
 #include <glew.h>
 #include <glfw3.h>
 
-#include "hud.h"
 #include "cube_renderer.h"
 #include "line_renderer.h"
 #include "quad_renderer.h"
 #include "text_renderer.h"
 #include "maths.h"
-#include "vehicle.h"
 
 using namespace maths;
 using namespace utils;
 
 namespace simulation {
+	struct Vehicle_Attributes {
+		float forward_speed;
+		float turning_speed;
+	};
 
+	struct Button_Attributes {
+		vec2 position;
+		vec2 size;
+		vec4 colour;
+		std::string label;
+	};
 
 	class Simulation {
 	public:
@@ -24,16 +32,13 @@ namespace simulation {
 		void draw();
 		void destroy();
 
-		void add_vehicle();
-		void remove_vehicle();
-		void edit_vehicle();
 		void play();
 		void pause();
 
-		Hud hud;
 		Cube_Renderer cube_renderer;
 		Line_Renderer line_renderer;
 		Quad_Renderer quad_renderer;
+		Text_Renderer text_renderer;
 		
 		bool draw_sensors;
 		bool follow_vehicle;
@@ -42,6 +47,9 @@ namespace simulation {
 		int selection_vehicle;
 		int state;
 		int num_vehicles;
+		int active_button;
+		int pressed_button;
+		int num_buttons;
 		
 		float follow_cam_distance;
 		float fov;
@@ -60,16 +68,15 @@ namespace simulation {
 		mat4 perspective_matrix;
 		mat4 orthographic_matrix;
 
-		std::vector<Vehicle*> vehicles;
+		Button_Attributes* button_attributes;
+		Vehicle_Attributes* vehicle_attributes;
+		utils::Transform* vehicle_transforms;
 
 	private:
-	
-
-		void update_vehicles();
+		void update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs);
+		void update_camera();
 		void update_ui();
 
-		void draw_floor();
-		void draw_vehicles();
 		void draw_ui();
 	};
 }

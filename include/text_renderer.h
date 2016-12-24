@@ -22,16 +22,14 @@ struct Glyph {
 
 class Text_Renderer {
 public:
-	Text_Renderer(int pixel_size = 24, const std::string& font = "", const vec4& colour = 0.f)
-		: pixel_size(pixel_size), font(font), colour(colour) { }
+	Text_Renderer(int pixel_size = 24, const std::string& font = "") : pixel_size(pixel_size), font(font) { }
 
 	void init(const vec2& screen_resolution);
-	void draw(const std::string& msg, const vec2& position, bool centered);
+	void draw(const std::string& msg, const vec2& position, bool centered, const vec4& colour);
 	void destroy();
 
 	int pixel_size;
 	std::string font;
-	vec4 colour;
 
 private:
 	GLuint vao;

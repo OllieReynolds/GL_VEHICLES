@@ -63,7 +63,7 @@ void Text_Renderer::init(const vec2& screen_resolution) {
 }
 
 
-void Text_Renderer::draw(const std::string& msg, const vec2& position, bool centered) {
+void Text_Renderer::draw(const std::string& msg, const vec2& position, bool centered, const vec4& colour) {
 	shader.use();
 	shader.set_uniform("colour", colour);
 

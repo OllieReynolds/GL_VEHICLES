@@ -17,10 +17,9 @@ namespace {
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
 			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
-			int active_button = s->hud.active_button;
+			int active_button = s->active_button;
 			if (active_button != -1) {
 				std::cout << "ws" << std::endl;
-				s->add_vehicle();
 			}
 		}
 	}
@@ -35,16 +34,6 @@ namespace {
 				break;
 			case GLFW_KEY_S:
 				s->draw_sensors = !s->draw_sensors;
-				break;
-			case (GLFW_KEY_LEFT):
-				s->selection_vehicle--;
-				if (s->selection_vehicle < 0)
-					s->selection_vehicle = s->vehicles.size() - 1;
-				break;
-			case (GLFW_KEY_RIGHT):
-				s->selection_vehicle++;
-				if (s->selection_vehicle > s->vehicles.size() - 1)
-					s->selection_vehicle = 0;
 				break;
 			}
 		}

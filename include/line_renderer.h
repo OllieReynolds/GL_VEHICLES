@@ -11,13 +11,11 @@ using namespace utils;
 
 class Line_Renderer {
 public:
-	Line_Renderer(const vec4& colour = utils::data::colour::black) : colour(colour) { }
+	Line_Renderer() { }
 
 	void init();
-	void draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b);
+	void draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b, const vec4& colour);
 	void destroy();
-
-	vec4 colour;
 
 private:
 	GLuint vao;

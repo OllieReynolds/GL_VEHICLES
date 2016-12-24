@@ -19,7 +19,7 @@ void Line_Renderer::init() {
 }
 
 
-void Line_Renderer::draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b) {
+void Line_Renderer::draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b, const vec4& colour) {
 	shader.use();
 	glBindVertexArray(vao);
 
