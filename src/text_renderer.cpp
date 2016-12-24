@@ -1,6 +1,6 @@
-#include "..\include\text.h"
+#include "..\include\text_renderer.h"
 
-void Text::init_text(const vec2& screen_resolution) {
+void Text_Renderer::init(const vec2& screen_resolution) {
 	{
 		FT_Library ft_lib;
 		FT_Face ff;
@@ -63,7 +63,7 @@ void Text::init_text(const vec2& screen_resolution) {
 }
 
 
-void Text::draw_text(const std::string& msg, const vec2& position, bool centered) {
+void Text_Renderer::draw(const std::string& msg, const vec2& position, bool centered) {
 	shader.use();
 	shader.set_uniform("colour", colour);
 
@@ -109,7 +109,7 @@ void Text::draw_text(const std::string& msg, const vec2& position, bool centered
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Text::destroy_text() {
+void Text_Renderer::destroy() {
 	shader.destroy();
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);

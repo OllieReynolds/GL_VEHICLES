@@ -8,15 +8,13 @@ namespace simulation {
 			"shaders/DIFFUSE.f.glsl",
 		};
 
-		shader.set_uniform("projection", projection_matrix);
-
-		set_gl_buffer_data(sizeof(utils::cube_vertices_normals), &utils::cube_vertices_normals);
+		set_gl_buffer_data(sizeof(utils::data::cube_vertices_normals), &utils::data::cube_vertices_normals);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 		
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	}
 
 
@@ -64,12 +62,7 @@ namespace simulation {
 		glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_object);
 		shader.use();
 
-		mat4 s = scale(size);
-		mat4 t = transpose(translate(position));
-		mat4 r = rotate_y(rotation);
-		mat4 m = mult(mult(s, r), t);
-		shader.set_uniform("model", m);
-
+		shader.set_uniform("model", utils::gen_model_matrix(size, position, rotation));
 		shader.set_uniform("view", view_matrix);
 		shader.set_uniform("projection", projection_matrix);
 		shader.set_uniform("uniform_colour", colour);

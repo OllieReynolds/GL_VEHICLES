@@ -4,32 +4,25 @@
 #pragma comment(lib, "freetype265MT.lib")
 #pragma comment(lib, "SOIL.lib")
 
-#include <sstream>
-
 #include "..\include\simulation.h"
 #include "..\include\utils.h"
 
 namespace {
-	bool check_running(GLFWwindow* window, int duration) {
-		return !glfwWindowShouldClose(window) && utils::elapsed_time() < duration;
-	}
-
-	float calc_fps() {
-		static float elapsed = 0.f;
-		static float fps = 0.f;
-		static float start = utils::elapsed_time();
-
-		elapsed = utils::elapsed_time();
-		fps = 1.f / (elapsed - start);
-		start = elapsed;
-
-		return fps;
-	}
-
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 		simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
 		s->cursor_position.x = (float)xpos;
 		s->cursor_position.y = 768.f - (float)ypos;
+	}
+
+	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
+			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+			int active_button = s->hud.active_button;
+			if (active_button != -1) {
+				std::cout << "ws" << std::endl;
+				s->add_vehicle();
+			}
+		}
 	}
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -52,12 +45,6 @@ namespace {
 				s->selection_vehicle++;
 				if (s->selection_vehicle > s->vehicles.size() - 1)
 					s->selection_vehicle = 0;
-				break;
-			case (GLFW_KEY_UP):
-				s->fov -= 3.f;
-				break;
-			case (GLFW_KEY_DOWN):
-				s->fov += 3.f;
 				break;
 			}
 		}
@@ -85,6 +72,7 @@ int main() {
 
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, &cursor_position_callback);
+	glfwSetMouseButtonCallback(window, &mouse_button_callback);
 	glfwSetKeyCallback(window, &key_callback);
 		
 	// Glew
@@ -110,11 +98,11 @@ int main() {
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
 	simulation::Simulation simulation;
-
 	simulation.init();
+
 	glfwSetWindowUserPointer(window, &simulation);
 
-	while (check_running(window, 6000)) {
+	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		simulation.update();

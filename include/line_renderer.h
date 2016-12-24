@@ -2,8 +2,7 @@
 
 #include "maths.h"
 #include "shader.h"
-#include "global_data.h"
-#include "shared.h"
+#include "utils.h"
 
 #include <glew.h>
 
@@ -12,11 +11,11 @@ using namespace utils;
 
 class Line_Renderer {
 public:
-	Line_Renderer(const vec4& colour = utils::colour::black) : colour(colour) { }
+	Line_Renderer(const vec4& colour = utils::data::colour::black) : colour(colour) { }
 
-	void init_line(const mat4& projection_matrix);
-	void draw_line(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b);
-	void destroy_line();
+	void init();
+	void draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b);
+	void destroy();
 
 	vec4 colour;
 

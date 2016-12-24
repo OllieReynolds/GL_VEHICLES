@@ -1,7 +1,7 @@
 #pragma once
 
 #include "quad_renderer.h"
-#include "text.h"
+#include "text_renderer.h"
 
 struct ButtonAttributes {
 	vec2 position;
@@ -14,13 +14,19 @@ class Hud {
 public:
 	Hud();
 
-	void init(const mat4& projection_matrix);
+	void init();
+	void update(const vec2& cursor_position, bool mouse_pressed);
 	void draw(const mat4& projection_matrix, const mat4& view_matrix);
 	void destroy();
 
+	int active_button;
+	int pressed_button;
+
 private:
+	void button_actions();
+	
 	std::vector<ButtonAttributes> button_attributes;
 
 	Quad_Renderer quad_renderer;
-	Text text_renderer;
+	Text_Renderer text_renderer;
 };

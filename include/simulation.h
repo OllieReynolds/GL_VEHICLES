@@ -4,16 +4,19 @@
 #include <glfw3.h>
 
 #include "hud.h"
+#include "cube_renderer.h"
 #include "line_renderer.h"
 #include "quad_renderer.h"
+#include "text_renderer.h"
 #include "maths.h"
-#include "text.h"
 #include "vehicle.h"
 
 using namespace maths;
 using namespace utils;
 
 namespace simulation {
+
+
 	class Simulation {
 	public:
 		void init();
@@ -21,28 +24,53 @@ namespace simulation {
 		void draw();
 		void destroy();
 
-		Line_Renderer line;
-		Quad_Renderer quad_renderer;
+		void add_vehicle();
+		void remove_vehicle();
+		void edit_vehicle();
+		void play();
+		void pause();
 
 		Hud hud;
-
-		std::vector<Vehicle*> vehicles;		
-
-		vec2 cursor_position;		
-		vec3 observer_position;
-
-		int state;
-		int num_vehicles;
+		Cube_Renderer cube_renderer;
+		Line_Renderer line_renderer;
+		Quad_Renderer quad_renderer;
+		
 		bool draw_sensors;
 		bool follow_vehicle;
+		bool mouse_pressed;
+		
 		int selection_vehicle;
-
+		int state;
+		int num_vehicles;
+		
+		float follow_cam_distance;
 		float fov;
+		float aspect;
+
+		vec2 cursor_position;
 		vec2 resolution;
-		vec2 near_far;
+		vec2 near_far_ortho;
+		vec2 near_far_persp;
+		
+		vec3 cam_position;
+		vec3 cam_target;
+		vec3 up;
+		
 		mat4 view_matrix;
 		mat4 perspective_matrix;
 		mat4 orthographic_matrix;
+
+		std::vector<Vehicle*> vehicles;
+
+	private:
+	
+
+		void update_vehicles();
+		void update_ui();
+
+		void draw_floor();
+		void draw_vehicles();
+		void draw_ui();
 	};
 }
 
