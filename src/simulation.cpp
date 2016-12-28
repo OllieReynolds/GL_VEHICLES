@@ -29,8 +29,8 @@ namespace simulation {
 		line_renderer		= Line_Renderer();
 		quad_renderer		= Quad_Renderer();
 		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
+		mesh_renderer		= Mesh_Renderer("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj", "");
 		circle_renderer		= Circle_Renderer();
-		obj_renderer		= Obj_Renderer("C:/Users/Ollie/Desktop/vehicle/cube.obj");
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
 		vehicle_attributes = new Vehicle_Attributes[num_vehicles];
@@ -60,7 +60,7 @@ namespace simulation {
 		quad_renderer.init("C:/Users/Ollie/Desktop/debug.png");
 		text_renderer.init(resolution);
 		circle_renderer.init();
-		obj_renderer.init();
+		mesh_renderer.tex_init("C:/Users/Ollie/Desktop/wheel_texture.png");
 	}
 
 	void Simulation::update() {
@@ -123,7 +123,9 @@ namespace simulation {
 		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
 		quad_renderer.draw_3D(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, utils::data::colour::dark_grey);
 		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
-		obj_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 20.f }, { 10.f }, { 0.f }, utils::data::colour::green);
+		//mesh_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 20.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
+		//mesh_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 80.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
+		mesh_renderer.tex_draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 80.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
@@ -154,7 +156,7 @@ namespace simulation {
 		quad_renderer.destroy();
 		text_renderer.destroy();
 		circle_renderer.destroy();
-		obj_renderer.destroy();
+		mesh_renderer.tex_destroy();
 
 		delete[] vehicle_transforms;
 		delete[] vehicle_attributes;

@@ -7,8 +7,8 @@
 #include "line_renderer.h"
 #include "quad_renderer.h"
 #include "text_renderer.h"
+#include "mesh_renderer.h"
 #include "circle_renderer.h"
-#include "obj_renderer.h"
 #include "maths.h"
 
 using namespace maths;
@@ -29,6 +29,8 @@ namespace simulation {
 
 	class Simulation {
 	public:
+		//Simulation::Simulation() { }
+
 		void init();
 		void update();
 		void draw();
@@ -41,9 +43,9 @@ namespace simulation {
 		Line_Renderer line_renderer;
 		Quad_Renderer quad_renderer;
 		Text_Renderer text_renderer;
+		Mesh_Renderer mesh_renderer;
 		Circle_Renderer circle_renderer;
-		Obj_Renderer obj_renderer;
-		
+
 		bool draw_sensors;
 		bool follow_vehicle;
 		bool mouse_pressed;
