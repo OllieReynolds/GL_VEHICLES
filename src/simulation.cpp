@@ -17,7 +17,8 @@ namespace simulation {
 		resolution			= vec2{ 1366.f, 768.f };
 		near_far_ortho		= vec2{ -1.f, 1.f };
 		near_far_persp		= vec2{ 0.1f, 1000.f };
-		cam_position		= vec3{ 0.f, 100.f, 0.f };
+		cam_position		= vec3{ 0.f, 0.f, 0.f };
+		start_cam_position  = vec3{ 0.f, 100.f, 0.f };
 		cam_target			= vec3{ 0.f, 0.f, 0.f };
 		up					= vec3{ 0.f, 1.f, 0.f };
 		aspect				= resolution.x / resolution.y;
@@ -28,12 +29,14 @@ namespace simulation {
 		line_renderer		= Line_Renderer();
 		quad_renderer		= Quad_Renderer();
 		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
+		circle_renderer		= Circle_Renderer();
+		obj_renderer		= Obj_Renderer("C:/Users/Ollie/Desktop/vehicle/cube.obj");
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
 		vehicle_attributes = new Vehicle_Attributes[num_vehicles];
 		for (int i = 0; i < num_vehicles; i++) {
 			vehicle_transforms[i] = {
-				vec3{ 0.f, 4.f, 0.f },
+				vec3{ 0.f, 2.1f, 0.f },
 				vec3{ 8.f, 4.f, 4.f },
 				utils::gen_random(0.f, 360.f)
 			};
@@ -50,19 +53,22 @@ namespace simulation {
 		button_attributes[2] = { { 500.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "follow vehicle" };
 		button_attributes[3] = { { 700.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "pause" };
 		button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
-		button_attributes[5] = { { 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
+		button_attributes[5] = {{ 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
 
 		cube_renderer.init();
 		line_renderer.init();
 		quad_renderer.init("C:/Users/Ollie/Desktop/debug.png");
 		text_renderer.init(resolution);
+		circle_renderer.init();
+		obj_renderer.init();
 	}
 
 	void Simulation::update() {
 		for (int i = 0; i < num_vehicles; i++)
 			update_vehicle(vehicle_transforms[i], vehicle_attributes[i]);
-		update_camera();
+		
 		update_ui();
+		update_camera();
 
 		mouse_pressed = false;
 	}
@@ -79,17 +85,16 @@ namespace simulation {
 	void Simulation::update_camera() {
 		if (follow_vehicle) {
 			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[selection_vehicle].rotation));
-			cam_target = cam_position + vec3{ direction.x, 0.f, direction.y };
-
 			direction *= follow_cam_distance;
 
 			cam_position = vehicle_transforms[selection_vehicle].position;
 			cam_position.x -= direction.x;
 			cam_position.y += follow_cam_distance;
 			cam_position.z -= direction.y;
+			cam_target = cam_position + vec3{ direction.x, -20.f, direction.y };
 		}
 		else {
-			cam_position = vec3{ 0.f, 100.f, 0.f };
+			cam_position = start_cam_position;
 			cam_target = vehicle_transforms[selection_vehicle].position;
 		}
 
@@ -115,12 +120,15 @@ namespace simulation {
 
 	void Simulation::draw() {
 		glEnable(GL_DEPTH_TEST);
-		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::green);
+		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
 		quad_renderer.draw_3D(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, utils::data::colour::dark_grey);
+		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
+		obj_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 20.f }, { 10.f }, { 0.f }, utils::data::colour::green);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
 		draw_ui();
+		//circle_renderer.draw_2D(view_matrix, orthographic_matrix, resolution * 0.5f, { 50.f }, vec4(1.f, 0.f, 0.f, 1.f), false);
 		glDisable(GL_BLEND);
 	}
 
@@ -145,6 +153,8 @@ namespace simulation {
 		line_renderer.destroy();
 		quad_renderer.destroy();
 		text_renderer.destroy();
+		circle_renderer.destroy();
+		obj_renderer.destroy();
 
 		delete[] vehicle_transforms;
 		delete[] vehicle_attributes;

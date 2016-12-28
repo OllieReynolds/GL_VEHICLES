@@ -71,6 +71,7 @@ namespace utils {
 			extern vec4 red;
 			extern vec4 green;
 			extern vec4 blue;
+			extern vec4 yellow;
 			extern vec4 grey;
 			extern vec4 dark_grey;
 		};
