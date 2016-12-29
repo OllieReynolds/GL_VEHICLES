@@ -17,6 +17,6 @@ void main() {
 	float ambient = 0.2;
 
 	vec2 uv = uv_out;
-	uv.y = 1.0 - uv_out.y;
+	//uv.y = 1.0 - uv_out.y;
 	colour = texture(tex, uv) * (diffuse + ambient);
 }

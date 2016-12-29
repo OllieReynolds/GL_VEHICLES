@@ -29,7 +29,7 @@ namespace simulation {
 		line_renderer		= Line_Renderer();
 		quad_renderer		= Quad_Renderer();
 		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
-		mesh_renderer		= Mesh_Renderer("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj", "");
+		mesh_renderer		= Mesh_Renderer("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
 		circle_renderer		= Circle_Renderer();
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
@@ -55,12 +55,15 @@ namespace simulation {
 		button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
 		button_attributes[5] = {{ 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
 
+		wheel_texture.init("C:/Users/Ollie/Desktop/wheel_texture.png", 1024, 1024);
+		floor_texture.init("C:/Users/Ollie/Desktop/debug.png", 1024, 1024);
+
 		cube_renderer.init();
 		line_renderer.init();
-		quad_renderer.init("C:/Users/Ollie/Desktop/debug.png");
+		quad_renderer.init();
 		text_renderer.init(resolution);
 		circle_renderer.init();
-		mesh_renderer.tex_init("C:/Users/Ollie/Desktop/wheel_texture.png");
+		mesh_renderer.init();
 	}
 
 	void Simulation::update() {
@@ -121,16 +124,13 @@ namespace simulation {
 	void Simulation::draw() {
 		glEnable(GL_DEPTH_TEST);
 		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
-		quad_renderer.draw_3D(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, utils::data::colour::dark_grey);
+		quad_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, floor_texture);
 		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
-		//mesh_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 20.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
-		//mesh_renderer.draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 80.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
-		mesh_renderer.tex_draw_3D(view_matrix, perspective_matrix, { 20.f, 10.f, 80.f }, { 10.f }, { 90.f, 0.f, utils::elapsed_time() * 32.f }, utils::data::colour::green);
+		mesh_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 20.f, 10.f,  100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f }, wheel_texture);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
 		draw_ui();
-		//circle_renderer.draw_2D(view_matrix, orthographic_matrix, resolution * 0.5f, { 50.f }, vec4(1.f, 0.f, 0.f, 1.f), false);
 		glDisable(GL_BLEND);
 	}
 
@@ -156,7 +156,10 @@ namespace simulation {
 		quad_renderer.destroy();
 		text_renderer.destroy();
 		circle_renderer.destroy();
-		mesh_renderer.tex_destroy();
+		mesh_renderer.destroy();
+
+		wheel_texture.destroy();
+		floor_texture.destroy();
 
 		delete[] vehicle_transforms;
 		delete[] vehicle_attributes;

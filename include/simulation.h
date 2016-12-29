@@ -29,7 +29,7 @@ namespace simulation {
 
 	class Simulation {
 	public:
-		//Simulation::Simulation() { }
+		Simulation::Simulation() { }
 
 		void init();
 		void update();
@@ -45,6 +45,9 @@ namespace simulation {
 		Text_Renderer text_renderer;
 		Mesh_Renderer mesh_renderer;
 		Circle_Renderer circle_renderer;
+
+		Texture wheel_texture;
+		Texture floor_texture;
 
 		bool draw_sensors;
 		bool follow_vehicle;
