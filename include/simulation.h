@@ -10,6 +10,7 @@
 #include "mesh_renderer.h"
 #include "circle_renderer.h"
 #include "maths.h"
+#include "mesh.h"
 
 using namespace maths;
 using namespace utils;
@@ -27,17 +28,16 @@ namespace simulation {
 		std::string label;
 	};
 
+
+
 	class Simulation {
 	public:
-		Simulation::Simulation() { }
+		Simulation();
 
 		void init();
 		void update();
 		void draw();
 		void destroy();
-
-		void play();
-		void pause();
 
 		Cube_Renderer cube_renderer;
 		Line_Renderer line_renderer;
@@ -45,6 +45,8 @@ namespace simulation {
 		Text_Renderer text_renderer;
 		Mesh_Renderer mesh_renderer;
 		Circle_Renderer circle_renderer;
+
+		Mesh mesh;
 
 		Texture wheel_texture;
 		Texture floor_texture;

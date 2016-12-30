@@ -1,6 +1,10 @@
 #include "..\include\simulation.h"
 
 namespace simulation {
+	Simulation::Simulation() {
+		
+	}
+
 	void Simulation::init() {
 		state				= 1;
 		selection_vehicle	= 0;
@@ -29,8 +33,10 @@ namespace simulation {
 		line_renderer		= Line_Renderer();
 		quad_renderer		= Quad_Renderer();
 		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
-		mesh_renderer		= Mesh_Renderer("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
+		mesh_renderer		= Mesh_Renderer();
 		circle_renderer		= Circle_Renderer();
+		mesh                = Mesh();
+		
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
 		vehicle_attributes = new Vehicle_Attributes[num_vehicles];
@@ -38,7 +44,7 @@ namespace simulation {
 			vehicle_transforms[i] = {
 				vec3{ 0.f, 2.1f, 0.f },
 				vec3{ 8.f, 4.f, 4.f },
-				utils::gen_random(0.f, 360.f)
+				vec3{ 0.f, utils::gen_random(0.f, 360.f), 0.f}
 			};
 
 			vehicle_attributes[i] = {
@@ -58,12 +64,14 @@ namespace simulation {
 		wheel_texture.init("C:/Users/Ollie/Desktop/wheel_texture.png", 1024, 1024);
 		floor_texture.init("C:/Users/Ollie/Desktop/debug.png", 1024, 1024);
 
+		mesh.init("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
+
 		cube_renderer.init();
 		line_renderer.init();
 		quad_renderer.init();
 		text_renderer.init(resolution);
 		circle_renderer.init();
-		mesh_renderer.init();
+		mesh_renderer.init(mesh);
 	}
 
 	void Simulation::update() {
@@ -78,16 +86,16 @@ namespace simulation {
 
 	void Simulation::update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs) {
 		if (!point_quad_intersect(transform.position.XZ(), -100, 100, 100, -100))
-			transform.rotation += attribs.turning_speed;
+			transform.rotation.y += attribs.turning_speed;
 
-		vec2 direction = polar_to_cartesian(to_radians(transform.rotation));
+		vec2 direction = polar_to_cartesian(to_radians(transform.rotation.y));
 		vec2 velocity = direction * attribs.forward_speed;
 		transform.position += {velocity.x, 0.f, velocity.y};
 	}
 
 	void Simulation::update_camera() {
 		if (follow_vehicle) {
-			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[selection_vehicle].rotation));
+			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[selection_vehicle].rotation.y));
 			direction *= follow_cam_distance;
 
 			cam_position = vehicle_transforms[selection_vehicle].position;
@@ -126,7 +134,7 @@ namespace simulation {
 		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
 		quad_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, floor_texture);
 		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
-		mesh_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 20.f, 10.f,  100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f }, wheel_texture);
+		mesh_renderer.draw_3D_textured(mesh, view_matrix, perspective_matrix, { { 20.f, 10.f, 100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f } }, wheel_texture);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
@@ -164,13 +172,5 @@ namespace simulation {
 		delete[] vehicle_transforms;
 		delete[] vehicle_attributes;
 		delete[] button_attributes;
-	}
-
-	void Simulation::play() {
-		state = 1;
-	}
-
-	void Simulation::pause() {
-		state = -1;
 	}
 }

@@ -12,7 +12,7 @@ void Cube_Renderer::init() {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(utils::data::cube_vertices_normals), &utils::data::cube_vertices_normals, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(utils::data::mesh::cube_vertices_normals), &utils::data::mesh::cube_vertices_normals, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);

@@ -86,7 +86,7 @@ int main() {
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
-	simulation::Simulation simulation;
+	simulation::Simulation simulation = simulation::Simulation();
 	simulation.init();
 
 	glfwSetWindowUserPointer(window, &simulation);

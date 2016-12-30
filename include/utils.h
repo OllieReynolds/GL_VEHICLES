@@ -12,7 +12,7 @@ namespace utils {
 	struct Transform {
 		vec3 position;
 		vec3 size;
-		float rotation;
+		vec3 rotation;
 	};
 
 	static float elapsed_time() {
@@ -76,13 +76,14 @@ namespace utils {
 			extern vec4 dark_grey;
 		};
 
-		extern float quad_points_textured[20];
-		extern vec3 quad_points[4];
-		extern vec4 quad_points_and_uvs[4];
+		namespace mesh {
+			extern float quad_points_textured[20];
+			extern vec3 quad_points[4];
+			extern vec4 quad_points_and_uvs[4];
 
-
-		extern float cube_points[108];
-		extern float cube_vertices_normals[216];
+			extern float cube_points[108];
+			extern float cube_vertices_normals[216];
+		}
 	};
 
 	namespace shared {
@@ -125,24 +126,13 @@ namespace utils {
 			};
 		}
 
-		static mat4 perspective(float FOV, float width, float height, float near, float far) {
-			float e = 1.f / (tan(FOV / 2.f));
-			float a = height / width;
-
-			return mat4{
-				{ e, 0.f, 0.f, 0.f },
-				{ 0.f, e / a, 0.f, 0.f },
-				{ 0.f, 0.f, -((far + near) / (far - near)), -((2 * far * near) / (far - near)) },
-				{ 0.f, 0.f, -1.f, 0.f }
-			};
-		}
+	
 
 		static mat4 view_matrix(vec3 eye, vec3 target, vec3 up) {
 			vec3 zaxis = normalise(eye - target);    // The "forward" vector.
 			vec3 xaxis = normalise(cross_product(up, zaxis));// The "right" vector.
 			vec3 yaxis = cross_product(zaxis, xaxis);     // The "up" vector.
 
-														  // Create a 4x4 view matrix from the right, up, forward and eye position vectors
 			mat4 viewMatrix = {
 				vec4(xaxis.x,            yaxis.x,            zaxis.x,       0),
 				vec4(xaxis.y,            yaxis.y,            zaxis.y,       0),
