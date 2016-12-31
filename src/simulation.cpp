@@ -35,7 +35,7 @@ namespace simulation {
 		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
 		mesh_renderer		= Mesh_Renderer();
 		circle_renderer		= Circle_Renderer();
-		mesh                = Mesh();
+		model               = Model();
 		
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
@@ -64,14 +64,14 @@ namespace simulation {
 		wheel_texture.init("C:/Users/Ollie/Desktop/wheel_texture.png", 1024, 1024);
 		floor_texture.init("C:/Users/Ollie/Desktop/debug.png", 1024, 1024);
 
-		mesh.init("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
+		model.init("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
 
 		cube_renderer.init();
 		line_renderer.init();
 		quad_renderer.init();
 		text_renderer.init(resolution);
 		circle_renderer.init();
-		mesh_renderer.init(mesh);
+		mesh_renderer.init(model);
 	}
 
 	void Simulation::update() {
@@ -134,7 +134,7 @@ namespace simulation {
 		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
 		quad_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, floor_texture);
 		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
-		mesh_renderer.draw_3D_textured(mesh, view_matrix, perspective_matrix, { { 20.f, 10.f, 100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f } }, wheel_texture);
+		mesh_renderer.draw_3D_textured(model, view_matrix, perspective_matrix, { { 20.f, 10.f, 100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f } }, wheel_texture);
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);

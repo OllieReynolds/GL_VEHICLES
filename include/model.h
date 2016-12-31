@@ -15,19 +15,21 @@
 using namespace maths;
 using namespace utils;
 
-
 struct Mesh {
-	Mesh() { }
-	void init(const char* filename);
-
 	std::vector<vec3> vertices;
 	std::vector<vec3> normals;
 	std::vector<vec2> uvs;
-
 	bool uvs_included;
+};
+
+struct Model {
+	Model() { }
+	void init(const char* filename);
+
+	std::vector<Mesh> meshes;
 
 private:
-	void load_mesh(const char* filename, std::vector<vec3>& vertices, std::vector<vec3>& normals, std::vector<vec2>& uvs);
+	void Model::load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh);
 
 	int line_count(const char* filename);
 	void process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices);

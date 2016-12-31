@@ -10,7 +10,7 @@
 #include "mesh_renderer.h"
 #include "circle_renderer.h"
 #include "maths.h"
-#include "mesh.h"
+#include "model.h"
 
 using namespace maths;
 using namespace utils;
@@ -46,7 +46,7 @@ namespace simulation {
 		Mesh_Renderer mesh_renderer;
 		Circle_Renderer circle_renderer;
 
-		Mesh mesh;
+		Model model;
 
 		Texture wheel_texture;
 		Texture floor_texture;

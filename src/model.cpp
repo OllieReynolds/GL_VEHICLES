@@ -1,16 +1,17 @@
-#include "..\include\mesh.h"
+#include "..\include\model.h"
 
-
-
-void Mesh::init(const char* filename) {
-	/*int lc = line_count(filename);
+void Model::init(const char* filename) {
+	int lc = line_count(filename);
 	std::vector<int> preproc_data = file_preprocess(filename);
-	std::vector <std::pair<int, int>> begin_end_markers = file_preprocess_full(preproc_data, lc);*/
+	std::vector <std::pair<int, int>> begin_end_markers = file_preprocess_full(preproc_data, lc);
 
-	load_mesh(filename, vertices, normals, uvs);
+	for (int i = 0; i < begin_end_markers.size(); i++) {
+		Mesh mesh;
+		load_model(filename, begin_end_markers.back(), mesh);
+	}
 }
 
-std::vector<std::pair<int, int>> Mesh::file_preprocess_full(std::vector<int>& preproc_data, int linecount) {
+std::vector<std::pair<int, int>> Model::file_preprocess_full(std::vector<int>& preproc_data, int linecount) {
 	std::vector <std::pair<int, int>> begin_end_markers;
 	for (int i = 0; i < preproc_data.size(); i++) {
 		std::pair<int, int> marker;
@@ -31,7 +32,7 @@ std::vector<std::pair<int, int>> Mesh::file_preprocess_full(std::vector<int>& pr
 	return begin_end_markers;
 }
 
-int Mesh::line_count(const char* filename) {
+int Model::line_count(const char* filename) {
 	int count = 0;
 	std::string line;
 	std::ifstream ifs(filename, std::istream::in);
@@ -44,7 +45,7 @@ int Mesh::line_count(const char* filename) {
 	return count;
 }
 
-std::vector<int> Mesh::file_preprocess(const char* filename) {
+std::vector<int> Model::file_preprocess(const char* filename) {
 
 	std::vector<int> preproc_data;
 
@@ -65,7 +66,7 @@ std::vector<int> Mesh::file_preprocess(const char* filename) {
 }
 
 
-void Mesh::load_mesh(const char* filename, std::vector<vec3>& vertices, std::vector<vec3>& normals, std::vector<vec2>& uvs) {
+void Model::load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh) {
 	std::string line;
 
 	std::vector<vec3> temp_vertices;
@@ -76,33 +77,37 @@ void Mesh::load_mesh(const char* filename, std::vector<vec3>& vertices, std::vec
 	std::vector<int> normal_indices;
 	std::vector<int> uv_indices;
 
-	uvs_included = check_uvs_included(filename);
+	mesh.uvs_included = check_uvs_included(filename);
 
 	std::ifstream ifs(filename, std::istream::in);
 
+	int line_num = 0;
 	while (std::getline(ifs, line)) {
-		std::istringstream iss(line);
-		std::string type;
-		iss >> type;
+		if(line_num >= begin_end.first && line_num <= begin_end.second) {
+			std::istringstream iss(line);
+			std::string type;
+			iss >> type;
 
-		if (type == "v") {
-			float x, y, z;
-			iss >> x >> y >> z;
-			temp_vertices.push_back({ x, y, z });
+			if (type == "v") {
+				float x, y, z;
+				iss >> x >> y >> z;
+				temp_vertices.push_back({ x, y, z });
+			}
+			else if (type == "vn") {
+				float x, y, z;
+				iss >> x >> y >> z;
+				temp_normals.push_back({ x, y, z });
+			}
+			else if (type == "vt") {
+				float u, v;
+				iss >> u >> v;
+				temp_uvs.push_back({ u, v });
+			}
+			else if (type == "f") {
+				process_face(line, mesh.uvs_included, vertex_indices, uv_indices, normal_indices);
+			}
 		}
-		else if (type == "vn") {
-			float x, y, z;
-			iss >> x >> y >> z;
-			temp_normals.push_back({ x, y, z });
-		}
-		else if (type == "vt") {
-			float u, v;
-			iss >> u >> v;
-			temp_uvs.push_back({ u, v });
-		}
-		else if (type == "f") {
-			process_face(line, uvs_included, vertex_indices, uv_indices, normal_indices);
-		}
+		line_num++;
 	}
 
 	ifs.close();
@@ -110,17 +115,17 @@ void Mesh::load_mesh(const char* filename, std::vector<vec3>& vertices, std::vec
 	for (int i = 0; i < vertex_indices.size(); i++) {
 		vec3 vertex = { temp_vertices[vertex_indices[i]].x, temp_vertices[vertex_indices[i]].y, temp_vertices[vertex_indices[i]].z };
 		vec3 normal = { temp_normals[normal_indices[i]].x, temp_normals[normal_indices[i]].y, temp_normals[normal_indices[i]].z };
-		vertices.push_back(vertex);
-		normals.push_back(normal);
+		mesh.vertices.push_back(vertex);
+		mesh.normals.push_back(normal);
 
-		if (uvs_included) {
+		if (mesh.uvs_included) {
 			vec2 uv = { temp_uvs[uv_indices[i]].x, 1.f - temp_uvs[uv_indices[i]].y };
-			uvs.push_back(uv);
+			mesh.uvs.push_back(uv);
 		}
 	}
 }
 
-void Mesh::process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices) {
+void Model::process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices) {
 	int x_vert, y_vert, z_vert;
 	int x_norm, y_norm, z_norm;
 
@@ -148,7 +153,7 @@ void Mesh::process_face(std::string& line, bool uvs_included, std::vector<int>& 
 	normal_indices.push_back(--z_norm);
 }
 
-bool Mesh::check_uvs_included(const char* filename) {
+bool Model::check_uvs_included(const char* filename) {
 	std::string line;
 	std::ifstream ifs(filename, std::istream::in);
 
