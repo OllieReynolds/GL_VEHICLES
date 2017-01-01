@@ -1,10 +1,12 @@
 #pragma once
 
+#include "utils.h"
+
 #include <glew.h>
 
 class Texture {
 public:
-	void init(const char* filename, int width, int height);
+	void init(const char* filename);
 	void use();
 	void destroy();
 

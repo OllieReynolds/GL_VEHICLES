@@ -20,6 +20,8 @@ struct Mesh {
 	std::vector<vec3> normals;
 	std::vector<vec2> uvs;
 	bool uvs_included;
+
+	std::vector<int> vertex_indices, normal_indices, uv_indices;
 };
 
 struct Model {
@@ -29,7 +31,8 @@ struct Model {
 	std::vector<Mesh> meshes;
 
 private:
-	void Model::load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh);
+	void load_meshes(const char* filename, const std::vector<std::pair<int, int>>& data_ranges);
+	void load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh);
 
 	int line_count(const char* filename);
 	void process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices);

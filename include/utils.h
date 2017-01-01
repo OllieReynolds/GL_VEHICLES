@@ -2,11 +2,12 @@
 
 #include <chrono>
 #include <random>
+#include <fstream>
+#include <intrin.h>
 
 #include "maths.h"
 
 namespace utils {
-
 	using namespace maths;
 
 	struct Transform {
@@ -14,6 +15,27 @@ namespace utils {
 		vec3 size;
 		vec3 rotation;
 	};
+
+	struct dimensions {
+		int width, height;
+	};
+
+	static dimensions png_dimensions(const char* filename) {
+		std::string line;
+		std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
+
+		file.seekg(16, std::ios_base::cur);
+
+		__int32 width;
+		__int32 height;
+
+		file.read((char*)&width, 4);
+		file.read((char*)&height, 4);
+
+		file.close();
+
+		return{ (int)_byteswap_ulong(width), (int)_byteswap_ulong(height) };
+	}
 
 	static float elapsed_time() {
 		using namespace std::chrono;
