@@ -61,10 +61,9 @@ namespace simulation {
 		button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
 		button_attributes[5] = {{ 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
 
-		wheel_texture.init("C:/Users/Ollie/Desktop/wheel_texture.png", 1024, 1024);
-		floor_texture.init("C:/Users/Ollie/Desktop/debug.png", 1024, 1024);
-
-		model.init("C:/Users/Ollie/Desktop/vehicle/wheel_tex.obj");
+		wheel_texture.init("data/wheel_texture.png", 1024, 1024);
+		floor_texture.init("data/floor.png", 1024, 1024);
+		model.init("C:/Users/cubed/Documents/Visual Studio 2015/Projects/Vehicles/Vehicles/data/torus.obj");
 
 		cube_renderer.init();
 		line_renderer.init();
