@@ -8,6 +8,7 @@ void Model::init(const char* filename) {
 	for (int i = 0; i < begin_end_markers.size(); i++) {
 		Mesh mesh;
 		load_model(filename, begin_end_markers.back(), mesh);
+		meshes.push_back(mesh);
 	}
 }
 
