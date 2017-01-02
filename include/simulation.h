@@ -28,6 +28,29 @@ namespace simulation {
 		std::string label;
 	};
 
+	struct Wheel_Attributes {
+		float angular_offset;
+		float y_rotation;
+
+		Transform gen_transform_from_vehicle(const Transform& t, float wheel_dist) {
+			float wheel_offset_from_vehicle_angle = t.rotation.y - angular_offset;
+			vec2 direction = polar_to_cartesian(to_radians(wheel_offset_from_vehicle_angle)) * wheel_dist;
+
+			Transform transform;
+			transform.position = t.position + vec3{ direction.x, 2.f, direction.y };
+			transform.size = vec3{ 1.f, 1.f, 1.f };
+			transform.rotation = t.rotation;
+			transform.rotation.y += y_rotation;
+
+			if (y_rotation == 0.f)
+				transform.rotation.z += 128.f * utils::elapsed_time();
+			else 
+				transform.rotation.z -= 128.f * utils::elapsed_time();
+
+			return transform;
+		}
+	};
+
 
 
 	class Simulation {
@@ -55,11 +78,13 @@ namespace simulation {
 		bool follow_vehicle;
 		bool mouse_pressed;
 		
-		int selection_vehicle;
-		int state;
+		int index_selected_vehicle;
+		int index_state;
+		int index_active_button;
+		int index_pressed_button;
+
 		int num_vehicles;
-		int active_button;
-		int pressed_button;
+
 		int num_buttons;
 		
 		float follow_cam_distance;
@@ -82,14 +107,20 @@ namespace simulation {
 
 		Button_Attributes* button_attributes;
 		Vehicle_Attributes* vehicle_attributes;
+		Wheel_Attributes* wheel_attributes;
+
 		utils::Transform* vehicle_transforms;
+
 
 	private:
 		void update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs);
 		void update_camera();
 		void update_ui();
 
+
+		void draw_vehicles();
 		void draw_ui();
+		void draw_environment();
 	};
 }
 

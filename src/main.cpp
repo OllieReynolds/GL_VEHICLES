@@ -17,7 +17,7 @@ namespace {
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
 			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
-			int active_button = s->active_button;
+			int active_button = s->index_active_button;
 			if (active_button != -1) {
 				std::cout << "ws" << std::endl;
 			}

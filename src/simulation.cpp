@@ -2,49 +2,46 @@
 
 namespace simulation {
 	Simulation::Simulation() {
-		
-	}
+		index_active_button = -1;
+		index_pressed_button = -1;
+		index_state = 1;
+		index_selected_vehicle = 0;
 
-	void Simulation::init() {
-		state				= 1;
-		selection_vehicle	= 0;
-		num_vehicles		= 50;
-		active_button       = -1;
-		pressed_button		= -1;
-		num_buttons         = 6;
-		fov					= 90.f;
+		num_vehicles = 25;
+		num_buttons = 6;
+		fov = 90.f;
 		follow_cam_distance = 20.f;
-		draw_sensors		= false;
-		follow_vehicle		= false;
-		mouse_pressed		= false;
-		cursor_position		= vec2{ 0.f, 0.f };
-		resolution			= vec2{ 1366.f, 768.f };
-		near_far_ortho		= vec2{ -1.f, 1.f };
-		near_far_persp		= vec2{ 0.1f, 1000.f };
-		cam_position		= vec3{ 0.f, 0.f, 0.f };
-		start_cam_position  = vec3{ 0.f, 100.f, 0.f };
-		cam_target			= vec3{ 0.f, 0.f, 0.f };
-		up					= vec3{ 0.f, 1.f, 0.f };
-		aspect				= resolution.x / resolution.y;
-		view_matrix			= shared::view_matrix(cam_position, cam_target, up);
-		perspective_matrix	= shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
+		draw_sensors = false;
+		follow_vehicle = false;
+		mouse_pressed = false;
+		cursor_position = vec2{ 0.f, 0.f };
+		resolution = vec2{ 1366.f, 768.f };
+		near_far_ortho = vec2{ -1.f, 1.f };
+		near_far_persp = vec2{ 0.1f, 1000.f };
+		cam_position = vec3{ 0.f, 0.f, 0.f };
+		start_cam_position = vec3{ 0.f, 100.f, 0.f };
+		cam_target = vec3{ 0.f, 0.f, 0.f };
+		up = vec3{ 0.f, 1.f, 0.f };
+		aspect = resolution.x / resolution.y;
+		view_matrix = shared::view_matrix(cam_position, cam_target, up);
+		perspective_matrix = shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
 		orthographic_matrix = maths::orthographic_matrix(resolution, near_far_ortho.x, near_far_ortho.y, maths::mat4());
-		cube_renderer		= Cube_Renderer();
-		line_renderer		= Line_Renderer();
-		quad_renderer		= Quad_Renderer();
-		text_renderer		= Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
-		mesh_renderer		= Mesh_Renderer();
-		circle_renderer		= Circle_Renderer();
-		model               = Model();
-		
+		cube_renderer = Cube_Renderer();
+		line_renderer = Line_Renderer();
+		quad_renderer = Quad_Renderer();
+		text_renderer = Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
+		mesh_renderer = Mesh_Renderer();
+		circle_renderer = Circle_Renderer();
+		model = Model();
+
 
 		vehicle_transforms = new utils::Transform[num_vehicles];
 		vehicle_attributes = new Vehicle_Attributes[num_vehicles];
 		for (int i = 0; i < num_vehicles; i++) {
 			vehicle_transforms[i] = {
 				vec3{ 0.f, 2.1f, 0.f },
-				vec3{ 8.f, 4.f, 4.f },
-				vec3{ 0.f, utils::gen_random(0.f, 360.f), 0.f}
+				vec3{ 16.f, 8.f, 8.f },
+				vec3{ 0.f, utils::gen_random(0.f, 360.f), 0.f }
 			};
 
 			vehicle_attributes[i] = {
@@ -53,14 +50,22 @@ namespace simulation {
 			};
 		}
 
+		wheel_attributes = new Wheel_Attributes[4];
+		wheel_attributes[0] = { 315.f, 0.f};
+		wheel_attributes[1] = { 225.f, 0.f};
+		wheel_attributes[2] = { 45.f, 180.f};
+		wheel_attributes[3] = { 135.f, 180.f};
+
 		button_attributes = new Button_Attributes[num_buttons];
 		button_attributes[0] = { { 100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "add vehicle" };
 		button_attributes[1] = { { 300.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "remove vehicle" };
 		button_attributes[2] = { { 500.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "follow vehicle" };
 		button_attributes[3] = { { 700.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "pause" };
 		button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
-		button_attributes[5] = {{ 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
+		button_attributes[5] = { { 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
+	}
 
+	void Simulation::init() {
 		wheel_texture.init("data/wheel_texture.png");
 		floor_texture.init("data/floor.png");
 		model.init("C:/Users/cubed/Documents/Visual Studio 2015/Projects/Vehicles/Vehicles/data/wheel.obj");
@@ -94,10 +99,10 @@ namespace simulation {
 
 	void Simulation::update_camera() {
 		if (follow_vehicle) {
-			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[selection_vehicle].rotation.y));
+			vec2 direction = polar_to_cartesian(to_radians(vehicle_transforms[index_selected_vehicle].rotation.y));
 			direction *= follow_cam_distance;
 
-			cam_position = vehicle_transforms[selection_vehicle].position;
+			cam_position = vehicle_transforms[index_selected_vehicle].position;
 			cam_position.x -= direction.x;
 			cam_position.y += follow_cam_distance;
 			cam_position.z -= direction.y;
@@ -105,7 +110,7 @@ namespace simulation {
 		}
 		else {
 			cam_position = start_cam_position;
-			cam_target = vehicle_transforms[selection_vehicle].position;
+			cam_target = vehicle_transforms[index_selected_vehicle].position;
 		}
 
 		perspective_matrix = shared::perspective_matrix(fov, aspect, near_far_persp.x, near_far_persp.y);
@@ -113,32 +118,51 @@ namespace simulation {
 	}
 
 	void Simulation::update_ui() {
-		active_button = -1;
-		pressed_button = -1;
+		index_active_button = -1;
+		index_pressed_button = -1;
 		for (int i = 0; i < num_buttons; i++) {
 			float l = button_attributes[i].position.x - (button_attributes[i].size.x * 0.5f);
 			float r = button_attributes[i].position.x + (button_attributes[i].size.x * 0.5f);
 			float u = button_attributes[i].position.y + (button_attributes[i].size.y * 0.5f);
 			float d = button_attributes[i].position.y - (button_attributes[i].size.y * 0.5f);
 			if (utils::point_quad_intersect(cursor_position, l, r, u, d))
-				active_button = i;
+				index_active_button = i;
 		}
 
-		if (mouse_pressed && active_button != -1)
-			pressed_button = active_button;
+		if (mouse_pressed && index_active_button != -1)
+			index_pressed_button = index_active_button;
 	}
 
 	void Simulation::draw() {
 		glEnable(GL_DEPTH_TEST);
-		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
-		quad_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, floor_texture);
-		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[selection_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
-		mesh_renderer.draw_3D_textured(model, view_matrix, perspective_matrix, { { 20.f, 10.f, 100.f }, { 10.f }, { 0.f, 180.f, utils::elapsed_time() * 32.f } }, wheel_texture);
+		
+		draw_environment();
+		draw_vehicles();
 		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
 		draw_ui();
 		glDisable(GL_BLEND);
+	}
+
+	void Simulation::draw_vehicles() {
+		// Draw the vehicles
+		cube_renderer.draw_multiple(num_vehicles, view_matrix, perspective_matrix, vehicle_transforms, utils::data::colour::blue);
+
+		// Draw the wheels
+		for (int i = 0; i < num_vehicles; i++) {
+			for (int j = 0; j < 4; j++) {
+				Transform t = wheel_attributes[j].gen_transform_from_vehicle(vehicle_transforms[i], 10.f);
+				mesh_renderer.draw_3D_textured(model, view_matrix, perspective_matrix, t, wheel_texture);
+			}
+		}
+
+		// Draw the vehicle selector
+		circle_renderer.draw_3D(view_matrix, perspective_matrix, vehicle_transforms[index_selected_vehicle].position - vec3{ 0.f, 2.f, 0.f }, { 12.f }, { 90.f, 0.f, 0.f }, utils::data::colour::yellow, false);
+	}
+
+	void Simulation::draw_environment() {
+		quad_renderer.draw_3D_textured(view_matrix, perspective_matrix, { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f }, floor_texture);
 	}
 
 	void Simulation::draw_ui() {
@@ -147,12 +171,12 @@ namespace simulation {
 			text_renderer.draw(button_attributes[i].label, button_attributes[i].position, true, data::colour::white);
 		}
 
-		if (active_button != -1) {
-			text_renderer.draw("wow", button_attributes[active_button].position, true, data::colour::white);
+		if (index_active_button != -1) {
+			text_renderer.draw("wow", button_attributes[index_active_button].position, true, data::colour::white);
 		}
 
-		if (pressed_button != -1) {
-			vec2 position = { button_attributes[active_button].position.x, button_attributes[active_button].position.y - 50 };
+		if (index_pressed_button != -1) {
+			vec2 position = { button_attributes[index_active_button].position.x, button_attributes[index_active_button].position.y - 50 };
 			text_renderer.draw("go", position, true, data::colour::white);
 		}
 	}
@@ -171,5 +195,6 @@ namespace simulation {
 		delete[] vehicle_transforms;
 		delete[] vehicle_attributes;
 		delete[] button_attributes;
+		delete[] wheel_attributes;
 	}
 }
