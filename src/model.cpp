@@ -7,12 +7,12 @@ void Model::init(const char* filename) {
 
 void Model::load_meshes(const char* filename, const std::vector<std::pair<int, int>>& data_ranges) {
 	std::string line;
-	std::vector<vec3> vertex_list, normal_list, uv_list;
+	std::vector<vec3> vertex_list, normal_list;
+	std::vector<vec2> uv_list;
 	std::ifstream ifs(filename, std::istream::in);
 	bool uvs_included = check_uvs_included(filename);
-	int line_num = 0;
-	int mesh_num = -1;
 
+	int mesh_num = -1;
 	while (std::getline(ifs, line)) {
 		std::istringstream iss(line);
 		std::string type;
@@ -42,9 +42,12 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 			meshes.push_back(mesh);
 			mesh_num++;
 		}
-
-		line_num++;
 	}
+
+	std::cout << " Mesh Count: " << meshes.size() << std::endl;
+	std::cout << "Vertex List: " << vertex_list.size() << std::endl;
+	std::cout << "Normal List: " << normal_list.size() << std::endl;
+	std::cout << "    UV List: " << uv_list.size() << std::endl;
 
 	ifs.close();
 
@@ -58,13 +61,20 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 
 			meshes[i].vertices.push_back(vertex);
 			meshes[i].normals.push_back(normal);
+		}
 
-			if (meshes[i].uvs_included) {
+		if (meshes[i].uvs_included) {
+			for (int j = 0; j < meshes[i].uv_indices.size(); j++) {
 				int uv_index = meshes[i].uv_indices[j];
 				vec2 uv = { uv_list[uv_index].x, 1.f - uv_list[uv_index].y };
 				meshes[i].uvs.push_back(uv);
 			}
 		}
+
+		std::cout << "Mesh " << i << ":" << std::endl;
+		std::cout << meshes[i].vertices.size() << std::endl;
+		std::cout << meshes[i].normals.size() << std::endl;
+		std::cout << meshes[i].uvs.size() << std::endl;
 	}
 }
 

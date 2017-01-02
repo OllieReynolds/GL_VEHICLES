@@ -63,7 +63,7 @@ namespace simulation {
 
 		wheel_texture.init("data/wheel_texture.png");
 		floor_texture.init("data/floor.png");
-		model.init("C:/Users/cubed/Documents/Visual Studio 2015/Projects/Vehicles/Vehicles/data/test1.obj");
+		model.init("C:/Users/cubed/Documents/Visual Studio 2015/Projects/Vehicles/Vehicles/data/wheel.obj");
 
 		cube_renderer.init();
 		line_renderer.init();
