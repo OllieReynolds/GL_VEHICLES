@@ -1,29 +1,18 @@
 #include "..\include\model.h"
 
 void Model::init(const char* filename) {
-	int lc = line_count(filename);
-	std::vector<int> preproc_data = file_preprocess(filename);
-	std::vector <std::pair<int, int>> data_ranges = file_preprocess_full(preproc_data, lc);
-
+	std::vector <std::pair<int, int>> data_ranges = file_preprocess(filename);
 	load_meshes(filename, data_ranges);
-
-	//for (int i = 0; i < begin_end_markers.size(); i++) {
-	//	Mesh mesh;
-	//	load_model(filename, begin_end_markers[i], mesh);
-	//	meshes.push_back(mesh);
-	//}
 }
 
 void Model::load_meshes(const char* filename, const std::vector<std::pair<int, int>>& data_ranges) {
 	std::string line;
 	std::vector<vec3> vertex_list, normal_list, uv_list;
-
 	std::ifstream ifs(filename, std::istream::in);
-
 	bool uvs_included = check_uvs_included(filename);
-
 	int line_num = 0;
 	int mesh_num = -1;
+
 	while (std::getline(ifs, line)) {
 		std::istringstream iss(line);
 		std::string type;
@@ -75,77 +64,6 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 				vec2 uv = { uv_list[uv_index].x, 1.f - uv_list[uv_index].y };
 				meshes[i].uvs.push_back(uv);
 			}
-		}
-	}
-}
-
-
-
-
-void Model::load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh) {
-	std::string line;
-
-	std::vector<vec3> temp_vertices;
-	std::vector<vec3> temp_normals;
-	std::vector<vec2> temp_uvs;
-
-	std::vector<int> vertex_indices;
-	std::vector<int> normal_indices;
-	std::vector<int> uv_indices;
-
-	mesh.uvs_included = check_uvs_included(filename);
-
-	std::ifstream ifs(filename, std::istream::in);
-
-	int line_num = 0;
-	while (std::getline(ifs, line)) {
-		if(line_num >= begin_end.first && line_num <= begin_end.second) {
-			std::istringstream iss(line);
-			std::string type;
-			iss >> type;
-
-			if (type == "v") {
-				float x, y, z;
-				iss >> x >> y >> z;
-				temp_vertices.push_back({ x, y, z });
-			}
-			else if (type == "vn") {
-				float x, y, z;
-				iss >> x >> y >> z;
-				temp_normals.push_back({ x, y, z });
-			}
-			else if (type == "vt") {
-				float u, v;
-				iss >> u >> v;
-				temp_uvs.push_back({ u, v });
-			}
-			else if (type == "f") {
-				process_face(line, mesh.uvs_included, vertex_indices, uv_indices, normal_indices);
-			}
-		}
-		line_num++;
-	}
-
-	ifs.close();
-
-	// TODO:
-	// Change this to reflect master list of vertices, normals and uvs
-	// Let faces draw from big list rather than sub list
-
-	for (int i = 0; i < vertex_indices.size(); i++) {
-		int vert_index = vertex_indices[i];
-		int norm_index = normal_indices[i];
-
-		vec3 vertex = temp_vertices[vert_index];
-		vec3 normal = temp_normals[norm_index];
-		
-		mesh.vertices.push_back(vertex);
-		mesh.normals.push_back(normal);
-
-		if (mesh.uvs_included) {
-			int uv_index = uv_indices[i];
-			vec2 uv = { temp_uvs[uv_index].x, 1.f - temp_uvs[uv_index].y };
-			mesh.uvs.push_back(uv);
 		}
 	}
 }
@@ -205,55 +123,37 @@ bool Model::check_uvs_included(const char* filename) {
 }
 
 
-std::vector<std::pair<int, int>> Model::file_preprocess_full(std::vector<int>& preproc_data, int linecount) {
+std::vector<std::pair<int, int>> Model::file_preprocess(const char* filename) {
+	std::vector<int> data_ranges;
+
+	int current_line_number = 0;
+	std::string line;
+	std::ifstream ifs(filename, std::istream::in);
+	while (std::getline(ifs, line)) {
+		current_line_number++;
+
+		if (line.front() == 'o')
+			data_ranges.push_back(current_line_number);
+	}
+	ifs.close();
+
+	int linecount = utils::line_count(filename);
 	std::vector <std::pair<int, int>> begin_end_markers;
-	for (int i = 0; i < preproc_data.size(); i++) {
+	for (int i = 0; i < data_ranges.size(); i++) {
 		std::pair<int, int> marker;
 
 		if (i == 0)
 			marker.first = 3;
 		else
-			marker.first = preproc_data[i];
+			marker.first = data_ranges[i];
 
-		if (i == preproc_data.size() - 1)
+		if (i == data_ranges.size() - 1)
 			marker.second = linecount - 1;
 		else
-			marker.second = preproc_data[i + 1] - 2;
+			marker.second = data_ranges[i + 1] - 2;
 
 		begin_end_markers.push_back(marker);
 	}
 
 	return begin_end_markers;
-}
-
-int Model::line_count(const char* filename) {
-	int count = 0;
-	std::string line;
-	std::ifstream ifs(filename, std::istream::in);
-
-	while (std::getline(ifs, line))
-		count++;
-
-	ifs.close();
-	return count;
-}
-
-std::vector<int> Model::file_preprocess(const char* filename) {
-
-	std::vector<int> preproc_data;
-
-	int current_line_number = 0;
-
-	std::string line;
-	std::ifstream ifs(filename, std::istream::in);
-
-	while (std::getline(ifs, line)) {
-		current_line_number++;
-
-		if (line.front() == 'o')
-			preproc_data.push_back(current_line_number);
-	}
-
-	ifs.close();
-	return preproc_data;
 }

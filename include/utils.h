@@ -20,6 +20,18 @@ namespace utils {
 		int width, height;
 	};
 
+	static int line_count(const char* filename) {
+		int count = 0;
+		std::string line;
+		std::ifstream ifs(filename, std::istream::in);
+
+		while (std::getline(ifs, line))
+			count++;
+
+		ifs.close();
+		return count;
+	}
+
 	static dimensions png_dimensions(const char* filename) {
 		std::string line;
 		std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);

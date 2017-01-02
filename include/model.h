@@ -32,12 +32,9 @@ struct Model {
 
 private:
 	void load_meshes(const char* filename, const std::vector<std::pair<int, int>>& data_ranges);
-	void load_model(const char* filename, const std::pair<int, int>& begin_end, Mesh& mesh);
 
-	int line_count(const char* filename);
 	void process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices);
 	bool check_uvs_included(const char* filename);
-	std::vector<int> file_preprocess(const char* filename);
-	std::vector<std::pair<int, int>> file_preprocess_full(std::vector<int>& preproc_data, int linecount);
+	std::vector<std::pair<int, int>> file_preprocess(const char* filename);
 
 };
