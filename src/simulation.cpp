@@ -13,6 +13,8 @@ Simulation::Simulation() {
 	mouse_pressed = false;
 	cursor_position = vec2{ 0.f, 0.f };
 
+	light_position = vec3{ 0.f, 30.f, 0.f };
+
 	camera.field_of_view = 90.f;
 	camera.target_distance = 20.f;
 	camera.resolution = vec2{ 1366.f, 768.f };
@@ -33,7 +35,8 @@ Simulation::Simulation() {
 	text_renderer = Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
 	mesh_renderer = Mesh_Renderer();
 	circle_renderer = Circle_Renderer();
-	model = Model();
+	wheel_model = Model();
+	grid_model = Model();
 
 	vehicle_transforms = new utils::Transform[num_vehicles];
 	vehicle_attributes = new Vehicle_Attributes[num_vehicles];
@@ -68,14 +71,15 @@ Simulation::Simulation() {
 void Simulation::init() {
 	wheel_texture.init("data/wheel_texture.png");
 	floor_texture.init("data/floor.png");
-	model.init("data/wheel.obj");
+	wheel_model.init("data/wheel.obj");
+	grid_model.init("data/grid.obj");
 
 	cube_renderer.init();
 	line_renderer.init();
 	quad_renderer.init();
 	text_renderer.init(camera.resolution);
 	circle_renderer.init();
-	mesh_renderer.init(model);
+	mesh_renderer.init();
 }
 
 void Simulation::update() {
@@ -109,7 +113,7 @@ void Simulation::update_camera() {
 		camera.position_current.x -= direction.x;
 		camera.position_current.y += camera.target_distance;
 		camera.position_current.z -= direction.y;
-		camera.position_target = camera.position_current + vec3{ direction.x, -20.f, direction.y };
+		camera.position_target = camera.position_current + vec3{ direction.x, -camera.target_distance, direction.y };
 	}
 	else {
 		camera.position_current = camera.position_start;
@@ -138,12 +142,23 @@ void Simulation::update_ui() {
 
 void Simulation::draw() {
 	glEnable(GL_DEPTH_TEST);
+	
 	draw_environment();
 	draw_vehicles();
-	glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
+
+	// Draw the shadows
+	for (int i = 0; i < num_vehicles; i++) {
+		// Fudge the Y position by a tiny bit to prevent z-fighting
+		float f = i * 0.01f;
+		circle_renderer.draw_3D_shadow(camera, { vehicle_transforms[i].position - vec3{ 0.f, 3.95f - f, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } });
+	}
+
+	glDisable(GL_DEPTH_TEST);
+
 	draw_ui();
+
 	glDisable(GL_BLEND);
 }
 
@@ -155,15 +170,14 @@ void Simulation::draw_vehicles() {
 	for (int i = 0; i < num_vehicles; i++) {
 		for (int j = 0; j < 4; j++) {
 			Transform t = wheel_attributes[j].gen_transform_from_vehicle(vehicle_transforms[i], 8.f);
-			mesh_renderer.draw_3D_textured(model, camera, t, wheel_texture);
+			mesh_renderer.draw_3D_textured(wheel_model, camera, t, wheel_texture);
 		}
-
-		quad_renderer.draw_3D_textured(camera, { vehicle_transforms[i].position - vec3{ 0.f, 3.9f, 0.f }, { 18.f }, { 90.f, 0.f, 0.f } }, shadow_texture);
 	}
 }
 
 void Simulation::draw_environment() {
-	quad_renderer.draw_3D_textured(camera, { { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f } }, floor_texture);
+	//quad_renderer.draw_3D_textured(camera, { { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f } }, floor_texture);
+	mesh_renderer.draw_3D_coloured(grid_model, camera, { { 0.f, 0.f, 0.f }, { 40.f },{ 0.f, 0.f, 0.f } }, { 1.f, 1.f, 1.f, 1.f });
 }
 
 void Simulation::draw_ui() {
@@ -192,7 +206,9 @@ void Simulation::destroy() {
 
 	wheel_texture.destroy();
 	floor_texture.destroy();
-	shadow_texture.destroy();
+
+	wheel_model.destroy();
+	grid_model.destroy();
 
 	delete[] vehicle_transforms;
 	delete[] vehicle_attributes;

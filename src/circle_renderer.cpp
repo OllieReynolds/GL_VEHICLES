@@ -11,6 +11,11 @@ void Circle_Renderer::init() {
 		"shaders/uniform_colour_circle.f.glsl"
 	};
 
+	shader_3D_shadow = {
+		"shaders/uniform_MVP.v.glsl",
+		"shaders/SPOT_SHADOW.f.glsl"
+	};
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -48,7 +53,7 @@ void Circle_Renderer::draw_3D(const Camera& camera, const Transform& transform, 
 	shader_3D.set_uniform("projection", camera.matrix_projection_persp);
 	shader_3D.set_uniform("view", camera.matrix_view);
 	shader_3D.set_uniform("model", utils::gen_model_matrix(transform));
-	shader_2D.set_uniform("draw_filled", filled);
+	shader_3D.set_uniform("draw_filled", filled);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -56,8 +61,24 @@ void Circle_Renderer::draw_3D(const Camera& camera, const Transform& transform, 
 	shader_3D.release();
 }
 
+void Circle_Renderer::draw_3D_shadow(const Camera& camera, const Transform& transform) {
+	shader_3D_shadow.use();
+	glBindVertexArray(vao);
+
+	shader_3D_shadow.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_shadow.set_uniform("view", camera.matrix_view);
+	shader_3D_shadow.set_uniform("model", utils::gen_model_matrix(transform));
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glBindVertexArray(0);
+	shader_3D_shadow.release();
+}
+
 void Circle_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 	shader_2D.destroy();
+	shader_3D.destroy();
+	shader_3D_shadow.destroy();
 }

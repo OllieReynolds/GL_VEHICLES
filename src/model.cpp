@@ -3,6 +3,42 @@
 void Model::init(const char* filename) {
 	std::vector <std::pair<int, int>> data_ranges = file_preprocess(filename);
 	load_meshes(filename, data_ranges);
+
+	for (int i = 0; i < meshes.size(); i++) {
+		glGenVertexArrays(1, &meshes[i].vao);
+		glBindVertexArray(meshes[i].vao);
+
+		glGenBuffers(1, &meshes[i].vbo_vertices);
+		glGenBuffers(1, &meshes[i].vbo_normals);
+		glGenBuffers(1, &meshes[i].vbo_uvs);
+
+		glBindBuffer(GL_ARRAY_BUFFER, meshes[i].vbo_vertices);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * meshes[i].vertices.size(), &meshes[i].vertices[0], GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, meshes[i].vbo_normals);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * meshes[i].normals.size(), &meshes[i].normals[0], GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+
+		if (!meshes[i].uvs.empty()) {
+			glBindBuffer(GL_ARRAY_BUFFER, meshes[i].vbo_uvs);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * meshes[i].uvs.size(), &meshes[i].uvs[0], GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		}
+	}
+
+}
+
+void Model::destroy() {
+	for (int i = 0; i < meshes.size(); i++) {
+		glDeleteBuffers(1, &meshes[i].vbo_vertices);
+		glDeleteBuffers(1, &meshes[i].vbo_normals);
+		glDeleteBuffers(1, &meshes[i].vbo_uvs);
+		glDeleteVertexArrays(1, &meshes[i].vao);
+	}
 }
 
 void Model::load_meshes(const char* filename, const std::vector<std::pair<int, int>>& data_ranges) {
@@ -44,12 +80,12 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 		}
 	}
 
+	ifs.close();
+
 	std::cout << " Mesh Count: " << meshes.size() << std::endl;
 	std::cout << "Vertex List: " << vertex_list.size() << std::endl;
 	std::cout << "Normal List: " << normal_list.size() << std::endl;
 	std::cout << "    UV List: " << uv_list.size() << std::endl;
-
-	ifs.close();
 
 	for (int i = 0; i < meshes.size(); i++) {
 		for (int j = 0; j < meshes[i].vertex_indices.size(); j++) {
@@ -71,10 +107,10 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 			}
 		}
 
-		std::cout << "Mesh " << i << ":" << std::endl;
-		std::cout << meshes[i].vertices.size() << std::endl;
-		std::cout << meshes[i].normals.size() << std::endl;
-		std::cout << meshes[i].uvs.size() << std::endl;
+		std::cout << "     Mesh " << i << ":" << std::endl;
+		std::cout << "Vertices: " << meshes[i].vertices.size() << std::endl;
+		std::cout << " Normals: " << meshes[i].normals.size() << std::endl;
+		std::cout << "     UVs: " << meshes[i].uvs.size() << std::endl;
 	}
 }
 

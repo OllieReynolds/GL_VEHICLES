@@ -66,7 +66,8 @@ public:
 	Mesh_Renderer mesh_renderer;
 	Circle_Renderer circle_renderer;
 
-	Model model;
+	Model wheel_model;
+	Model grid_model;
 
 	Texture wheel_texture;
 	Texture floor_texture;
@@ -84,6 +85,7 @@ public:
 	int num_buttons;
 
 	vec2 cursor_position;
+	vec3 light_position;
 
 	Camera camera;
 
