@@ -21,18 +21,9 @@ class Mesh_Renderer {
 public:
 	Mesh_Renderer() { }
 
-	// This should be invoked from a mesh renderer and take mesh type objects, but update to Model types for now.
-	// E.g. 
-	//
-	// Model_Renderer.hpp
-	// for (Mesh m: meshes) {
-	//     mesh_renderer.draw()
-	//
-	// Should work for 1 mesh or 8 meshes
-
 	void init(Model& mesh);
-	void draw_3D_coloured(Model& mesh, const mat4& view_matrix, const mat4& projection_matrix, const Transform& transform, const vec4& colour);
-	void draw_3D_textured(Model& mesh, const mat4& view_matrix, const mat4& projection_matrix, const Transform& transform, Texture& texture);
+	void draw_3D_coloured(Model& mesh, const Camera& camera, const Transform& transform, const vec4& colour);
+	void draw_3D_textured(Model& mesh, const Camera& camera, const Transform& transform, Texture& texture);
 	void destroy();
 
 private:

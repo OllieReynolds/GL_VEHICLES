@@ -42,7 +42,7 @@ void Mesh_Renderer::init(Model& model) {
 	
 }
 
-void Mesh_Renderer::draw_3D_textured(Model& model, const mat4& view_matrix, const mat4& projection_matrix, const Transform& transform, Texture& texture) {
+void Mesh_Renderer::draw_3D_textured(Model& model, const Camera& camera, const Transform& transform, Texture& texture) {
 	for (int i = 0; i < num_meshes; i++) {
 		glBindVertexArray(gl_data[i].vao);
 		shader_textured.use();
@@ -50,8 +50,8 @@ void Mesh_Renderer::draw_3D_textured(Model& model, const mat4& view_matrix, cons
 		texture.use();
 
 		shader_textured.set_uniform("model", gen_model_matrix(transform.size, transform.position, transform.rotation));
-		shader_textured.set_uniform("view", view_matrix);
-		shader_textured.set_uniform("projection", projection_matrix);
+		shader_textured.set_uniform("view", camera.matrix_view);
+		shader_textured.set_uniform("projection", camera.matrix_projection_persp);
 		shader_textured.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
 		glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
 
@@ -60,15 +60,15 @@ void Mesh_Renderer::draw_3D_textured(Model& model, const mat4& view_matrix, cons
 	}
 }
 
-void Mesh_Renderer::draw_3D_coloured(Model& model, const mat4& view_matrix, const mat4& projection_matrix, const Transform& transform, const vec4& colour) {
+void Mesh_Renderer::draw_3D_coloured(Model& model, const Camera& camera, const Transform& transform, const vec4& colour) {
 	
 	for (int i = 0; i < num_meshes; i++) {
 		glBindVertexArray(gl_data[i].vao);
 		shader_coloured.use();
 
 		shader_coloured.set_uniform("model", gen_model_matrix(transform.size, transform.position, transform.rotation));
-		shader_coloured.set_uniform("view", view_matrix);
-		shader_coloured.set_uniform("projection", projection_matrix);
+		shader_coloured.set_uniform("view", camera.matrix_view);
+		shader_coloured.set_uniform("projection", camera.matrix_projection_persp);
 		shader_coloured.set_uniform("uniform_colour", colour);
 		shader_coloured.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
 		glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());

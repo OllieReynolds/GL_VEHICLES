@@ -14,8 +14,8 @@ public:
 	Circle_Renderer() { }
 
 	void init();
-	void draw_2D(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size, const vec4& colour, bool filled);
-	void draw_3D(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, const vec3& rotation, const vec4& colour, bool filled);
+	void draw_2D(const Camera& camera, const vec2& position, const vec2& size, const vec4& colour, bool filled);
+	void draw_3D(const Camera& camera, const Transform& transform, const vec4& colour, bool filled);
 	void destroy();
 
 private:

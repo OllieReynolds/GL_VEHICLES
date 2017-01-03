@@ -9,14 +9,14 @@
 
 namespace {
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-		simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+		Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 		s->cursor_position.x = (float)xpos;
 		s->cursor_position.y = 768.f - (float)ypos;
 	}
 
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
-			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 			int active_button = s->index_active_button;
 			if (active_button != -1) {
 				std::cout << "ws" << std::endl;
@@ -26,14 +26,11 @@ namespace {
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (action == GLFW_PRESS) {
-			simulation::Simulation* s = reinterpret_cast<simulation::Simulation*>(glfwGetWindowUserPointer(window));
+			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 
 			switch (key) {
 			case GLFW_KEY_F:
 				s->follow_vehicle = !s->follow_vehicle;
-				break;
-			case GLFW_KEY_S:
-				s->draw_sensors = !s->draw_sensors;
 				break;
 			}
 		}
@@ -86,12 +83,12 @@ int main() {
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	
-	simulation::Simulation simulation = simulation::Simulation();
+	Simulation simulation = Simulation();
 	simulation.init();
 
 	glfwSetWindowUserPointer(window, &simulation);
 
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(window)  && utils::elapsed_time() < 20) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		simulation.update();

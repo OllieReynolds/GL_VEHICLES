@@ -21,14 +21,14 @@ void Cube_Renderer::init() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
-void Cube_Renderer::draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, float rotation, const vec4& colour) {
+void Cube_Renderer::draw(const Camera& camera, const vec3& position, const vec3& size, float rotation, const vec4& colour) {
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	shader.use();
 
 	shader.set_uniform("model", utils::gen_model_matrix(size, position, rotation));
-	shader.set_uniform("view", view_matrix);
-	shader.set_uniform("projection", projection_matrix);
+	shader.set_uniform("view", camera.matrix_view);
+	shader.set_uniform("projection", camera.matrix_projection_persp);
 	shader.set_uniform("uniform_colour", colour);
 	shader.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -37,11 +37,11 @@ void Cube_Renderer::draw(const mat4& view_matrix, const mat4& projection_matrix,
 	glBindVertexArray(0);
 }
 
-void Cube_Renderer::draw_multiple(int n, const mat4& view_matrix, const mat4& projection_matrix, const Transform* transforms, const vec4& colour) {
+void Cube_Renderer::draw_multiple(int n, const Camera& camera, const Transform* transforms, const vec4& colour) {
 	shader.use();
 
-	shader.set_uniform("view", view_matrix);
-	shader.set_uniform("projection", projection_matrix);
+	shader.set_uniform("view", camera.matrix_view);
+	shader.set_uniform("projection", camera.matrix_projection_persp);
 	shader.set_uniform("uniform_colour", colour);
 	shader.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
 

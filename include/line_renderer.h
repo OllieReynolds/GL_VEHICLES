@@ -14,7 +14,7 @@ public:
 	Line_Renderer() { }
 
 	void init();
-	void draw(const mat4& view_matrix, const mat4& projection_matrix, const vec3& a, const vec3& b, const vec4& colour);
+	void draw(const Camera& camera, const vec3& world_space_a, const vec3& world_space_b, const vec4& colour);
 	void destroy();
 
 private:

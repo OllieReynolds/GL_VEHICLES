@@ -27,12 +27,12 @@ void Quad_Renderer::init() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
-void Quad_Renderer::draw_2D(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size, const vec4& colour) {
+void Quad_Renderer::draw_2D(const Camera& camera, const vec2& position, const vec2& size, const vec4& colour) {
 	shader_2D.use();
 	glBindVertexArray(vao);
 
 	shader_2D.set_uniform("uniform_colour", colour);
-	shader_2D.set_uniform("projection", projection_matrix);
+	shader_2D.set_uniform("projection", camera.matrix_projection_ortho);
 	shader_2D.set_uniform("model", utils::gen_model_matrix(size, position));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -41,14 +41,14 @@ void Quad_Renderer::draw_2D(const mat4& view_matrix, const mat4& projection_matr
 	shader_2D.release();
 }
 
-void Quad_Renderer::draw_3D(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, const vec3& rotation, const vec4& colour) {
+void Quad_Renderer::draw_3D(const Camera& camera, const Transform& transform, const vec4& colour) {
 	shader_3D.use();
 	glBindVertexArray(vao);
 
 	shader_3D.set_uniform("uniform_colour", colour);
-	shader_3D.set_uniform("projection", projection_matrix);
-	shader_3D.set_uniform("view", view_matrix);
-	shader_3D.set_uniform("model", utils::gen_model_matrix(size, position, rotation));
+	shader_3D.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D.set_uniform("view", camera.matrix_view);
+	shader_3D.set_uniform("model", utils::gen_model_matrix(transform));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -56,13 +56,13 @@ void Quad_Renderer::draw_3D(const mat4& view_matrix, const mat4& projection_matr
 	shader_3D.release();
 }
 
-void Quad_Renderer::draw_2D_textured(const mat4& view_matrix, const mat4& projection_matrix, const vec2& position, const vec2& size, Texture& tex) {
+void Quad_Renderer::draw_2D_textured(const Camera& camera, const vec2& position, const vec2& size, Texture& tex) {
 	shader_2D.use();
 	glBindVertexArray(vao);
 
 	tex.use();
 
-	shader_2D.set_uniform("projection", projection_matrix);
+	shader_2D.set_uniform("projection", camera.matrix_projection_ortho);
 	shader_2D.set_uniform("model", utils::gen_model_matrix(size, position));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -71,15 +71,15 @@ void Quad_Renderer::draw_2D_textured(const mat4& view_matrix, const mat4& projec
 	shader_2D.release();
 }
 
-void Quad_Renderer::draw_3D_textured(const mat4& view_matrix, const mat4& projection_matrix, const vec3& position, const vec3& size, const vec3& rotation, Texture& tex) {
+void Quad_Renderer::draw_3D_textured(const Camera& camera, const Transform& transform, Texture& tex) {
 	shader_3D.use();
 	glBindVertexArray(vao);
 
 	tex.use();
 
-	shader_3D.set_uniform("projection", projection_matrix);
-	shader_3D.set_uniform("view", view_matrix);
-	shader_3D.set_uniform("model", utils::gen_model_matrix(size, position, rotation));
+	shader_3D.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D.set_uniform("view", camera.matrix_view);
+	shader_3D.set_uniform("model", utils::gen_model_matrix(transform));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

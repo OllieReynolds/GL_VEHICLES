@@ -10,6 +10,23 @@
 namespace utils {
 	using namespace maths;
 
+	struct Camera {
+		float target_distance;
+		float field_of_view;
+		float aspect_ratio;
+		vec2 resolution;
+		vec2 depth_range_ortho;
+		vec2 depth_range_persp;
+		vec3 position_start;
+		vec3 position_current;
+		vec3 position_target;
+		vec3 orientation_up;
+		mat4 matrix_view;
+		mat4 matrix_projection_persp;
+		mat4 matrix_projection_ortho;
+	};
+
+
 	struct Transform {
 		vec3 position;
 		vec3 size;
@@ -95,6 +112,14 @@ namespace utils {
 		mat4 t = transpose(translate(position));
 		mat4 r = rotate(rotation);
 		
+		return mult(mult(s, r), t);
+	}
+
+	static mat4 gen_model_matrix(const Transform& transform) {
+		mat4 s = scale(transform.size);
+		mat4 t = transpose(translate(transform.position));
+		mat4 r = rotate(transform.rotation);
+
 		return mult(mult(s, r), t);
 	}
 
