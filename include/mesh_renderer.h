@@ -24,6 +24,7 @@ public:
 	void init();
 	void draw_3D_coloured(Model& mesh, const Camera& camera, const Transform& transform, const vec4& colour);
 	void draw_3D_textured(Model& mesh, const Camera& camera, const Transform& transform, Texture& texture);
+	void draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const Transform* transform, Texture& texture);
 	void destroy();
 
 private:

@@ -11,9 +11,16 @@
 #include "circle_renderer.h"
 #include "maths.h"
 #include "model.h"
+#include "vehicle_phsyics.h"
 
 using namespace maths;
 using namespace utils;
+
+struct Light {
+	float ambient;
+	vec3 position;
+	vec4 colour;
+};
 
 struct Vehicle_Attributes {
 	float forward_speed;
@@ -83,17 +90,22 @@ public:
 
 	int num_vehicles;
 	int num_buttons;
+	int num_lights;
 
 	vec2 cursor_position;
-	vec3 light_position;
 
 	Camera camera;
+
+	Vehicle_Physics_Controller* physics_controller;
 
 	Button_Attributes* button_attributes;
 	Vehicle_Attributes* vehicle_attributes;
 	Wheel_Attributes* wheel_attributes;
 
 	utils::Transform* vehicle_transforms;
+
+
+	Light* lights;
 
 
 private:

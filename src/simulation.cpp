@@ -8,12 +8,11 @@ Simulation::Simulation() {
 
 	num_vehicles = 25;
 	num_buttons = 6;
+	num_lights = 3;
 	
 	follow_vehicle = false;
 	mouse_pressed = false;
 	cursor_position = vec2{ 0.f, 0.f };
-
-	light_position = vec3{ 0.f, 30.f, 0.f };
 
 	camera.field_of_view = 90.f;
 	camera.target_distance = 20.f;
@@ -35,8 +34,11 @@ Simulation::Simulation() {
 	text_renderer = Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
 	mesh_renderer = Mesh_Renderer();
 	circle_renderer = Circle_Renderer();
+
 	wheel_model = Model();
 	grid_model = Model();
+
+	physics_controller = new Vehicle_Physics_Controller();
 
 	vehicle_transforms = new utils::Transform[num_vehicles];
 	vehicle_attributes = new Vehicle_Attributes[num_vehicles];
@@ -59,18 +61,27 @@ Simulation::Simulation() {
 	wheel_attributes[2] = { 45.f, 180.f};
 	wheel_attributes[3] = { 135.f, 180.f};
 
+	std::string button_labels[6] = {
+		"ADD VEHICLE", "REMOVE VEHICLE", "EDIT VEHICLE", "FOLLOW VEHICLE", "PLAY", "PAUSE"
+	};
+
 	button_attributes = new Button_Attributes[num_buttons];
-	button_attributes[0] = { { 100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "add vehicle" };
-	button_attributes[1] = { { 300.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "remove vehicle" };
-	button_attributes[2] = { { 500.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "follow vehicle" };
-	button_attributes[3] = { { 700.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "pause" };
-	button_attributes[4] = { { 900.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "play" };
-	button_attributes[5] = { { 1100.f, 700.f },{ 192.f, 32.f },{ 0.1f, 0.2f, 0.1f, 1.f }, "edit vehicle" };
+	for (int i = 0; i < num_buttons; i++) {
+		float width_by_buttons = camera.resolution.x / num_buttons;
+		float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
+		button_attributes[i] = { { p, 740.f }, { 206.f, 32.f }, utils::data::colour::dark_grey, button_labels[i]};
+	}
+
+	// TODO Make these a param to renderers
+	lights = new Light[num_lights];
+	lights[0] = { 0.2f, {  0.f, 30.f,  0.f }, utils::data::colour::white };
+	lights[1] = { 0.2f, { 10.f, 10.f, 10.f }, utils::data::colour::red };
 }
 
 void Simulation::init() {
 	wheel_texture.init("data/wheel_texture.png");
 	floor_texture.init("data/floor.png");
+
 	wheel_model.init("data/wheel.obj");
 	grid_model.init("data/grid.obj");
 
@@ -83,11 +94,23 @@ void Simulation::init() {
 }
 
 void Simulation::update() {
-	if (utils::elapsed_time() > 10)
-		follow_vehicle = true;
+	
 
 	for (int i = 0; i < num_vehicles; i++)
 		update_vehicle(vehicle_transforms[i], vehicle_attributes[i]);
+
+	physics_controller->update();
+	std::cout << physics_controller->get_vehicle_rotation() << endl;
+	
+
+
+
+	vehicle_transforms[index_selected_vehicle].rotation.y = physics_controller->get_vehicle_rotation() + 90.f;
+	vehicle_transforms[index_selected_vehicle].position = vec3{ physics_controller->get_vehicle_position().x, vehicle_transforms[index_selected_vehicle].position.y, physics_controller->get_vehicle_position().y };
+
+	/*if (utils::elapsed_time() > 10) {
+		follow_vehicle = true;
+	}*/
 		
 	update_ui();
 	update_camera();
@@ -151,8 +174,8 @@ void Simulation::draw() {
 	// Draw the shadows
 	for (int i = 0; i < num_vehicles; i++) {
 		// Fudge the Y position by a tiny bit to prevent z-fighting
-		float f = i * 0.01f;
-		circle_renderer.draw_3D_shadow(camera, { vehicle_transforms[i].position - vec3{ 0.f, 3.95f - f, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } });
+		float y = i * 0.01f;
+		circle_renderer.draw_3D_shadow(camera, { vehicle_transforms[i].position - vec3{ 0.f, 3.95f - y, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } });
 	}
 
 	glDisable(GL_DEPTH_TEST);
@@ -166,28 +189,36 @@ void Simulation::draw_vehicles() {
 	// Draw the vehicles
 	cube_renderer.draw_multiple(num_vehicles, camera, vehicle_transforms, utils::data::colour::blue);
 
+
 	// Draw the wheels
+	int num_wheels = num_vehicles * 4;
+	Transform* transform_list = new Transform[num_wheels];
+	int index = 0;
 	for (int i = 0; i < num_vehicles; i++) {
 		for (int j = 0; j < 4; j++) {
-			Transform t = wheel_attributes[j].gen_transform_from_vehicle(vehicle_transforms[i], 8.f);
-			mesh_renderer.draw_3D_textured(wheel_model, camera, t, wheel_texture);
+			transform_list[index] = wheel_attributes[j].gen_transform_from_vehicle(vehicle_transforms[i], 8.f);
+			index++;
 		}
 	}
+
+	mesh_renderer.draw_multiple_3D_textured(num_wheels, wheel_model, camera, transform_list, wheel_texture);
+
+	delete[] transform_list;
+
 }
 
 void Simulation::draw_environment() {
-	//quad_renderer.draw_3D_textured(camera, { { 0.f, 0.f, 0.f }, { 400.f }, { 90.f, 0.f, 0.f } }, floor_texture);
 	mesh_renderer.draw_3D_coloured(grid_model, camera, { { 0.f, 0.f, 0.f }, { 40.f },{ 0.f, 0.f, 0.f } }, { 1.f, 1.f, 1.f, 1.f });
 }
 
 void Simulation::draw_ui() {
-	for (int i = 0; i < num_buttons; i++) {
-		quad_renderer.draw_2D(camera, button_attributes[i].position, button_attributes[i].size, button_attributes[i].colour);
-		text_renderer.draw(button_attributes[i].label, button_attributes[i].position, true, data::colour::white);
+	if (index_active_button != -1) {
+		quad_renderer.draw_2D(camera, button_attributes[index_active_button].position, button_attributes[index_active_button].size * 1.1f, utils::data::colour::yellow);
 	}
 
-	if (index_active_button != -1) {
-		text_renderer.draw("wow", button_attributes[index_active_button].position, true, data::colour::white);
+	for (int i = 0; i < num_buttons; i++) {
+		quad_renderer.draw_2D(camera, button_attributes[i].position, button_attributes[i].size, button_attributes[i].colour);
+		text_renderer.draw(button_attributes[i].label, button_attributes[i].position + vec2{ 0.f, -5.f }, true, data::colour::white);
 	}
 
 	if (index_pressed_button != -1) {
@@ -210,8 +241,11 @@ void Simulation::destroy() {
 	wheel_model.destroy();
 	grid_model.destroy();
 
+	delete physics_controller;
+
 	delete[] vehicle_transforms;
 	delete[] vehicle_attributes;
 	delete[] button_attributes;
 	delete[] wheel_attributes;
+	delete[] lights;
 }

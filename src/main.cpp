@@ -3,6 +3,7 @@
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "freetype265MT.lib")
 #pragma comment(lib, "SOIL.lib")
+#pragma comment(lib, "Box2D.lib")
 
 #include "..\include\simulation.h"
 #include "..\include\utils.h"
