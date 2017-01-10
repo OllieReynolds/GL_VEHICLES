@@ -3,15 +3,10 @@
 #include <glew.h>
 #include <glfw3.h>
 
-#include "cube_renderer.h"
-#include "line_renderer.h"
-#include "quad_renderer.h"
-#include "text_renderer.h"
-#include "mesh_renderer.h"
-#include "circle_renderer.h"
+#include "renderer.h"
 #include "maths.h"
 #include "model.h"
-#include "vehicle_phsyics.h"
+#include "physics.h"
 
 using namespace maths;
 using namespace utils;
@@ -70,7 +65,7 @@ public:
 	Line_Renderer line_renderer;
 	Quad_Renderer quad_renderer;
 	Text_Renderer text_renderer;
-	Mesh_Renderer mesh_renderer;
+	Model_Renderer model_renderer;
 	Circle_Renderer circle_renderer;
 
 	Model wheel_model;
@@ -96,7 +91,7 @@ public:
 
 	Camera camera;
 
-	Vehicle_Physics_Controller* physics_controller;
+	Physics* physics;
 
 	Button_Attributes* button_attributes;
 	Vehicle_Attributes* vehicle_attributes;
@@ -109,7 +104,6 @@ public:
 
 
 private:
-	void update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs);
 	void update_camera();
 	void update_ui();
 
@@ -117,4 +111,3 @@ private:
 	void draw_ui();
 	void draw_environment();
 };
-

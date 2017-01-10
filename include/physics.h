@@ -7,6 +7,7 @@
 #include <Box2D\Box2D.h>
 
 #include "maths.h"
+#include "utils.h"
 
 using namespace maths;
 using namespace std;
@@ -117,23 +118,24 @@ public:
 
 class Vehicle {
 public:
-	Vehicle(b2World* world) {
+	Vehicle() { }
+
+	~Vehicle() {
+		for (int i = 0; i < tyres.size(); i++) delete tyres[i];
+	}
+
+	void init(b2World* world, b2Vec2 position, float rotation, int control_state) {
+		this->control_state = control_state;
+		
 		b2BodyDef body_def;
 		body_def.type = b2_dynamicBody;
+		body_def.position = position;
+		body_def.angle = rotation;
 		body = world->CreateBody(&body_def);
 		body->SetAngularDamping(3);
 
-		b2Vec2 vertices[8];
-		vertices[0].Set(1.5, 0);
-		vertices[1].Set(3, 2.5);
-		vertices[2].Set(2.8, 5.5);
-		vertices[3].Set(1, 10);
-		vertices[4].Set(-1, 10);
-		vertices[5].Set(-2.8, 5.5);
-		vertices[6].Set(-3, 2.5);
-		vertices[7].Set(-1.5, 0);
 		b2PolygonShape polygon_shape;
-		polygon_shape.Set(vertices, 8);
+		polygon_shape.SetAsBox(8.f, 12.f);
 		b2Fixture* fixture = body->CreateFixture(&polygon_shape, 0.1f);
 
 		b2RevoluteJointDef joint_def;
@@ -183,11 +185,7 @@ public:
 		tyres.push_back(tyre);
 	}
 
-	~Vehicle() {
-		for (int i = 0; i < tyres.size(); i++) delete tyres[i];
-	}
-
-	void update(int control_state) {
+	void update() {
 		for (int i = 0; i < tyres.size(); i++)
 			tyres[i]->update_friction();
 
@@ -217,32 +215,52 @@ public:
 	b2RevoluteJoint *fl_joint, *fr_joint;
 	b2Body* body;
 	float new_angle;
+	int control_state;
 };
 
-class Vehicle_Physics_Controller {
+class Physics {
 public:
-	Vehicle_Physics_Controller() : gravity{ 0.f, 0.f }, world(gravity) {
-		vehicle_control_state = UP | LEFT;
-		vehicle = new Vehicle(&world);
+	Physics(int num_vehicles = 1, utils::Transform* transforms = 0) : gravity{ 0.f, 0.f }, world(gravity) {
+		
+
+		vehicles = new Vehicle[num_vehicles];
+		for (int i = 0; i < num_vehicles; i++) {
+
+			int state;
+
+			if (i % 2 == 0)
+				state = UP | LEFT;
+			else
+				state = UP | RIGHT;
+
+			b2Vec2 v2 = { transforms[i].position.x, transforms[i].position.z };
+			vehicles[i].init(&world, v2, transforms[i].rotation.y - 90.f, state);
+		}
+
+		this->num_vehicles = num_vehicles;
 
 		time_step = 1.f / 60.f;
-		velocity_iterations = 3;
-		position_iterations = 3;
+		velocity_iterations = 60;
+		position_iterations = 60;
 	}
 
-	~Vehicle_Physics_Controller() {
-		delete vehicle;
+	~Physics() {
+		delete[] vehicles;
 	}
 
 	void update();
-	vec2 get_vehicle_position();
-	float get_vehicle_rotation();
+
+	vec2 get_vehicle_position(int index);
+	float get_vehicle_rotation(int index);
+
+	std::vector<vec2> get_vehicle_positions();
+	std::vector<float> get_vehicle_rotations();
 
 	b2Vec2 gravity;
 	b2World world;
 
-	int vehicle_control_state;
-	Vehicle* vehicle;
+	int num_vehicles;
+	Vehicle* vehicles;
 
 	float time_step;
 	int velocity_iterations;

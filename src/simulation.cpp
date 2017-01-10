@@ -6,7 +6,7 @@ Simulation::Simulation() {
 	index_state = 1;
 	index_selected_vehicle = 0;
 
-	num_vehicles = 25;
+	num_vehicles = 10;
 	num_buttons = 6;
 	num_lights = 3;
 	
@@ -32,19 +32,17 @@ Simulation::Simulation() {
 	line_renderer = Line_Renderer();
 	quad_renderer = Quad_Renderer();
 	text_renderer = Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
-	mesh_renderer = Mesh_Renderer();
+	model_renderer = Model_Renderer();
 	circle_renderer = Circle_Renderer();
 
 	wheel_model = Model();
 	grid_model = Model();
 
-	physics_controller = new Vehicle_Physics_Controller();
-
 	vehicle_transforms = new utils::Transform[num_vehicles];
 	vehicle_attributes = new Vehicle_Attributes[num_vehicles];
 	for (int i = 0; i < num_vehicles; i++) {
 		vehicle_transforms[i] = {
-			vec3{ utils::gen_random(-90.f, 90.f), 4.f, utils::gen_random(-90.f, 90.f) },
+			vec3{ utils::gen_random(-120.f, 120.f), 4.f, utils::gen_random(-120.f, 120.f) },
 			vec3{ 16.f, 2.f, 8.f },
 			vec3{ 0.f, utils::gen_random(0.f, 360.f), 0.f }
 		};
@@ -54,6 +52,8 @@ Simulation::Simulation() {
 			utils::gen_random(2.5f, 3.5f)
 		};
 	}
+
+	physics = new Physics(num_vehicles, vehicle_transforms);
 
 	wheel_attributes = new Wheel_Attributes[4];
 	wheel_attributes[0] = { 315.f, 0.f};
@@ -90,41 +90,24 @@ void Simulation::init() {
 	quad_renderer.init();
 	text_renderer.init(camera.resolution);
 	circle_renderer.init();
-	mesh_renderer.init();
+	model_renderer.init();
 }
 
 void Simulation::update() {
+	physics->update();
 	
+	vector<vec2> positions = physics->get_vehicle_positions();
+	vector<float> rotations = physics->get_vehicle_rotations();
 
-	for (int i = 0; i < num_vehicles; i++)
-		update_vehicle(vehicle_transforms[i], vehicle_attributes[i]);
-
-	physics_controller->update();
-	std::cout << physics_controller->get_vehicle_rotation() << endl;
-	
-
-
-
-	vehicle_transforms[index_selected_vehicle].rotation.y = physics_controller->get_vehicle_rotation() + 90.f;
-	vehicle_transforms[index_selected_vehicle].position = vec3{ physics_controller->get_vehicle_position().x, vehicle_transforms[index_selected_vehicle].position.y, physics_controller->get_vehicle_position().y };
-
-	/*if (utils::elapsed_time() > 10) {
-		follow_vehicle = true;
-	}*/
+	for (int i = 0; i < num_vehicles; i++) {
+		vehicle_transforms[i].rotation.y = rotations[i] + 90.f;
+		vehicle_transforms[i].position = vec3{ positions[i].x, vehicle_transforms[i].position.y, positions[i].y };
+	}
 		
 	update_ui();
 	update_camera();
 
 	mouse_pressed = false;
-}
-
-void Simulation::update_vehicle(utils::Transform& transform, Vehicle_Attributes attribs) {
-	if (!point_quad_intersect(transform.position.XZ(), -100, 100, 100, -100))
-		transform.rotation.y += attribs.turning_speed;
-
-	vec2 direction = polar_to_cartesian(to_radians(transform.rotation.y));
-	vec2 velocity = direction * attribs.forward_speed;
-	transform.position += {velocity.x, 0.f, velocity.y};
 }
 
 void Simulation::update_camera() {
@@ -201,14 +184,14 @@ void Simulation::draw_vehicles() {
 		}
 	}
 
-	mesh_renderer.draw_multiple_3D_textured(num_wheels, wheel_model, camera, transform_list, wheel_texture);
+	model_renderer.draw_multiple_3D_textured(num_wheels, wheel_model, camera, transform_list, wheel_texture);
 
 	delete[] transform_list;
 
 }
 
 void Simulation::draw_environment() {
-	mesh_renderer.draw_3D_coloured(grid_model, camera, { { 0.f, 0.f, 0.f }, { 40.f },{ 0.f, 0.f, 0.f } }, { 1.f, 1.f, 1.f, 1.f });
+	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 0.f, 0.f },{ 40.f },{ 0.f, 0.f, 0.f } }, this->floor_texture);
 }
 
 void Simulation::draw_ui() {
@@ -233,7 +216,7 @@ void Simulation::destroy() {
 	quad_renderer.destroy();
 	text_renderer.destroy();
 	circle_renderer.destroy();
-	mesh_renderer.destroy();
+	model_renderer.destroy();
 
 	wheel_texture.destroy();
 	floor_texture.destroy();
@@ -241,7 +224,7 @@ void Simulation::destroy() {
 	wheel_model.destroy();
 	grid_model.destroy();
 
-	delete physics_controller;
+	delete physics;
 
 	delete[] vehicle_transforms;
 	delete[] vehicle_attributes;
