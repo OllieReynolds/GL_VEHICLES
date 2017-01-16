@@ -185,7 +185,6 @@ namespace maths {
 	vec4 mult(const mat4& m, const vec4& v);
 	mat4 mult(const mat4& a, const mat4& b);
 
-
 	mat4 rotate_x(float degrees);
 	mat4 rotate_y(float degrees);
 	mat4 rotate_z(float degrees);

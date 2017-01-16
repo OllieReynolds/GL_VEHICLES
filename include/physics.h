@@ -44,7 +44,7 @@ public:
 		body->SetUserData(this);
 	}
 
-	~Tyre() {
+	void destroy() {
 		body->GetWorld()->DestroyBody(body);
 	}
 
@@ -120,9 +120,13 @@ class Vehicle {
 public:
 	Vehicle() { }
 
-	~Vehicle() {
-		for (int i = 0; i < tyres.size(); i++) delete tyres[i];
+	void destroy() {
+		for (int i = 0; i < tyres.size(); i++) {
+			tyres[i]->destroy();
+			delete tyres[i];
+		}
 	}
+
 
 	void init(b2World* world, b2Vec2 position, float rotation, int control_state) {
 		this->control_state = control_state;
@@ -220,47 +224,36 @@ public:
 
 class Physics {
 public:
-	Physics(int num_vehicles = 1, utils::Transform* transforms = 0) : gravity{ 0.f, 0.f }, world(gravity) {
-		
-
-		vehicles = new Vehicle[num_vehicles];
+	Physics(int num_vehicles, std::vector<utils::Transform>& transforms) 
+		: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(2), position_iterations(6), time_step(1.f / 60.f) {
+		vehicles = vector<Vehicle>(num_vehicles);
 		for (int i = 0; i < num_vehicles; i++) {
-
-			int state;
-
-			if (i % 2 == 0)
-				state = UP | LEFT;
-			else
-				state = UP | RIGHT;
-
-			b2Vec2 v2 = { transforms[i].position.x, transforms[i].position.z };
-			vehicles[i].init(&world, v2, transforms[i].rotation.y - 90.f, state);
+			b2Vec2 position = { transforms[i].position.x, transforms[i].position.z };
+			vehicles[i].init(&world, position, transforms[i].rotation.y - 90.f, UP | LEFT);
 		}
-
-		this->num_vehicles = num_vehicles;
-
-		time_step = 1.f / 60.f;
-		velocity_iterations = 60;
-		position_iterations = 60;
 	}
 
-	~Physics() {
-		delete[] vehicles;
-	}
+	/////////////////////////////////////
+	// Member Functions
+	/////////////////////////////////////
+	void				update();
+	void				destroy();
 
-	void update();
+	vec2				get_vehicle_position(int index);
+	float				get_vehicle_rotation(int index);
+	std::vector<vec2>	get_vehicle_positions();
+	std::vector<float>	get_vehicle_rotations();
 
-	vec2 get_vehicle_position(int index);
-	float get_vehicle_rotation(int index);
+	void				add_vehicle(const utils::Transform& transform);
+	void				remove_vehicle();
 
-	std::vector<vec2> get_vehicle_positions();
-	std::vector<float> get_vehicle_rotations();
-
+	/////////////////////////////////////
+	// Member variables
+	/////////////////////////////////////
 	b2Vec2 gravity;
 	b2World world;
 
-	int num_vehicles;
-	Vehicle* vehicles;
+	vector<Vehicle> vehicles;
 
 	float time_step;
 	int velocity_iterations;

@@ -5,7 +5,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-
 #include <glew.h>
 
 #include "maths.h"
@@ -13,9 +12,6 @@
 #include "shader.h"
 #include "utils.h"
 #include "texture.h"
-
-
-
 
 using namespace maths;
 using namespace utils;
@@ -62,7 +58,7 @@ public:
 
 	void init();
 	void draw(const Camera& camera, const vec3& position, const vec3& size, float rotation, const vec4& colour);
-	void draw_multiple(int n, const Camera& camera, const Transform* transforms, const vec4& colour);
+	void draw_multiple(int n, const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
 	void destroy();
 
 private:
@@ -92,7 +88,7 @@ public:
 	void init();
 	void draw_3D_coloured(Model& model, const Camera& camera, const Transform& transform, const vec4& colour);
 	void draw_3D_textured(Model& model, const Camera& camera, const Transform& transform, Texture& texture);
-	void draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const Transform* transform, Texture& texture);
+	void draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture);
 	void destroy();
 
 private:

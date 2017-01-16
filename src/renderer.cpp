@@ -212,7 +212,7 @@ void Cube_Renderer::draw(const Camera& camera, const vec3& position, const vec3&
 	glBindVertexArray(0);
 }
 
-void Cube_Renderer::draw_multiple(int n, const Camera& camera, const Transform* transforms, const vec4& colour) {
+void Cube_Renderer::draw_multiple(int n, const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
 	shader.use();
 
 	shader.set_uniform("view", camera.matrix_view);
@@ -223,7 +223,7 @@ void Cube_Renderer::draw_multiple(int n, const Camera& camera, const Transform* 
 	for (int i = 0; i < n; i++) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		shader.set_uniform("model", utils::gen_model_matrix(transforms[i].size, transforms[i].position, transforms[i].rotation));
+		shader.set_uniform("model", utils::gen_model_matrix(transform_list[i].size, transform_list[i].position, transform_list[i].rotation));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 	}
@@ -289,7 +289,7 @@ void Model_Renderer::init() {
 	};
 }
 
-void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const Transform* transform, Texture& texture) {
+void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture) {
 	shader_textured.use();
 	shader_textured.set_uniform("view", camera.matrix_view);
 	shader_textured.set_uniform("projection", camera.matrix_projection_persp);
@@ -298,7 +298,7 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 	texture.use();
 
 	for (int j = 0; j < n; j++) {
-		shader_textured.set_uniform("model", gen_model_matrix(transform[j].size, transform[j].position, transform[j].rotation));
+		shader_textured.set_uniform("model", gen_model_matrix(transform_list[j].size, transform_list[j].position, transform_list[j].rotation));
 
 		for (int i = 0; i < model.meshes.size(); i++) {
 			glBindVertexArray(model.meshes[i].vao);

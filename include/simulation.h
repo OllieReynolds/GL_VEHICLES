@@ -61,6 +61,9 @@ public:
 	void draw();
 	void destroy();
 
+	void add_vehicle();
+	void remove_vehicle();
+
 	Cube_Renderer cube_renderer;
 	Line_Renderer line_renderer;
 	Quad_Renderer quad_renderer;
@@ -83,9 +86,10 @@ public:
 	int index_active_button;
 	int index_pressed_button;
 
-	int num_vehicles;
 	int num_buttons;
 	int num_lights;
+
+	bool add_vehicle_lock;
 
 	vec2 cursor_position;
 
@@ -93,15 +97,14 @@ public:
 
 	Physics* physics;
 
-	Button_Attributes* button_attributes;
-	Vehicle_Attributes* vehicle_attributes;
-	Wheel_Attributes* wheel_attributes;
+	vector<Button_Attributes>	attributes_ui;
+	vector<Vehicle_Attributes>	attributes_vehicles;
+	vector<Wheel_Attributes>	attributes_wheels;
 
-	utils::Transform* vehicle_transforms;
-
+	vector<Transform>			transforms_vehicles;
+	vector<Transform>			transforms_wheels;
 
 	Light* lights;
-
 
 private:
 	void update_camera();

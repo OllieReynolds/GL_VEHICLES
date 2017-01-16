@@ -19,8 +19,12 @@ namespace {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 			int active_button = s->index_active_button;
-			if (active_button != -1) {
-				std::cout << "ws" << std::endl;
+			switch (active_button) {
+			case 0: s->add_vehicle(); break;
+			case 1: s->remove_vehicle();  break;
+			case 2: break;
+			case 3: break;
+			case 4: break;
 			}
 		}
 	}
