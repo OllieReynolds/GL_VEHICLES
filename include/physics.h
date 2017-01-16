@@ -151,10 +151,10 @@ public:
 
 		float max_forward_speed = 250;
 		float max_backward_speed = -40;
-		float back_tyre_max_drive_force = 300;
-		float front_tyre_max_drive_force = 500;
+		float back_tyre_max_drive_force = 600;
+		float front_tyre_max_drive_force = 300;
 		float back_tyre_max_lateral_impulse = 8.5;
-		float front_tyre_max_lateral_impulse = 7.5;
+		float front_tyre_max_lateral_impulse = 12.5;
 
 		// Back Left
 		Tyre* tyre = new Tyre(world);
@@ -196,15 +196,14 @@ public:
 		for (int i = 0; i < tyres.size(); i++)
 			tyres[i]->update_drive(control_state);
 
-		float lock_angle = 35 * DEGTORAD;
+		float lock_angle = 70 * DEGTORAD;
 		float turn_speed_per_second = 160 * DEGTORAD;
 		float turn_per_time_step = turn_speed_per_second / 60.f;
 		float desired_angle = 0;
 
 		switch (control_state & (LEFT | RIGHT)) {
-		case LEFT: desired_angle = lock_angle;  break;
-		case RIGHT: desired_angle = -lock_angle;  break;
-		default:;
+			case LEFT: desired_angle = lock_angle;  break;
+			case RIGHT: desired_angle = -lock_angle;  break;
 		}
 
 		float angle_now = fl_joint->GetJointAngle();
@@ -212,7 +211,6 @@ public:
 		angle_to_turn = b2Clamp(angle_to_turn, -turn_per_time_step, turn_per_time_step);
 		new_angle = angle_now + angle_to_turn;
 		fl_joint->SetLimits(new_angle, new_angle);
-		fr_joint->SetLimits(new_angle, new_angle);
 	}
 
 	std::vector<Tyre*> tyres;
@@ -229,7 +227,7 @@ public:
 		vehicles = vector<Vehicle>(num_vehicles);
 		for (int i = 0; i < num_vehicles; i++) {
 			b2Vec2 position = { transforms[i].position.x, transforms[i].position.z };
-			vehicles[i].init(&world, position, transforms[i].rotation.y - 90.f, UP | LEFT);
+			vehicles[i].init(&world, position, transforms[i].rotation.y - 90.f, DOWN | LEFT);
 		}
 	}
 

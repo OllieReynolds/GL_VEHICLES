@@ -11,6 +11,8 @@ Simulation::Simulation() {
 	
 	follow_vehicle = false;
 	mouse_pressed = false;
+	is_running = false;
+
 	cursor_position = vec2{ 0.f, 0.f };
 
 	camera.field_of_view = 90.f;
@@ -68,7 +70,7 @@ Simulation::Simulation() {
 	}
 	
 	// Init GUI
-	std::string button_labels[6] = { "ADD VEHICLE", "REMOVE VEHICLE", "EDIT VEHICLE", "FOLLOW VEHICLE", "PLAY", "PAUSE" };
+	std::string button_labels[6] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE" };
 	attributes_ui = vector<Button_Attributes>(num_buttons);
 	for (int i = 0; i < num_buttons; i++) {
 		float width_by_buttons = camera.resolution.x / num_buttons;
@@ -98,9 +100,9 @@ void Simulation::init() {
 }
 
 void Simulation::update() {
-	physics->update();
-	
-	if (!add_vehicle_lock) {
+	if (is_running) {
+		physics->update();
+
 		vector<vec2> positions = physics->get_vehicle_positions();
 		vector<float> rotations = physics->get_vehicle_rotations();
 
@@ -166,36 +168,35 @@ void Simulation::draw() {
 }
 
 void Simulation::draw_vehicles() {
-	if (!add_vehicle_lock) {
-		int foobar = transforms_vehicles.size();
+	
+	int foobar = transforms_vehicles.size();
 
-		// Draw the vehicle bodies
-		cube_renderer.draw_multiple(transforms_vehicles.size(), camera, transforms_vehicles, utils::data::colour::blue);
+	// Draw the vehicle bodies
+	cube_renderer.draw_multiple(transforms_vehicles.size(), camera, transforms_vehicles, utils::data::colour::blue);
 
-		// Draw the sensors
-		const static float SENSOR_ANGLE_OFFSET = 20.f;
-		const static float SENSOR_RANGE = 40.f;
-		for (int i = 0; i < transforms_vehicles.size(); i++) {
-			float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
-			float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
+	// Draw the sensors
+	const static float SENSOR_ANGLE_OFFSET = 20.f;
+	const static float SENSOR_RANGE = 40.f;
+	for (int i = 0; i < transforms_vehicles.size(); i++) {
+		float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
+		float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
 
-			vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
-			vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
+		vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
+		vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
 
-			line_renderer.draw(
-				camera,
-				transforms_vehicles[i].position,
-				transforms_vehicles[i].position + vec3{ direction_a.x, 0.f, direction_a.y },
-				utils::data::colour::red
-			);
+		line_renderer.draw(
+			camera,
+			transforms_vehicles[i].position,
+			transforms_vehicles[i].position + vec3{ direction_a.x, 0.f, direction_a.y },
+			utils::data::colour::red
+		);
 
-			line_renderer.draw(
-				camera,
-				transforms_vehicles[i].position,
-				transforms_vehicles[i].position + vec3{ direction_b.x, 0.f, direction_b.y },
-				utils::data::colour::red
-			);
-		}
+		line_renderer.draw(
+			camera,
+			transforms_vehicles[i].position,
+			transforms_vehicles[i].position + vec3{ direction_b.x, 0.f, direction_b.y },
+			utils::data::colour::red
+		);
 
 		// Draw the wheels
 		int index = 0;
@@ -247,8 +248,6 @@ void Simulation::destroy() {
 }
 
 void Simulation::add_vehicle() {
-	add_vehicle_lock = true;
-
 	Transform t = {
 		vec3{ utils::gen_random(-120.f, 120.f), 4.f, utils::gen_random(-120.f, 120.f) },
 		vec3{ 16.f, 2.f, 8.f },
@@ -269,10 +268,14 @@ void Simulation::add_vehicle() {
 	transforms_wheels.push_back({});
 
 	physics->add_vehicle(t);
-
-	add_vehicle_lock = false;
 }
 
 void Simulation::remove_vehicle() {
+	transforms_vehicles.pop_back();
+	attributes_vehicles.pop_back();
+	for (int i = 0; i < 4; i++) {
+		transforms_wheels.pop_back();
+	}
 
+	physics->remove_vehicle();
 }

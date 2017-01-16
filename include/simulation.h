@@ -52,6 +52,11 @@ struct Wheel_Attributes {
 	}
 };
 
+enum SIMULATION_STATE {
+	RUNNING = 0,
+	PAUSED = 1
+};
+
 class Simulation {
 public:
 	Simulation();
@@ -78,8 +83,11 @@ public:
 	Texture floor_texture;
 	Texture shadow_texture;
 
+	Light* lights;
+
 	bool follow_vehicle;
 	bool mouse_pressed;
+	bool is_running;
 		
 	int index_selected_vehicle;
 	int index_state;
@@ -89,12 +97,9 @@ public:
 	int num_buttons;
 	int num_lights;
 
-	bool add_vehicle_lock;
-
 	vec2 cursor_position;
 
 	Camera camera;
-
 	Physics* physics;
 
 	vector<Button_Attributes>	attributes_ui;
@@ -103,8 +108,6 @@ public:
 
 	vector<Transform>			transforms_vehicles;
 	vector<Transform>			transforms_wheels;
-
-	Light* lights;
 
 private:
 	void update_camera();

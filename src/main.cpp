@@ -18,13 +18,15 @@ namespace {
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
+
 			int active_button = s->index_active_button;
 			switch (active_button) {
-			case 0: s->add_vehicle(); break;
-			case 1: s->remove_vehicle();  break;
-			case 2: break;
-			case 3: break;
-			case 4: break;
+				case 0: s->add_vehicle();						break;
+				case 1: s->remove_vehicle();					break;
+				case 2:											break;
+				case 3: s->follow_vehicle = !s->follow_vehicle; break;
+				case 4: s->is_running = true;					break;
+				case 5: s->is_running = false;					break;
 			}
 		}
 	}

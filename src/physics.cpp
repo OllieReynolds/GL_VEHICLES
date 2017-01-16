@@ -42,5 +42,6 @@ void Physics::add_vehicle(const utils::Transform& transform) {
 }
 
 void Physics::remove_vehicle() {
-
+	vehicles.back().destroy();
+	vehicles.pop_back();
 }
