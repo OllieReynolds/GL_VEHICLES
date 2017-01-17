@@ -52,6 +52,40 @@ struct Wheel_Attributes {
 	}
 };
 
+struct UI {
+	UI() { }
+	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1), num_buttons(6) {
+		attributes_ui = vector<Button_Attributes>(num_buttons);
+		std::string button_labels[6] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE" };
+		for (int i = 0; i < num_buttons; i++) {
+			float width_by_buttons = camera.resolution.x / num_buttons;
+			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
+			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::data::colour::dark_grey, button_labels[i] };
+		}
+	}
+
+	void update(const vec2& cursor_position, const bool mouse_pressed) {
+		index_active_button = -1;
+		index_pressed_button = -1;
+
+		for (int i = 0; i < num_buttons; i++) {
+			float l = attributes_ui[i].position.x - (attributes_ui[i].size.x * 0.5f);
+			float r = attributes_ui[i].position.x + (attributes_ui[i].size.x * 0.5f);
+			float u = attributes_ui[i].position.y + (attributes_ui[i].size.y * 0.5f);
+			float d = attributes_ui[i].position.y - (attributes_ui[i].size.y * 0.5f);
+			if (utils::point_quad_intersect(cursor_position, l, r, u, d)) index_active_button = i;
+		}
+
+		if (mouse_pressed && index_active_button != -1) 
+			index_pressed_button = index_active_button;
+	}
+
+	int index_active_button;
+	int index_pressed_button;
+	int num_buttons;
+	vector<Button_Attributes> attributes_ui;
+};
+
 enum SIMULATION_STATE {
 	RUNNING = 0,
 	PAUSED = 1
@@ -85,16 +119,14 @@ public:
 
 	Light* lights;
 
+	UI ui;
+
 	bool follow_vehicle;
 	bool mouse_pressed;
 	bool is_running;
 		
 	int index_selected_vehicle;
 	int index_state;
-	int index_active_button;
-	int index_pressed_button;
-
-	int num_buttons;
 	int num_lights;
 
 	vec2 cursor_position;
@@ -102,7 +134,7 @@ public:
 	Camera camera;
 	Physics* physics;
 
-	vector<Button_Attributes>	attributes_ui;
+
 	vector<Vehicle_Attributes>	attributes_vehicles;
 	vector<Wheel_Attributes>	attributes_wheels;
 
@@ -110,10 +142,6 @@ public:
 	vector<Transform>			transforms_wheels;
 
 private:
-	void update_camera();
-	void update_ui();
-
 	void draw_vehicles();
 	void draw_ui();
-	void draw_environment();
 };

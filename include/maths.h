@@ -81,8 +81,9 @@ namespace maths {
 
 		friend vec3 operator + (const vec3& a, const vec3& b) { return { a.x + b.x, a.y + b.y, a.z + b.z }; }
 		friend vec3 operator - (const vec3& a, const vec3& b) { return { a.x - b.x, a.y - b.y, a.z - b.z }; }
-		friend vec3 operator * (const vec3& a, const float v) { return { a.x * v, a.y * v, a.z * v }; }
-		friend vec3 operator / (const vec3& a, const float v) { return { a.x / v, a.y / v, a.z / v }; }
+		friend vec3 operator / (const vec3& a, const float b) { return { a.x / b, a.y / b, a.z / b }; }
+		friend vec3 operator * (const vec3& a, const float b) { return { a.x * b, a.y * b, a.z * b }; }
+		friend vec3 operator * (const float a, const vec3& b) { return { b.x * a, b.y * a, b.z * a }; }
 
 		friend std::ostream& operator << (std::ostream& os, const vec3& v) { 
 			os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; 
@@ -171,29 +172,10 @@ namespace maths {
 		};
 	};
 
-	vec2 polar_to_cartesian(float theta);
-	float cartesian_to_polar(const vec2& v);
-
-	float to_degrees(const float rads);
-	float to_radians(const float degs);
-
-	float min(float x, float y);
-	float max(float x, float y);
-
-	mat4 transpose(const mat4& m);
-
-	vec4 mult(const mat4& m, const vec4& v);
-	mat4 mult(const mat4& a, const mat4& b);
-
-	mat4 rotate_x(float degrees);
-	mat4 rotate_y(float degrees);
-	mat4 rotate_z(float degrees);
-	mat4 rotate(const vec3& rotation);
-	mat4 translate(const vec3& position);
-	mat4 scale(const vec3& size);
-	
 	bool almost_equal(float x, float y, float error_factor);
 	bool almost_equal(const vec2& a, const vec2& b, float error_factor);
+
+	float cartesian_to_polar(const vec2& v);
 
 	vec2 cross_product(const vec2& a, const vec2& b);
 	vec3 cross_product(const vec3& a, const vec3& b);
@@ -208,9 +190,19 @@ namespace maths {
 	float dot_product(const vec3& a, const vec3& b);
 	float dot_product(const vec4& a, const vec4& b);
 
+	float lerp(float a, float b, float t);
+	vec3 lerp(vec3 a, vec3 b, float t);
+
 	float magnitude(const vec2& v);
 	float magnitude(const vec3& v);
 	float magnitude(const vec4& v);
+
+	float max(float x, float y);
+
+	float min(float x, float y);
+
+	vec4 mult(const mat4& m, const vec4& v);
+	mat4 mult(const mat4& a, const mat4& b);
 
 	vec2 normalise(const vec2& v);
 	vec3 normalise(const vec3& v);
@@ -220,4 +212,21 @@ namespace maths {
 
 	bool point_segment_intersect(const vec2& p, const vec2& start, const vec2& o, const vec2& end, const float radius);
 	bool point_quad_intersect(const vec2& p, float left, float right, float top, float bottom);
+
+	vec2 polar_to_cartesian(float theta);
+
+	mat4 rotate_x(float degrees);
+	mat4 rotate_y(float degrees);
+	mat4 rotate_z(float degrees);
+	mat4 rotate(const vec3& rotation);
+
+	mat4 scale(const vec3& size);
+
+	float to_degrees(const float rads);
+	
+	float to_radians(const float degs);
+
+	mat4 translate(const vec3& position);
+
+	mat4 transpose(const mat4& m);
 }

@@ -65,6 +65,14 @@ namespace maths {
 		};
 	}
 
+	float lerp(float a, float b, float t) {
+		return (1 - t) * a + t * b;
+	}
+
+	vec3 lerp(vec3 a, vec3 b, float t) {
+		return (1.f - t) * a + t * b;
+	}
+
 	bool almost_equal(float x, float y, float error_factor) {
 		float diff = std::abs(x - y);
 		return diff < error_factor;
@@ -242,7 +250,6 @@ namespace maths {
 
 	float to_degrees(const float rads) {
 		return rads * 180.f / PI;
-
 	}
 
 	float to_radians(const float degs) {

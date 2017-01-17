@@ -19,7 +19,7 @@ namespace {
 		if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 
-			int active_button = s->index_active_button;
+			int active_button = s->ui.index_active_button;
 			switch (active_button) {
 				case 0: s->add_vehicle();						break;
 				case 1: s->remove_vehicle();					break;
@@ -36,10 +36,22 @@ namespace {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 
 			switch (key) {
-			case GLFW_KEY_F:
-				s->follow_vehicle = !s->follow_vehicle;
-				break;
+				case GLFW_KEY_F: s->follow_vehicle = !s->follow_vehicle;	break;
+				case GLFW_KEY_LEFT: 
+					if (s->index_selected_vehicle == 0)
+						s->index_selected_vehicle = s->transforms_vehicles.size() - 1;
+					else
+						s->index_selected_vehicle--;
+				
+					break;
+				case GLFW_KEY_RIGHT: 
+					if (s->index_selected_vehicle == s->transforms_vehicles.size() - 1)
+						s->index_selected_vehicle = 0;
+					else
+						s->index_selected_vehicle++;
+					break;
 			}
+			
 		}
 	}
 }
