@@ -38,17 +38,20 @@ namespace {
 			switch (key) {
 				case GLFW_KEY_F: s->follow_vehicle = !s->follow_vehicle;	break;
 				case GLFW_KEY_LEFT: 
-					if (s->index_selected_vehicle == 0)
-						s->index_selected_vehicle = s->transforms_vehicles.size() - 1;
-					else
-						s->index_selected_vehicle--;
-				
+					if (s->follow_vehicle) {
+						if (s->index_selected_vehicle == 0)
+							s->index_selected_vehicle = s->transforms_vehicles.size() - 1;
+						else
+							s->index_selected_vehicle--;
+					}
 					break;
 				case GLFW_KEY_RIGHT: 
-					if (s->index_selected_vehicle == s->transforms_vehicles.size() - 1)
-						s->index_selected_vehicle = 0;
-					else
-						s->index_selected_vehicle++;
+					if (s->follow_vehicle) {
+						if (s->index_selected_vehicle == s->transforms_vehicles.size() - 1)
+							s->index_selected_vehicle = 0;
+						else
+							s->index_selected_vehicle++;
+					}
 					break;
 			}
 			

@@ -229,6 +229,49 @@ public:
 			b2Vec2 position = { transforms[i].position.x, transforms[i].position.z };
 			vehicles[i].init(&world, position, transforms[i].rotation.y - 90.f, DOWN | LEFT);
 		}
+
+		b2BodyDef body_def;
+		b2PolygonShape polygon_shape;
+
+		/*b2Vec2 wall_positions[4] = { { -390.f, 0.f },{ 390.f, 0.f },{ 0.f, -390.f }, { 0.f, 390.f } };
+		for (int i = 0; i < 4; i++) {
+			if (i >= 2)
+				polygon_shape.SetAsBox(4.f, 800.f);
+			else
+				polygon_shape.SetAsBox(800.f, 4.f);
+
+			body_def.type = b2_staticBody;
+			body_def.position = wall_positions[i];
+			b2Body* body = world.CreateBody(&body_def);
+			wall_bodies.push_back(body);
+			body->CreateFixture(&polygon_shape, 1.f);
+		}*/
+
+		polygon_shape.SetAsBox(4.f, 800.f);
+		body_def.type = b2_staticBody;
+		body_def.position = { -390.f, 0.f };
+		wall_1 = world.CreateBody(&body_def);
+		wall_1->CreateFixture(&polygon_shape, 1.f);
+
+		polygon_shape.SetAsBox(4.f, 800.f);
+		body_def.type = b2_staticBody;
+		body_def.position = { 390.f, 0.f };
+		wall_2 = world.CreateBody(&body_def);
+		wall_2->CreateFixture(&polygon_shape, 1.f);
+
+		polygon_shape.SetAsBox(4.f, 800.f);
+		body_def.type = b2_staticBody;
+		body_def.position = { 0.f, -390.f };
+		body_def.angle = to_radians(90.f);
+		wall_3 = world.CreateBody(&body_def);
+		wall_3->CreateFixture(&polygon_shape, 1.f);
+
+		polygon_shape.SetAsBox(800.f, 4.f);
+		body_def.type = b2_staticBody;
+		body_def.position = { 0.f, 390.f };
+		body_def.angle = to_radians(90.f);
+		wall_4 = world.CreateBody(&body_def);
+		wall_4->CreateFixture(&polygon_shape, 1.f);
 	}
 
 	/////////////////////////////////////
@@ -250,6 +293,9 @@ public:
 	/////////////////////////////////////
 	b2Vec2 gravity;
 	b2World world;
+
+	b2Body *wall_1, *wall_2, *wall_3, *wall_4;
+	//vector<b2Body*> wall_bodies;
 
 	vector<Vehicle> vehicles;
 

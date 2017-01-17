@@ -175,6 +175,8 @@ namespace maths {
 	bool almost_equal(float x, float y, float error_factor);
 	bool almost_equal(const vec2& a, const vec2& b, float error_factor);
 
+	float box2d_to_simulation_angle(const float angle);
+
 	float cartesian_to_polar(const vec2& v);
 
 	vec2 cross_product(const vec2& a, const vec2& b);

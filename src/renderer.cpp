@@ -21,7 +21,7 @@ void Circle_Renderer::init() {
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data::mesh::quad_points_textured), &data::mesh::quad_points_textured, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::quad_points_textured), &mesh::quad_points_textured, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
@@ -89,9 +89,14 @@ void Quad_Renderer::init() {
 		"shaders/uniform_colour.f.glsl"
 	};
 
-	shader_3D = {
+	shader_3D_textured = {
 		"shaders/uniform_MVP.v.glsl",
 		"shaders/texture.f.glsl"
+	};
+
+	shader_3D_coloured = {
+		"shaders/uniform_MVP.v.glsl",
+		"shaders/uniform_colour.f.glsl"
 	};
 
 	glGenVertexArrays(1, &vao);
@@ -99,7 +104,7 @@ void Quad_Renderer::init() {
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data::mesh::quad_points_textured), &data::mesh::quad_points_textured, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::quad_points_textured), &mesh::quad_points_textured, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
@@ -122,19 +127,19 @@ void Quad_Renderer::draw_2D(const Camera& camera, const vec2& position, const ve
 	shader_2D.release();
 }
 
-void Quad_Renderer::draw_3D(const Camera& camera, const Transform& transform, const vec4& colour) {
-	shader_3D.use();
+void Quad_Renderer::draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour) {
+	shader_3D_coloured.use();
 	glBindVertexArray(vao);
 
-	shader_3D.set_uniform("uniform_colour", colour);
-	shader_3D.set_uniform("projection", camera.matrix_projection_persp);
-	shader_3D.set_uniform("view", camera.matrix_view);
-	shader_3D.set_uniform("model", utils::gen_model_matrix(transform));
+	shader_3D_coloured.set_uniform("uniform_colour", colour);
+	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glBindVertexArray(0);
-	shader_3D.release();
+	shader_3D_coloured.release();
 }
 
 void Quad_Renderer::draw_2D_textured(const Camera& camera, const vec2& position, const vec2& size, Texture& tex) {
@@ -153,26 +158,27 @@ void Quad_Renderer::draw_2D_textured(const Camera& camera, const vec2& position,
 }
 
 void Quad_Renderer::draw_3D_textured(const Camera& camera, const Transform& transform, Texture& tex) {
-	shader_3D.use();
+	shader_3D_textured.use();
 	glBindVertexArray(vao);
 
 	tex.use();
 
-	shader_3D.set_uniform("projection", camera.matrix_projection_persp);
-	shader_3D.set_uniform("view", camera.matrix_view);
-	shader_3D.set_uniform("model", utils::gen_model_matrix(transform));
+	shader_3D_textured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_textured.set_uniform("view", camera.matrix_view);
+	shader_3D_textured.set_uniform("model", utils::gen_model_matrix(transform));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glBindVertexArray(0);
-	shader_3D.release();
+	shader_3D_textured.release();
 }
 
 void Quad_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 	shader_2D.destroy();
-	shader_3D.destroy();
+	shader_3D_textured.destroy();
+	shader_3D_coloured.destroy();
 }
 
 void Cube_Renderer::init() {
@@ -187,7 +193,7 @@ void Cube_Renderer::init() {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(utils::data::mesh::cube_vertices_normals), &utils::data::mesh::cube_vertices_normals, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(utils::mesh::cube_vertices_normals), &utils::mesh::cube_vertices_normals, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);

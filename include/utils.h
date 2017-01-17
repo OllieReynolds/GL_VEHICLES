@@ -106,27 +106,25 @@ namespace utils {
 		return mult(mult(s, r), t);
 	}
 
-	namespace data {
-		namespace colour {
-			extern vec4 black;
-			extern vec4 white;
-			extern vec4 red;
-			extern vec4 green;
-			extern vec4 blue;
-			extern vec4 yellow;
-			extern vec4 grey;
-			extern vec4 dark_grey;
-		};
-
-		namespace mesh {
-			extern float quad_points_textured[20];
-			extern vec3 quad_points[4];
-			extern vec4 quad_points_and_uvs[4];
-
-			extern float cube_points[108];
-			extern float cube_vertices_normals[216];
-		}
+	namespace colour {
+		extern vec4 black;
+		extern vec4 white;
+		extern vec4 red;
+		extern vec4 green;
+		extern vec4 blue;
+		extern vec4 yellow;
+		extern vec4 grey;
+		extern vec4 dark_grey;
 	};
+
+	namespace mesh {
+		extern float quad_points_textured[20];
+		extern vec3 quad_points[4];
+		extern vec4 quad_points_and_uvs[4];
+
+		extern float cube_points[108];
+		extern float cube_vertices_normals[216];
+	}
 
 	namespace shared {
 		static bool line_intersect(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4) {
@@ -154,8 +152,7 @@ namespace utils {
 		}
 
 		static mat4 perspective_matrix(float fov, float aspect, float near, float far) {
-			float M_PI = 3.141592f;
-			float D2R = M_PI / 180.0;
+			float D2R = PI / 180.0;
 			float yScale = 1.0 / tan(D2R * fov / 2);
 			float xScale = yScale / aspect;
 			float nearmfar = near - far;
@@ -171,9 +168,9 @@ namespace utils {
 	
 
 		static mat4 view_matrix(vec3 eye, vec3 target, vec3 up) {
-			vec3 zaxis = normalise(eye - target);    // The "forward" vector.
-			vec3 xaxis = normalise(cross_product(up, zaxis));// The "right" vector.
-			vec3 yaxis = cross_product(zaxis, xaxis);     // The "up" vector.
+			vec3 zaxis = normalise(eye - target);				// The "forward" vector.
+			vec3 xaxis = normalise(cross_product(up, zaxis));	// The "right" vector.
+			vec3 yaxis = cross_product(zaxis, xaxis);			// The "up" vector.
 
 			mat4 viewMatrix = {
 				vec4(xaxis.x,            yaxis.x,            zaxis.x,       0),
@@ -207,9 +204,6 @@ namespace utils {
 		vec3 old_target;
 		
 		void update(const bool follow_vehicle, const std::vector<Transform>& transforms, const int target_index) {
-
-			
-
 			if (last_target_index != target_index) {
 				target_changed = true;
 				old_position = position_current;

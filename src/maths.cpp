@@ -84,6 +84,10 @@ namespace maths {
 		return diff_x < error_factor && diff_y < error_factor;
 	}
 
+	float box2d_to_simulation_angle(const float angle) {
+		return (angle * (float)(180 / 3.141592f)) + 90.f;
+	}
+
 	vec2 cross_product(const vec2& a, const vec2& b) {
 		return{
 

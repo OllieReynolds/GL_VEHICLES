@@ -60,7 +60,7 @@ struct UI {
 		for (int i = 0; i < num_buttons; i++) {
 			float width_by_buttons = camera.resolution.x / num_buttons;
 			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::data::colour::dark_grey, button_labels[i] };
+			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::colour::dark_grey, button_labels[i] };
 		}
 	}
 
@@ -144,4 +144,5 @@ public:
 private:
 	void draw_vehicles();
 	void draw_ui();
+	void draw_walls();
 };

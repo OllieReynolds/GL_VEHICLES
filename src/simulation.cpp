@@ -13,13 +13,13 @@ Simulation::Simulation() {
 	cursor_position = vec2{ 0.f, 0.f };
 
 	camera.field_of_view = 90.f;
-	camera.target_distance = 20.f;
+	camera.target_distance = 30.f;
 	camera.resolution = vec2{ 1366.f, 768.f };
 	camera.depth_range_ortho = vec2{ -1.f, 1.f };
-	camera.depth_range_persp = vec2{ 0.1f, 1000.f };
+	camera.depth_range_persp = vec2{ 0.1f, 5000.f };
 	camera.position_current = vec3{ 0.f, 0.f, 0.f };
 	camera.position_start = vec3{ 0.f, 100.f, 0.f };
-	camera.position_target = vec3{ 0.f, 0.f, 0.f };
+	camera.position_target = vec3{ 30.f, 30.f, 30.f };
 	camera.orientation_up = vec3{ 0.f, 1.f, 0.f };
 	camera.aspect_ratio = camera.resolution.x / camera.resolution.y;
 	camera.matrix_view = shared::view_matrix(camera.position_current, camera.position_target, camera.orientation_up);
@@ -70,8 +70,8 @@ Simulation::Simulation() {
 
 	// TODO Make these a param to renderers
 	lights = new Light[num_lights];
-	lights[0] = { 0.2f, {  0.f, 30.f,  0.f }, utils::data::colour::white };
-	lights[1] = { 0.2f, { 10.f, 10.f, 10.f }, utils::data::colour::red };
+	lights[0] = { 0.2f, {  0.f, 30.f,  0.f }, utils::colour::white };
+	lights[1] = { 0.2f, { 10.f, 10.f, 10.f }, utils::colour::red };
 }
 
 void Simulation::init() {
@@ -110,9 +110,8 @@ void Simulation::update() {
 
 void Simulation::draw() {
 	glEnable(GL_DEPTH_TEST);
-	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 0.f, 0.f },{ 40.f },{ 0.f, 0.f, 0.f } }, this->floor_texture);
-	draw_vehicles();
-
+	draw_walls();
+	
 	glEnable(GL_BLEND);
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
 		float y = i * 0.01f;
@@ -127,7 +126,7 @@ void Simulation::draw() {
 
 void Simulation::draw_vehicles() {
 	// Draw the vehicle bodies
-	cube_renderer.draw_multiple(transforms_vehicles.size(), camera, transforms_vehicles, utils::data::colour::blue);
+	cube_renderer.draw_multiple(transforms_vehicles.size(), camera, transforms_vehicles, utils::colour::blue);
 
 	// Draw the sensors
 	const static float SENSOR_ANGLE_OFFSET = 20.f;
@@ -144,14 +143,14 @@ void Simulation::draw_vehicles() {
 			camera,
 			transforms_vehicles[i].position,
 			transforms_vehicles[i].position + vec3{ direction_a.x, 0.f, direction_a.y },
-			utils::data::colour::red
+			utils::colour::red
 		);
 
 		line_renderer.draw(
 			camera,
 			transforms_vehicles[i].position,
 			transforms_vehicles[i].position + vec3{ direction_b.x, 0.f, direction_b.y },
-			utils::data::colour::red
+			utils::colour::red
 		);
 
 		for (int j = 0; j < 4; j++) {
@@ -163,13 +162,70 @@ void Simulation::draw_vehicles() {
 	}
 }
 
+void Simulation::draw_walls() {
+	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 200.f,  400.f },{ 40.f },{ 270.f, 0.f,   0.f } }, this->floor_texture);
+	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 200.f, -400.f },{ 40.f },{ -270.f, 0.f,   0.f } }, this->floor_texture);
+	model_renderer.draw_3D_textured(grid_model, camera, { { 400.f, 200.f,    0.f },{ 40.f },{ 0.f, 0.f,  90.f } }, this->floor_texture);
+	model_renderer.draw_3D_textured(grid_model, camera, { { -400.f, 200.f,    0.f },{ 40.f },{ 0.f, 0.f, -90.f } }, this->floor_texture);
+	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f,   0.f,    0.f },{ 40.f },{ 0.f, 0.f,   0.f } }, this->floor_texture);
+	draw_vehicles();
+
+
+	// TODO: CLEANUP!
+	/*for (int i = 0; i < physics->wall_bodies.size(); i++) {
+	float quad_y_rot = (physics->wall_bodies[i]->GetAngle() * (float)(180 / 3.141592f)) + 90.f;
+
+	Transform t = {
+	vec3{ physics->wall_bodies[i]->GetPosition().x, 10.f, physics->wall_bodies[i]->GetPosition().y },
+	(i >= 2) ? vec3{ 4.f, 800.f, 0.f } : vec3{800.f, 4.f, 0.f},
+	(i >= 2) ? vec3{ 90.f, quad_y_rot, 0.f } : vec3{0.f, quad_y_rot, 90.f}
+	};
+
+	quad_renderer.draw_3D_coloured(camera, t, utils::colour::red);
+	}*/
+
+	float quad_y_rot = box2d_to_simulation_angle(physics->wall_1->GetAngle());
+	Transform t = {
+		vec3{ physics->wall_1->GetPosition().x, 10.f, physics->wall_1->GetPosition().y },
+		vec3{ 4.f, 800.f, 0.f },
+		vec3{ 90.f, quad_y_rot, 0.f }
+	};
+
+
+	quad_y_rot = box2d_to_simulation_angle(physics->wall_2->GetAngle())
+	t = {
+		vec3{ physics->wall_2->GetPosition().x, 10.f, physics->wall_2->GetPosition().y },
+		vec3{ 4.f, 800.f, 0.f },
+		vec3{ 90.f, quad_y_rot, 0.f }
+	};
+	quad_renderer.draw_3D_coloured(camera, t, utils::colour::blue);
+
+
+	quad_y_rot = box2d_to_simulation_angle(physics->wall_3->GetAngle())
+	t = {
+		vec3{ physics->wall_3->GetPosition().x, 10.f, physics->wall_3->GetPosition().y },
+		vec3{ 4.f, 800.f, 0.f },
+		vec3{ 0.f, quad_y_rot, 90.f }
+	};
+	quad_renderer.draw_3D_coloured(camera, t, utils::colour::green);
+
+	quad_y_rot = box2d_to_simulation_angle(physics->wall_4->GetAngle())
+	t = {
+		vec3{ physics->wall_4->GetPosition().x, 10.f, physics->wall_4->GetPosition().y },
+		vec3{ 800.f, 4.f, 0.f },
+		vec3{ 0.f, quad_y_rot, 90.f }
+	};
+	quad_renderer.draw_3D_coloured(camera, t, utils::colour::yellow);
+
+}
+
 void Simulation::draw_ui() {
 	if (ui.index_active_button != -1)
-		quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::data::colour::yellow);
+		quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::colour::yellow);
 
 	for (int i = 0; i < ui.num_buttons; i++) {
 		quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
-		text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -5.f }, true, data::colour::white);
+		text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -5.f }, true, colour::white);
 	}
 }
 
@@ -214,11 +270,13 @@ void Simulation::add_vehicle() {
 }
 
 void Simulation::remove_vehicle() {
-	transforms_vehicles.pop_back();
-	attributes_vehicles.pop_back();
-	for (int i = 0; i < 4; i++) {
-		transforms_wheels.pop_back();
-	}
+	if (transforms_vehicles.size() > 0) {
+		transforms_vehicles.pop_back();
+		attributes_vehicles.pop_back();
+		for (int i = 0; i < 4; i++) {
+			transforms_wheels.pop_back();
+		}
 
-	physics->remove_vehicle();
+		physics->remove_vehicle();
+	}
 }
