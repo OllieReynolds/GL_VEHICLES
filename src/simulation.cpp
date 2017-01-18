@@ -13,7 +13,7 @@ Simulation::Simulation() {
 	cursor_position = vec2{ 0.f, 0.f };
 
 	camera.field_of_view = 90.f;
-	camera.target_distance = 30.f;
+	camera.target_distance = 50.f;
 	camera.resolution = vec2{ 1366.f, 768.f };
 	camera.depth_range_ortho = vec2{ -1.f, 1.f };
 	camera.depth_range_persp = vec2{ 0.1f, 5000.f };
@@ -34,6 +34,7 @@ Simulation::Simulation() {
 	text_renderer = Text_Renderer(18, "data/ShareTechMono-Regular.ttf");
 	model_renderer = Model_Renderer();
 	circle_renderer = Circle_Renderer();
+	tri_renderer = Triangle_Renderer();
 
 	wheel_model = Model();
 	grid_model = Model();
@@ -41,6 +42,7 @@ Simulation::Simulation() {
 	transforms_vehicles = vector<Transform>(10);
 	attributes_vehicles = vector<Vehicle_Attributes>(10);
 
+	// Init Vehicles
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
 		transforms_vehicles[i] = {
 			vec3{ utils::gen_random(-120.f, 120.f), 4.f, utils::gen_random(-120.f, 120.f) },
@@ -50,12 +52,36 @@ Simulation::Simulation() {
 
 		attributes_vehicles[i] = {
 			utils::gen_random(0.2f, 0.5f),
-			utils::gen_random(2.5f, 3.5f)
+			utils::gen_random(2.5f, 3.5f),
+			(i % 2 == 0) ? utils::colour::red : utils::colour::blue
 		};
 	}
 
 	// Init Physics
 	physics = new Physics(transforms_vehicles.size(), transforms_vehicles);
+	vector<vec2> positions = physics->get_vehicle_positions();
+	vector<float> rotations = physics->get_vehicle_rotations();
+	for (int i = 0; i < transforms_vehicles.size(); i++) {
+		transforms_vehicles[i].rotation.y = rotations[i] + 90.f;
+		transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
+	}
+
+	// Init Sensors
+	const static float SENSOR_ANGLE_OFFSET = 15.f;
+	const static float SENSOR_RANGE = -30.f;
+	transforms_sensors = vector<Transform>();
+	for (int i = 0; i < transforms_vehicles.size(); i++) {
+		float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
+		float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
+
+		vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
+		vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
+
+		float y = i * 0.01f;
+		transforms_sensors.push_back({ transforms_vehicles[i].position - vec3{ direction_a.x, y, direction_a.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, a + 90.f) });
+		transforms_sensors.push_back({ transforms_vehicles[i].position - vec3{ direction_b.x, y, direction_b.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, b + 90.f) });
+	}
+
 
 	// Init Wheels
 	attributes_wheels = vector<Wheel_Attributes>(4) = { { 315.f, 0.f },{ 225.f, 0.f },{ 45.f, 180.f },{ 135.f, 180.f } };
@@ -66,6 +92,27 @@ Simulation::Simulation() {
 			transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(transforms_vehicles[i], 8.f);
 			index++;
 		}
+	}
+
+	// Init Walls
+	transforms_walls = vector<Transform>(5);
+	transforms_walls[0] = { vec3{    0.f, 200.f,  400.f }, vec3{ 40.f }, vec3{  270.f, 0.f,   0.f } };
+	transforms_walls[1] = { vec3{    0.f, 200.f, -400.f }, vec3{ 40.f }, vec3{ -270.f, 0.f,   0.f } };
+	transforms_walls[2] = { vec3{  400.f, 200.f,    0.f }, vec3{ 40.f }, vec3{    0.f, 0.f,  90.f } };
+	transforms_walls[3] = { vec3{ -400.f, 200.f,    0.f }, vec3{ 40.f }, vec3{    0.f, 0.f, -90.f } };
+	transforms_walls[4] = { vec3{    0.f,   0.f,    0.f }, vec3{ 40.f }, vec3{    0.f, 0.f,   0.f } };
+
+	// Init Boundaries 
+	transforms_boundaries = vector<Transform>(4);
+	transforms_boundaries[0] = { vec3{ physics->wall_1->GetPosition().x, 10.f, physics->wall_1->GetPosition().y }, vec3{ 4.f, 800.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_1->GetAngle()), 0.f } };
+	transforms_boundaries[1] = { vec3{ physics->wall_2->GetPosition().x, 10.f, physics->wall_2->GetPosition().y }, vec3{ 4.f, 800.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_2->GetAngle()), 0.f } };
+	transforms_boundaries[2] = { vec3{ physics->wall_3->GetPosition().x, 10.f, physics->wall_3->GetPosition().y }, vec3{ 4.f, 800.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_3->GetAngle()), 90.f } };
+	transforms_boundaries[3] = { vec3{ physics->wall_4->GetPosition().x, 10.f, physics->wall_4->GetPosition().y }, vec3{ 4.f, 800.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_4->GetAngle()), 90.f } };
+
+	// Init Shadows
+	transforms_shadows = vector<Transform>(transforms_vehicles.size());
+	for (int i = 0; i < transforms_vehicles.size(); i++) {
+		transforms_shadows[i] = { transforms_vehicles[i].position - vec3{ 0.f, 3.95f - i * 0.01f, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } };
 	}
 
 	// TODO Make these a param to renderers
@@ -87,6 +134,7 @@ void Simulation::init() {
 	text_renderer.init(camera.resolution);
 	circle_renderer.init();
 	model_renderer.init();
+	tri_renderer.init();
 }
 
 void Simulation::update() {
@@ -96,9 +144,34 @@ void Simulation::update() {
 		vector<vec2> positions = physics->get_vehicle_positions();
 		vector<float> rotations = physics->get_vehicle_rotations();
 
+		int index = 0;
 		for (int i = 0; i < transforms_vehicles.size(); i++) {
 			transforms_vehicles[i].rotation.y = rotations[i] + 90.f;
 			transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
+
+			for (int j = 0; j < 4; j++) {
+				transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(transforms_vehicles[i], 8.f);
+				index++;
+			}
+		}
+
+		const static float SENSOR_ANGLE_OFFSET = 15.f;
+		const static float SENSOR_RANGE = -30.f;
+		for (int i = 0; i < transforms_vehicles.size(); i++) {
+			float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
+			float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
+
+			vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
+			vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
+
+			float y = i * 0.01f;
+			transforms_sensors[(i * 2)] = { transforms_vehicles[i].position - vec3{ direction_a.x, y, direction_a.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, a + 90.f) };
+			transforms_sensors[(i * 2)+1] = { transforms_vehicles[i].position - vec3{ direction_b.x, y, direction_b.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, b + 90.f) };
+		}
+
+		for (int i = 0; i < transforms_shadows.size(); i++) {
+			transforms_shadows[i].position.x = transforms_vehicles[i].position.x;
+			transforms_shadows[i].position.z = transforms_vehicles[i].position.z;
 		}
 	}
 		
@@ -110,114 +183,38 @@ void Simulation::update() {
 
 void Simulation::draw() {
 	glEnable(GL_DEPTH_TEST);
-	draw_walls();
-	
+	{
+		// Walls & Floor
+		model_renderer.draw_multiple_3D_textured(transforms_walls.size(), grid_model, camera, transforms_walls, floor_texture);
+
+		// Boundaries
+		quad_renderer.draw_multiple_3D_coloured(camera, transforms_boundaries, utils::colour::red);
+
+		// Vehicles
+		cube_renderer.draw_multiple(camera, transforms_vehicles, attributes_vehicles);
+
+		// Wheels
+		model_renderer.draw_multiple_3D_textured(transforms_wheels.size(), wheel_model, camera, transforms_wheels, wheel_texture);
+	}
+
 	glEnable(GL_BLEND);
-	for (int i = 0; i < transforms_vehicles.size(); i++) {
-		float y = i * 0.01f;
-		circle_renderer.draw_3D_shadow(camera, { transforms_vehicles[i].position - vec3{ 0.f, 3.95f - y, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } });
+	{
+		// Sensors
+		tri_renderer.draw_multiple_3D_coloured(camera, transforms_sensors, vec4{ 1.f, 1.f, 0.f, 0.1f });
+
+		// Shadows
+		circle_renderer.draw_multiple_3D_shadow(camera, transforms_shadows);
 	}
 
 	glDisable(GL_DEPTH_TEST);
-	draw_ui();
+	{
+		// UI
+		draw_ui();
+	}
 	
 	glDisable(GL_BLEND);
 }
 
-void Simulation::draw_vehicles() {
-	// Draw the vehicle bodies
-	cube_renderer.draw_multiple(transforms_vehicles.size(), camera, transforms_vehicles, utils::colour::blue);
-
-	// Draw the sensors
-	const static float SENSOR_ANGLE_OFFSET = 20.f;
-	const static float SENSOR_RANGE = 40.f;
-	int index = 0;
-	for (int i = 0; i < transforms_vehicles.size(); i++) {
-		float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
-		float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
-
-		vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
-		vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
-
-		line_renderer.draw(
-			camera,
-			transforms_vehicles[i].position,
-			transforms_vehicles[i].position + vec3{ direction_a.x, 0.f, direction_a.y },
-			utils::colour::red
-		);
-
-		line_renderer.draw(
-			camera,
-			transforms_vehicles[i].position,
-			transforms_vehicles[i].position + vec3{ direction_b.x, 0.f, direction_b.y },
-			utils::colour::red
-		);
-
-		for (int j = 0; j < 4; j++) {
-			transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(transforms_vehicles[i], 8.f);
-			index++;
-		}
-
-		model_renderer.draw_multiple_3D_textured(transforms_wheels.size(), wheel_model, camera, transforms_wheels, wheel_texture);
-	}
-}
-
-void Simulation::draw_walls() {
-	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 200.f,  400.f },{ 40.f },{ 270.f, 0.f,   0.f } }, this->floor_texture);
-	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f, 200.f, -400.f },{ 40.f },{ -270.f, 0.f,   0.f } }, this->floor_texture);
-	model_renderer.draw_3D_textured(grid_model, camera, { { 400.f, 200.f,    0.f },{ 40.f },{ 0.f, 0.f,  90.f } }, this->floor_texture);
-	model_renderer.draw_3D_textured(grid_model, camera, { { -400.f, 200.f,    0.f },{ 40.f },{ 0.f, 0.f, -90.f } }, this->floor_texture);
-	model_renderer.draw_3D_textured(grid_model, camera, { { 0.f,   0.f,    0.f },{ 40.f },{ 0.f, 0.f,   0.f } }, this->floor_texture);
-	draw_vehicles();
-
-
-	// TODO: CLEANUP!
-	/*for (int i = 0; i < physics->wall_bodies.size(); i++) {
-	float quad_y_rot = (physics->wall_bodies[i]->GetAngle() * (float)(180 / 3.141592f)) + 90.f;
-
-	Transform t = {
-	vec3{ physics->wall_bodies[i]->GetPosition().x, 10.f, physics->wall_bodies[i]->GetPosition().y },
-	(i >= 2) ? vec3{ 4.f, 800.f, 0.f } : vec3{800.f, 4.f, 0.f},
-	(i >= 2) ? vec3{ 90.f, quad_y_rot, 0.f } : vec3{0.f, quad_y_rot, 90.f}
-	};
-
-	quad_renderer.draw_3D_coloured(camera, t, utils::colour::red);
-	}*/
-
-	float quad_y_rot = box2d_to_simulation_angle(physics->wall_1->GetAngle());
-	Transform t = {
-		vec3{ physics->wall_1->GetPosition().x, 10.f, physics->wall_1->GetPosition().y },
-		vec3{ 4.f, 800.f, 0.f },
-		vec3{ 90.f, quad_y_rot, 0.f }
-	};
-
-
-	quad_y_rot = box2d_to_simulation_angle(physics->wall_2->GetAngle())
-	t = {
-		vec3{ physics->wall_2->GetPosition().x, 10.f, physics->wall_2->GetPosition().y },
-		vec3{ 4.f, 800.f, 0.f },
-		vec3{ 90.f, quad_y_rot, 0.f }
-	};
-	quad_renderer.draw_3D_coloured(camera, t, utils::colour::blue);
-
-
-	quad_y_rot = box2d_to_simulation_angle(physics->wall_3->GetAngle())
-	t = {
-		vec3{ physics->wall_3->GetPosition().x, 10.f, physics->wall_3->GetPosition().y },
-		vec3{ 4.f, 800.f, 0.f },
-		vec3{ 0.f, quad_y_rot, 90.f }
-	};
-	quad_renderer.draw_3D_coloured(camera, t, utils::colour::green);
-
-	quad_y_rot = box2d_to_simulation_angle(physics->wall_4->GetAngle())
-	t = {
-		vec3{ physics->wall_4->GetPosition().x, 10.f, physics->wall_4->GetPosition().y },
-		vec3{ 800.f, 4.f, 0.f },
-		vec3{ 0.f, quad_y_rot, 90.f }
-	};
-	quad_renderer.draw_3D_coloured(camera, t, utils::colour::yellow);
-
-}
 
 void Simulation::draw_ui() {
 	if (ui.index_active_button != -1)
@@ -227,6 +224,10 @@ void Simulation::draw_ui() {
 		quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
 		text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -5.f }, true, colour::white);
 	}
+
+	text_renderer.draw(" Predators: 10", { 0.f, 50.f }, false, utils::colour::white);
+	text_renderer.draw("      Prey: 10", { 0.f, 30.f }, false, utils::colour::white);
+	text_renderer.draw("Generation:  0", { 0.f, 10.f }, false, utils::colour::white);
 }
 
 void Simulation::destroy() {
@@ -236,6 +237,7 @@ void Simulation::destroy() {
 	text_renderer.destroy();
 	circle_renderer.destroy();
 	model_renderer.destroy();
+	tri_renderer.destroy();
 	wheel_texture.destroy();
 	floor_texture.destroy();
 	wheel_model.destroy();

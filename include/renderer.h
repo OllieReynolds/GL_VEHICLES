@@ -24,6 +24,7 @@ public:
 	void draw_2D(const Camera& camera, const vec2& position, const vec2& size, const vec4& colour, bool filled);
 	void draw_3D(const Camera& camera, const Transform& transform, const vec4& colour, bool filled);
 	void draw_3D_shadow(const Camera& camera, const Transform& transform);
+	void draw_multiple_3D_shadow(const Camera& camera, const std::vector<Transform>& transform_list);
 	void destroy();
 
 private:
@@ -34,6 +35,21 @@ private:
 	Shader shader_3D_shadow;
 };
 
+class Triangle_Renderer {
+public:
+	Triangle_Renderer() {}
+
+	void init();
+	void draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour);
+	void draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
+	void destroy();
+
+private:
+	GLuint vao;
+	GLuint vbo;
+	Shader shader_3D_coloured;
+};
+
 class Quad_Renderer {
 public:
 	Quad_Renderer() {}
@@ -41,6 +57,7 @@ public:
 	void init();
 	void draw_2D(const Camera& camera, const vec2& position, const vec2& size, const vec4& colour);
 	void draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour);
+	void draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
 	void draw_2D_textured(const Camera& camera, const vec2& position, const vec2& size, Texture& tex);
 	void draw_3D_textured(const Camera& camera, const Transform& transform, Texture& tex);
 	void destroy();
@@ -59,7 +76,7 @@ public:
 
 	void init();
 	void draw(const Camera& camera, const vec3& position, const vec3& size, float rotation, const vec4& colour);
-	void draw_multiple(int n, const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
+	void draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes);
 	void destroy();
 
 private:

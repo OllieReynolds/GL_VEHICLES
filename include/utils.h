@@ -16,6 +16,12 @@ namespace utils {
 		vec3 rotation;
 	};
 
+	struct Vehicle_Attributes {
+		float forward_speed;
+		float turning_speed;
+		vec4 colour;
+	};
+
 	struct dimensions {
 		int width, height;
 	};
@@ -119,11 +125,13 @@ namespace utils {
 
 	namespace mesh {
 		extern float quad_points_textured[20];
-		extern vec3 quad_points[4];
-		extern vec4 quad_points_and_uvs[4];
-
 		extern float cube_points[108];
 		extern float cube_vertices_normals[216];
+
+		extern float triangle_points_textured[15];
+
+		extern vec3 quad_points[4];
+		extern vec4 quad_points_and_uvs[4];
 	}
 
 	namespace shared {
@@ -222,6 +230,8 @@ namespace utils {
 				position_current = lerp(old_position, p, t);
 
 				vec3 targ = position_current + vec3{ direction.x, -target_distance, direction.y };
+				if (targ.y < -target_distance)
+					targ.y = -target_distance;
 				position_target = lerp(old_target, targ, t);
 
 				t += 0.01f;

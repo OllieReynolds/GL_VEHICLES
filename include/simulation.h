@@ -17,10 +17,7 @@ struct Light {
 	vec4 colour;
 };
 
-struct Vehicle_Attributes {
-	float forward_speed;
-	float turning_speed;
-};
+
 
 struct Button_Attributes {
 	vec2 position;
@@ -60,7 +57,7 @@ struct UI {
 		for (int i = 0; i < num_buttons; i++) {
 			float width_by_buttons = camera.resolution.x / num_buttons;
 			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::colour::dark_grey, button_labels[i] };
+			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::colour::black, button_labels[i] };
 		}
 	}
 
@@ -98,6 +95,7 @@ public:
 	void init();
 	void update();
 	void draw();
+	void draw_ui();
 	void destroy();
 
 	void add_vehicle();
@@ -109,6 +107,7 @@ public:
 	Text_Renderer text_renderer;
 	Model_Renderer model_renderer;
 	Circle_Renderer circle_renderer;
+	Triangle_Renderer tri_renderer;
 
 	Model wheel_model;
 	Model grid_model;
@@ -134,15 +133,13 @@ public:
 	Camera camera;
 	Physics* physics;
 
-
 	vector<Vehicle_Attributes>	attributes_vehicles;
 	vector<Wheel_Attributes>	attributes_wheels;
 
 	vector<Transform>			transforms_vehicles;
 	vector<Transform>			transforms_wheels;
-
-private:
-	void draw_vehicles();
-	void draw_ui();
-	void draw_walls();
+	vector<Transform>			transforms_sensors;
+	vector<Transform>			transforms_walls;
+	vector<Transform>			transforms_boundaries;
+	vector<Transform>			transforms_shadows;
 };

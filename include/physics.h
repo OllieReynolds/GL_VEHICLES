@@ -83,9 +83,8 @@ public:
 		float desired_speed = 0;
 
 		switch (control_state & (UP | DOWN)) {
-		case UP: desired_speed = max_forward_speed; break;
-		case DOWN: desired_speed = max_backward_speed; break;
-		default:;
+			case UP: desired_speed = max_forward_speed; break;
+			case DOWN: desired_speed = max_backward_speed; break;
 		}
 
 		b2Vec2 forward_normal = body->GetWorldVector(b2Vec2(0, 1));
@@ -107,9 +106,8 @@ public:
 		float desired_torque = 0;
 
 		switch (control_state & (LEFT | RIGHT)) {
-		case LEFT: desired_torque = 15; break;
-		case RIGHT: desired_torque = -15; break;
-		default:;
+			case LEFT: desired_torque = 30; break;
+			case RIGHT: desired_torque = 30; break;
 		}
 
 		body->ApplyTorque(desired_torque, true);
@@ -133,10 +131,10 @@ public:
 		
 		b2BodyDef body_def;
 		body_def.type = b2_dynamicBody;
-		body_def.position = position;
+		body_def.position.Set(position.x, position.y);
 		body_def.angle = rotation;
 		body = world->CreateBody(&body_def);
-		body->SetAngularDamping(3);
+		body->SetAngularDamping(4);
 
 		b2PolygonShape polygon_shape;
 		polygon_shape.SetAsBox(8.f, 12.f);
@@ -197,7 +195,7 @@ public:
 			tyres[i]->update_drive(control_state);
 
 		float lock_angle = 70 * DEGTORAD;
-		float turn_speed_per_second = 160 * DEGTORAD;
+		float turn_speed_per_second = 360 * DEGTORAD;
 		float turn_per_time_step = turn_speed_per_second / 60.f;
 		float desired_angle = 0;
 
@@ -222,30 +220,19 @@ public:
 
 class Physics {
 public:
-	Physics(int num_vehicles, std::vector<utils::Transform>& transforms) 
-		: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(2), position_iterations(6), time_step(1.f / 60.f) {
+	Physics(int num_vehicles, std::vector<utils::Transform>& transforms) : gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(12), position_iterations(12), time_step(1.f / 60.f) {
 		vehicles = vector<Vehicle>(num_vehicles);
 		for (int i = 0; i < num_vehicles; i++) {
-			b2Vec2 position = { transforms[i].position.x, transforms[i].position.z };
-			vehicles[i].init(&world, position, transforms[i].rotation.y - 90.f, DOWN | LEFT);
+			vehicles[i].init(
+				&world, 
+				{ transforms[i].position.x, transforms[i].position.z },
+				transforms[i].rotation.y - 90.f, 
+				UP | LEFT
+			);
 		}
 
 		b2BodyDef body_def;
 		b2PolygonShape polygon_shape;
-
-		/*b2Vec2 wall_positions[4] = { { -390.f, 0.f },{ 390.f, 0.f },{ 0.f, -390.f }, { 0.f, 390.f } };
-		for (int i = 0; i < 4; i++) {
-			if (i >= 2)
-				polygon_shape.SetAsBox(4.f, 800.f);
-			else
-				polygon_shape.SetAsBox(800.f, 4.f);
-
-			body_def.type = b2_staticBody;
-			body_def.position = wall_positions[i];
-			b2Body* body = world.CreateBody(&body_def);
-			wall_bodies.push_back(body);
-			body->CreateFixture(&polygon_shape, 1.f);
-		}*/
 
 		polygon_shape.SetAsBox(4.f, 800.f);
 		body_def.type = b2_staticBody;
@@ -266,12 +253,16 @@ public:
 		wall_3 = world.CreateBody(&body_def);
 		wall_3->CreateFixture(&polygon_shape, 1.f);
 
-		polygon_shape.SetAsBox(800.f, 4.f);
+		polygon_shape.SetAsBox(4.f, 800.f);
 		body_def.type = b2_staticBody;
 		body_def.position = { 0.f, 390.f };
 		body_def.angle = to_radians(90.f);
 		wall_4 = world.CreateBody(&body_def);
 		wall_4->CreateFixture(&polygon_shape, 1.f);
+
+		world.Step(time_step, velocity_iterations, position_iterations);
+		for (int i = 0; i < vehicles.size(); i++)
+			vehicles[i].update();
 	}
 
 	/////////////////////////////////////
@@ -295,7 +286,6 @@ public:
 	b2World world;
 
 	b2Body *wall_1, *wall_2, *wall_3, *wall_4;
-	//vector<b2Body*> wall_bodies;
 
 	vector<Vehicle> vehicles;
 

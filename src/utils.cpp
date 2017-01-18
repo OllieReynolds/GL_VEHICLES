@@ -34,6 +34,13 @@ namespace utils {
 			{ 0.5f,  0.5f, 1.f, 1.f }
 		};
 
+		extern float triangle_points_textured[15]{
+			-1.f, 1.f, 0.f, 0.f, 0.f,
+			0.f, -1.f, 0.f, 0.5f, 1.f,
+			1.f, 1.f, 0.f, 1.f, 0.f
+		};
+
+
 		float cube_points[108] = {
 			-1.0f,  1.0f, -1.0f,
 			-1.0f, -1.0f, -1.0f,

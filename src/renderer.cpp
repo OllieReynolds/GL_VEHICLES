@@ -2,18 +2,18 @@
 
 void Circle_Renderer::init() {
 	shader_2D = {
-		"shaders/uniform_MP.v.glsl",
-		"shaders/uniform_colour_circle.f.glsl"
+		"shaders/v.uniform_MP.glsl",
+		"shaders/f.uniform_colour_circle.glsl"
 	};
 
 	shader_3D = {
-		"shaders/uniform_MVP.v.glsl",
-		"shaders/uniform_colour_circle.f.glsl"
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.uniform_colour_circle.glsl"
 	};
 
 	shader_3D_shadow = {
-		"shaders/uniform_MVP.v.glsl",
-		"shaders/SPOT_SHADOW.f.glsl"
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.SPOT_SHADOW.glsl"
 	};
 
 	glGenVertexArrays(1, &vao);
@@ -75,6 +75,22 @@ void Circle_Renderer::draw_3D_shadow(const Camera& camera, const Transform& tran
 	shader_3D_shadow.release();
 }
 
+void Circle_Renderer::draw_multiple_3D_shadow(const Camera& camera, const std::vector<Transform>& transform_list) {
+	shader_3D_shadow.use();
+	glBindVertexArray(vao);
+
+	shader_3D_shadow.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_shadow.set_uniform("view", camera.matrix_view);
+	
+	for (int i = 0; i < transform_list.size(); i++) {
+		shader_3D_shadow.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+
+	glBindVertexArray(0);
+	shader_3D_shadow.release();
+}
+
 void Circle_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
@@ -83,20 +99,78 @@ void Circle_Renderer::destroy() {
 	shader_3D_shadow.destroy();
 }
 
+void Triangle_Renderer::init() {
+	shader_3D_coloured = {
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.uniform_colour.glsl"
+	};
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::triangle_points_textured), &mesh::triangle_points_textured, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+}
+
+void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour) {
+	shader_3D_coloured.use();
+	glBindVertexArray(vao);
+
+	shader_3D_coloured.set_uniform("uniform_colour", colour);
+	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindVertexArray(0);
+	shader_3D_coloured.release();
+}
+
+void Triangle_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
+	shader_3D_coloured.use();
+	glBindVertexArray(vao);
+
+	shader_3D_coloured.set_uniform("uniform_colour", colour);
+	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+
+	for (int i = 0; i < transform_list.size(); i++) {
+		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+
+	glBindVertexArray(0);
+	shader_3D_coloured.release();
+}
+
+void Triangle_Renderer::destroy() {
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
+	shader_3D_coloured.destroy();
+}
+
 void Quad_Renderer::init() {
 	shader_2D = {
-		"shaders/uniform_MP.v.glsl",
-		"shaders/uniform_colour.f.glsl"
+		"shaders/v.uniform_MP.glsl",
+		"shaders/f.uniform_colour.glsl"
 	};
 
 	shader_3D_textured = {
-		"shaders/uniform_MVP.v.glsl",
-		"shaders/texture.f.glsl"
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.texture.glsl"
 	};
 
 	shader_3D_coloured = {
-		"shaders/uniform_MVP.v.glsl",
-		"shaders/uniform_colour.f.glsl"
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.uniform_colour.glsl"
 	};
 
 	glGenVertexArrays(1, &vao);
@@ -137,6 +211,23 @@ void Quad_Renderer::draw_3D_coloured(const Camera& camera, const Transform& tran
 	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glBindVertexArray(0);
+	shader_3D_coloured.release();
+}
+
+void Quad_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {	
+	shader_3D_coloured.use();
+	glBindVertexArray(vao);
+
+	shader_3D_coloured.set_uniform("uniform_colour", colour);
+	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+
+	for (int i = 0; i < transform_list.size(); i++) {
+		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
 
 	glBindVertexArray(0);
 	shader_3D_coloured.release();
@@ -183,8 +274,8 @@ void Quad_Renderer::destroy() {
 
 void Cube_Renderer::init() {
 	shader = {
-		"shaders/MVP_NORMALS.v.glsl",
-		"shaders/DIFFUSE.f.glsl",
+		"shaders/v.MVP_NORMALS.glsl",
+		"shaders/f.DIFFUSE.glsl",
 	};
 
 	glGenVertexArrays(1, &vao);
@@ -218,17 +309,17 @@ void Cube_Renderer::draw(const Camera& camera, const vec3& position, const vec3&
 	glBindVertexArray(0);
 }
 
-void Cube_Renderer::draw_multiple(int n, const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
+void Cube_Renderer::draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes) {
 	shader.use();
 
 	shader.set_uniform("view", camera.matrix_view);
 	shader.set_uniform("projection", camera.matrix_projection_persp);
-	shader.set_uniform("uniform_colour", colour);
 	shader.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < transform_list.size(); i++) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		shader.set_uniform("uniform_colour", vehicle_attributes[i].colour);
 		shader.set_uniform("model", utils::gen_model_matrix(transform_list[i].size, transform_list[i].position, transform_list[i].rotation));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
@@ -245,8 +336,8 @@ void Cube_Renderer::destroy() {
 
 void Line_Renderer::init() {
 	shader = {
-		"shaders/uniform_MVP.v.glsl",
-		"shaders/uniform_colour.f.glsl"
+		"shaders/v.uniform_MVP.glsl",
+		"shaders/f.uniform_colour.glsl"
 	};
 
 	glGenVertexArrays(1, &vao);
@@ -285,13 +376,13 @@ void Line_Renderer::destroy() {
 
 void Model_Renderer::init() {
 	shader_coloured = {
-		"shaders/MVP_NORMALS.v.glsl",
-		"shaders/DIFFUSE.f.glsl",
+		"shaders/v.MVP_NORMALS.glsl",
+		"shaders/f.DIFFUSE.glsl",
 	};
 
 	shader_textured = {
-		"shaders/MVP_NORMALS_UVS.v.glsl",
-		"shaders/DIFFUSE_TEXTURE.f.glsl",
+		"shaders/v.MVP_NORMALS_UVS.glsl",
+		"shaders/f.DIFFUSE_TEXTURE.glsl",
 	};
 }
 
@@ -410,8 +501,8 @@ void Text_Renderer::init(const vec2& screen_resolution) {
 
 	{ // Shaders
 		shader = {
-			"shaders/text.v.glsl",
-			"shaders/text.f.glsl"
+			"shaders/v.text.glsl",
+			"shaders/f.text.glsl"
 		};
 
 		shader.set_uniform("colour", vec4(1.f, 1.f, 1.f, 1.f));
