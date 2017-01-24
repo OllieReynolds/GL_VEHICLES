@@ -17,7 +17,10 @@ struct Light {
 	vec4 colour;
 };
 
-
+struct Vehicle_Sensors {
+	vec3 la, lb, lc, ra, rb, rc;
+	bool ldetected, rdetected;
+};
 
 struct Button_Attributes {
 	vec2 position;
@@ -51,9 +54,9 @@ struct Wheel_Attributes {
 
 struct UI {
 	UI() { }
-	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1), num_buttons(6) {
+	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1), num_buttons(7) {
 		attributes_ui = vector<Button_Attributes>(num_buttons);
-		std::string button_labels[6] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE" };
+		std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "RESTARTAAAAAAAAAAAAAA" };
 		for (int i = 0; i < num_buttons; i++) {
 			float width_by_buttons = camera.resolution.x / num_buttons;
 			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
@@ -95,7 +98,6 @@ public:
 	void init();
 	void update();
 	void draw();
-	void draw_ui();
 	void destroy();
 
 	void add_vehicle();
@@ -136,9 +138,10 @@ public:
 	vector<Vehicle_Attributes>	attributes_vehicles;
 	vector<Wheel_Attributes>	attributes_wheels;
 
+	vector<Vehicle_Sensors>		vehicle_sensors;
+
 	vector<Transform>			transforms_vehicles;
 	vector<Transform>			transforms_wheels;
-	vector<Transform>			transforms_sensors;
 	vector<Transform>			transforms_walls;
 	vector<Transform>			transforms_boundaries;
 	vector<Transform>			transforms_shadows;

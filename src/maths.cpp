@@ -65,6 +65,16 @@ namespace maths {
 		};
 	}
 
+	bool point_triangle_intersect(const vec2& p, const vec2& a, const vec2& b, const vec2& c) {
+		float denom = ((b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y));
+
+		float _a = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / denom;
+		float _b = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / denom;
+		float _c = 1.f - _a - _b;
+
+		return 0.f <= _a && _a <= 1.f && 0.f <= _b && _b <= 1.f && 0.f <= _c && _c <= 1.f;
+	}
+
 	float lerp(float a, float b, float t) {
 		return (1 - t) * a + t * b;
 	}

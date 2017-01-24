@@ -110,23 +110,40 @@ void Triangle_Renderer::init() {
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::triangle_points_textured), &mesh::triangle_points_textured, GL_DYNAMIC_DRAW);
 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 3, NULL, GL_DYNAMIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
-void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour) {
+//void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour) {
+//	shader_3D_coloured.use();
+//	glBindVertexArray(vao);
+//
+//	shader_3D_coloured.set_uniform("uniform_colour", colour);
+//	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+//	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+//	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
+//
+//	glDrawArrays(GL_TRIANGLES, 0, 3);
+//
+//	glBindVertexArray(0);
+//	shader_3D_coloured.release();
+//}
+
+void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const vec3& a, const vec3& b, const vec3& c, const vec4& colour) {
 	shader_3D_coloured.use();
 	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	vec3 values[3] = { a, b, c };
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 3, &values);
 
 	shader_3D_coloured.set_uniform("uniform_colour", colour);
 	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
 	shader_3D_coloured.set_uniform("view", camera.matrix_view);
-	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
+	shader_3D_coloured.set_uniform("model", mat4());
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -134,22 +151,22 @@ void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const Transform& 
 	shader_3D_coloured.release();
 }
 
-void Triangle_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
-	shader_3D_coloured.use();
-	glBindVertexArray(vao);
-
-	shader_3D_coloured.set_uniform("uniform_colour", colour);
-	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
-	shader_3D_coloured.set_uniform("view", camera.matrix_view);
-
-	for (int i = 0; i < transform_list.size(); i++) {
-		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-
-	glBindVertexArray(0);
-	shader_3D_coloured.release();
-}
+//void Triangle_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
+//	shader_3D_coloured.use();
+//	glBindVertexArray(vao);
+//
+//	shader_3D_coloured.set_uniform("uniform_colour", colour);
+//	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
+//	shader_3D_coloured.set_uniform("view", camera.matrix_view);
+//
+//	for (int i = 0; i < transform_list.size(); i++) {
+//		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
+//		glDrawArrays(GL_TRIANGLES, 0, 3);
+//	}
+//
+//	glBindVertexArray(0);
+//	shader_3D_coloured.release();
+//}
 
 void Triangle_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);

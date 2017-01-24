@@ -271,6 +271,8 @@ public:
 	void				update();
 	void				destroy();
 
+	b2AABB				get_vehicle_AABB(int index);
+
 	vec2				get_vehicle_position(int index);
 	float				get_vehicle_rotation(int index);
 	std::vector<vec2>	get_vehicle_positions();

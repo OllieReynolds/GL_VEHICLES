@@ -6,7 +6,7 @@ Simulation::Simulation() {
 
 	num_lights = 3;
 	
-	follow_vehicle = false;
+	follow_vehicle = true;
 	mouse_pressed = false;
 	is_running = false;
 
@@ -16,9 +16,9 @@ Simulation::Simulation() {
 	camera.target_distance = 50.f;
 	camera.resolution = vec2{ 1366.f, 768.f };
 	camera.depth_range_ortho = vec2{ -1.f, 1.f };
-	camera.depth_range_persp = vec2{ 0.1f, 5000.f };
+	camera.depth_range_persp = vec2{ 0.1f, 2000.f };
 	camera.position_current = vec3{ 0.f, 0.f, 0.f };
-	camera.position_start = vec3{ 0.f, 100.f, 0.f };
+	camera.position_start = vec3{ 0.f, 300.f, 0.f };
 	camera.position_target = vec3{ 30.f, 30.f, 30.f };
 	camera.orientation_up = vec3{ 0.f, 1.f, 0.f };
 	camera.aspect_ratio = camera.resolution.x / camera.resolution.y;
@@ -38,11 +38,10 @@ Simulation::Simulation() {
 
 	wheel_model = Model();
 	grid_model = Model();
-
+	
+	// Init Vehicles
 	transforms_vehicles = vector<Transform>(10);
 	attributes_vehicles = vector<Vehicle_Attributes>(10);
-
-	// Init Vehicles
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
 		transforms_vehicles[i] = {
 			vec3{ utils::gen_random(-120.f, 120.f), 4.f, utils::gen_random(-120.f, 120.f) },
@@ -67,19 +66,29 @@ Simulation::Simulation() {
 	}
 
 	// Init Sensors
-	const static float SENSOR_ANGLE_OFFSET = 15.f;
-	const static float SENSOR_RANGE = -30.f;
-	transforms_sensors = vector<Transform>();
+	vehicle_sensors = vector<Vehicle_Sensors>();
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
-		float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
-		float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
+		float y = i * 0.1f;
 
-		vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
-		vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
+		float _a = transforms_vehicles[i].rotation.y - 25.f;
 
-		float y = i * 0.01f;
-		transforms_sensors.push_back({ transforms_vehicles[i].position - vec3{ direction_a.x, y, direction_a.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, a + 90.f) });
-		transforms_sensors.push_back({ transforms_vehicles[i].position - vec3{ direction_b.x, y, direction_b.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, b + 90.f) });
+		vec2 a_left = polar_to_cartesian(to_radians(_a - 20.f)) * 80.f;
+		vec2 a_right = polar_to_cartesian(to_radians(_a + 20.f)) * 80.f;
+
+		vec3 la = transforms_vehicles[i].position + vec3{ a_left.x, y, a_left.y };
+		vec3 lb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
+		vec3 lc = transforms_vehicles[i].position + vec3{ a_right.x, y, a_right.y };
+
+		float _b = transforms_vehicles[i].rotation.y + 25.f;
+
+		vec2 b_left = polar_to_cartesian(to_radians(_b - 20.f)) * 80.f;
+		vec2 b_right = polar_to_cartesian(to_radians(_b + 20.f)) * 80.f;
+
+		vec3 ra = transforms_vehicles[i].position + vec3{ b_left.x, y, b_left.y };
+		vec3 rb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
+		vec3 rc = transforms_vehicles[i].position + vec3{ b_right.x, y, b_right.y };
+
+		vehicle_sensors.push_back(Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false });
 	}
 
 
@@ -139,8 +148,8 @@ void Simulation::init() {
 
 void Simulation::update() {
 	if (is_running) {
+		// Update Physics
 		physics->update();
-
 		vector<vec2> positions = physics->get_vehicle_positions();
 		vector<float> rotations = physics->get_vehicle_rotations();
 
@@ -155,26 +164,69 @@ void Simulation::update() {
 			}
 		}
 
-		const static float SENSOR_ANGLE_OFFSET = 15.f;
-		const static float SENSOR_RANGE = -30.f;
-		for (int i = 0; i < transforms_vehicles.size(); i++) {
-			float a = transforms_vehicles[i].rotation.y - SENSOR_ANGLE_OFFSET;
-			float b = transforms_vehicles[i].rotation.y + SENSOR_ANGLE_OFFSET;
-
-			vec2 direction_a = polar_to_cartesian(to_radians(a)) * SENSOR_RANGE;
-			vec2 direction_b = polar_to_cartesian(to_radians(b)) * SENSOR_RANGE;
-
-			float y = i * 0.01f;
-			transforms_sensors[(i * 2)] = { transforms_vehicles[i].position - vec3{ direction_a.x, y, direction_a.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, a + 90.f) };
-			transforms_sensors[(i * 2)+1] = { transforms_vehicles[i].position - vec3{ direction_b.x, y, direction_b.y }, vec3{ 15.f, 30.f, 0.f }, vec3(90.f, 0.f, b + 90.f) };
-		}
-
+		// Update Shadow Transforms
 		for (int i = 0; i < transforms_shadows.size(); i++) {
 			transforms_shadows[i].position.x = transforms_vehicles[i].position.x;
 			transforms_shadows[i].position.z = transforms_vehicles[i].position.z;
 		}
+
+		// Update Vehicle Sensor Transforms
+		for (int i = 0; i < transforms_vehicles.size(); i++) {
+			float y = i * 0.2f;
+
+			float _a = transforms_vehicles[i].rotation.y - 25.f;
+
+			vec2 a_left = polar_to_cartesian(to_radians(_a - 20.f)) * 80.f;
+			vec2 a_right = polar_to_cartesian(to_radians(_a + 20.f)) * 80.f;
+
+			vec3 la = transforms_vehicles[i].position + vec3{ a_left.x, y, a_left.y };
+			vec3 lb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
+			vec3 lc = transforms_vehicles[i].position + vec3{ a_right.x, y, a_right.y };
+
+			float _b = transforms_vehicles[i].rotation.y + 25.f;
+
+			vec2 b_left = polar_to_cartesian(to_radians(_b - 20.f)) * 80.f;
+			vec2 b_right = polar_to_cartesian(to_radians(_b + 20.f)) * 80.f;
+
+			vec3 ra = transforms_vehicles[i].position + vec3{ b_left.x, y, b_left.y };
+			vec3 rb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
+			vec3 rc = transforms_vehicles[i].position + vec3{ b_right.x, y, b_right.y };
+
+			vehicle_sensors[i] = Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false };
+		}		
+
+		for (int i = 0; i < transforms_vehicles.size(); i++) {
+			for (int j = 0; j < transforms_vehicles.size(); j++) {
+				if (i != j) {
+					vec2 p = transforms_vehicles[j].position.XZ();
+
+					vec2 p1 = p + vec2{ -10.f, -10.f };
+					vec2 p2 = p + vec2{ 10.f, -10.f };
+					vec2 p3 = p + vec2{ -10.f,  10.f };
+					vec2 p4 = p + vec2{ 10.f,  10.f };
+
+					vec2 a = vehicle_sensors[i].la.XZ();
+					vec2 b = vehicle_sensors[i].lb.XZ();
+					vec2 c = vehicle_sensors[i].lc.XZ();
+					if (point_triangle_intersect(p1, a, b, c) || point_triangle_intersect(p2, a, b, c) ||
+						point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
+					{
+						vehicle_sensors[i].ldetected = true;
+					}
+
+					a = vehicle_sensors[i].ra.XZ();
+					b = vehicle_sensors[i].rb.XZ();
+					c = vehicle_sensors[i].rc.XZ();
+					if (point_triangle_intersect(p1, a, b, c) || point_triangle_intersect(p2, a, b, c) ||
+						point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
+					{
+						vehicle_sensors[i].rdetected = true;
+					}
+				}
+			}
+		}
 	}
-		
+
 	ui.update(cursor_position, mouse_pressed);
 	camera.update(follow_vehicle, transforms_vehicles, index_selected_vehicle);
 
@@ -199,8 +251,20 @@ void Simulation::draw() {
 
 	glEnable(GL_BLEND);
 	{
-		// Sensors
-		tri_renderer.draw_multiple_3D_coloured(camera, transforms_sensors, vec4{ 1.f, 1.f, 0.f, 0.1f });
+		// Vehicle Sensors
+		for (int i = 0; i < vehicle_sensors.size(); i++) {
+			if (vehicle_sensors[i].ldetected)
+				tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 1.f, 0.f, 0.1f });
+			else 
+				tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 0.f, 0.f, 0.1f });
+			
+			if (vehicle_sensors[i].rdetected)
+				tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 1.f, 0.f, 0.1f });
+			else
+				tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 0.f, 0.f, 0.1f });
+		}
+
+	
 
 		// Shadows
 		circle_renderer.draw_multiple_3D_shadow(camera, transforms_shadows);
@@ -209,26 +273,20 @@ void Simulation::draw() {
 	glDisable(GL_DEPTH_TEST);
 	{
 		// UI
-		draw_ui();
+		if (ui.index_active_button != -1)
+			quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::colour::yellow);
+		for (int i = 0; i < ui.num_buttons; i++) {
+			quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
+			text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -5.f }, true, colour::white);
+		}
+		text_renderer.draw(" Predators: 10", { 0.f, 50.f }, false, utils::colour::white);
+		text_renderer.draw("      Prey: 10", { 0.f, 30.f }, false, utils::colour::white);
+		text_renderer.draw("Generation:  0", { 0.f, 10.f }, false, utils::colour::white);
 	}
 	
 	glDisable(GL_BLEND);
 }
 
-
-void Simulation::draw_ui() {
-	if (ui.index_active_button != -1)
-		quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::colour::yellow);
-
-	for (int i = 0; i < ui.num_buttons; i++) {
-		quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
-		text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -5.f }, true, colour::white);
-	}
-
-	text_renderer.draw(" Predators: 10", { 0.f, 50.f }, false, utils::colour::white);
-	text_renderer.draw("      Prey: 10", { 0.f, 30.f }, false, utils::colour::white);
-	text_renderer.draw("Generation:  0", { 0.f, 10.f }, false, utils::colour::white);
-}
 
 void Simulation::destroy() {
 	cube_renderer.destroy();

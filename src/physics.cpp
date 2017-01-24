@@ -7,6 +7,20 @@ void Physics::update() {
 		vehicles[i].update();
 }
 
+b2AABB Physics::get_vehicle_AABB(int index) {
+	b2AABB aabb;
+	aabb.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
+	aabb.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
+	b2Fixture* fixture = vehicles[index].body->GetFixtureList();
+
+	while (fixture != NULL) {
+		aabb.Combine(aabb, fixture->GetAABB(0));
+		fixture = fixture->GetNext();
+	}
+
+	return aabb;
+}
+
 vec2 Physics::get_vehicle_position(int index) {
 	return{ vehicles[index].body->GetPosition().x, vehicles[index].body->GetPosition().y };
 }

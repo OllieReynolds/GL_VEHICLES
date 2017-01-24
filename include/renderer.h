@@ -40,8 +40,9 @@ public:
 	Triangle_Renderer() {}
 
 	void init();
-	void draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour);
-	void draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
+	//void draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour);
+	void draw_3D_coloured(const Camera& camera, const vec3& a, const vec3& b, const vec3& c, const vec4& colour);
+	//void draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour);
 	void destroy();
 
 private:
