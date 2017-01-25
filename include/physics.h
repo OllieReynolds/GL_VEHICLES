@@ -39,7 +39,7 @@ public:
 
 		b2PolygonShape polygonShape;
 		polygonShape.SetAsBox(0.5f, 1.25f);
-		body->CreateFixture(&polygonShape, 1);
+		body->CreateFixture(&polygonShape, 1.f);
 
 		body->SetUserData(this);
 	}
@@ -102,16 +102,16 @@ public:
 		body->ApplyForce(force * forward_normal, body->GetWorldCenter(), true);
 	}
 
-	void update_turn(int control_state) {
+	/*void update_turn(int control_state) {
 		float desired_torque = 0;
 
 		switch (control_state & (LEFT | RIGHT)) {
-			case LEFT: desired_torque = 30; break;
-			case RIGHT: desired_torque = 30; break;
+			case LEFT: desired_torque = 15; break;
+			case RIGHT: desired_torque = 15; break;
 		}
 
 		body->ApplyTorque(desired_torque, true);
-	}
+	}*/
 };
 
 class Vehicle {
@@ -132,9 +132,9 @@ public:
 		b2BodyDef body_def;
 		body_def.type = b2_dynamicBody;
 		body_def.position.Set(position.x, position.y);
-		body_def.angle = rotation;
+		//ody_def.angle = rotation;
 		body = world->CreateBody(&body_def);
-		body->SetAngularDamping(4);
+		body->SetAngularDamping(3);
 
 		b2PolygonShape polygon_shape;
 		polygon_shape.SetAsBox(8.f, 12.f);
@@ -149,16 +149,16 @@ public:
 
 		float max_forward_speed = 250;
 		float max_backward_speed = -40;
-		float back_tyre_max_drive_force = 600;
-		float front_tyre_max_drive_force = 300;
+		float back_tyre_max_drive_force = 300;
+		float front_tyre_max_drive_force = 500;
 		float back_tyre_max_lateral_impulse = 8.5;
-		float front_tyre_max_lateral_impulse = 12.5;
+		float front_tyre_max_lateral_impulse = 7.5;
 
 		// Back Left
 		Tyre* tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(-3.f, 0.75f);
+		joint_def.localAnchorA.Set(-13.f, -10.75f);
 		world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 
@@ -166,7 +166,7 @@ public:
 		tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(3.f, 0.75f);
+		joint_def.localAnchorA.Set(13.f, -10.75f);
 		world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 
@@ -174,7 +174,7 @@ public:
 		tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, front_tyre_max_drive_force, front_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(-3.f, 8.5f);
+		joint_def.localAnchorA.Set(-13.f, 8.5f);
 		fl_joint = (b2RevoluteJoint*)world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 
@@ -182,7 +182,7 @@ public:
 		tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, front_tyre_max_drive_force, front_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(3.f, 8.5f);
+		joint_def.localAnchorA.Set(13.f, 8.5f);
 		fr_joint = (b2RevoluteJoint*)world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 	}
@@ -194,8 +194,9 @@ public:
 		for (int i = 0; i < tyres.size(); i++)
 			tyres[i]->update_drive(control_state);
 
-		float lock_angle = 70 * DEGTORAD;
-		float turn_speed_per_second = 360 * DEGTORAD;
+
+		float lock_angle = 35 * DEGTORAD;
+		float turn_speed_per_second = 160 * DEGTORAD;
 		float turn_per_time_step = turn_speed_per_second / 60.f;
 		float desired_angle = 0;
 
@@ -204,11 +205,11 @@ public:
 			case RIGHT: desired_angle = -lock_angle;  break;
 		}
 
-		float angle_now = fl_joint->GetJointAngle();
-		float angle_to_turn = desired_angle - angle_now;
+		float angle_to_turn = desired_angle - fl_joint->GetJointAngle();
 		angle_to_turn = b2Clamp(angle_to_turn, -turn_per_time_step, turn_per_time_step);
-		new_angle = angle_now + angle_to_turn;
+		new_angle = fl_joint->GetJointAngle() + angle_to_turn;
 		fl_joint->SetLimits(new_angle, new_angle);
+		fr_joint->SetLimits(new_angle, new_angle);
 	}
 
 	std::vector<Tyre*> tyres;
@@ -226,8 +227,8 @@ public:
 			vehicles[i].init(
 				&world, 
 				{ transforms[i].position.x, transforms[i].position.z },
-				transforms[i].rotation.y - 90.f, 
-				UP | LEFT
+				transforms[i].rotation.y, 
+				UP
 			);
 		}
 
@@ -260,9 +261,11 @@ public:
 		wall_4 = world.CreateBody(&body_def);
 		wall_4->CreateFixture(&polygon_shape, 1.f);
 
-		world.Step(time_step, velocity_iterations, position_iterations);
 		for (int i = 0; i < vehicles.size(); i++)
 			vehicles[i].update();
+
+		world.Step(time_step, velocity_iterations, position_iterations);
+		
 	}
 
 	/////////////////////////////////////

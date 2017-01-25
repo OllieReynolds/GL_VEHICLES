@@ -21,12 +21,13 @@ namespace {
 
 			int active_button = s->ui.index_active_button;
 			switch (active_button) {
-				case 0: s->add_vehicle();						break;
-				case 1: s->remove_vehicle();					break;
-				case 2:											break;
-				case 3: s->follow_vehicle = !s->follow_vehicle; break;
-				case 4: s->is_running = true;					break;
-				case 5: s->is_running = false;					break;
+				case 0: s->add_vehicle(gen_random(0.f, 1.f) > 0.5f);			break;
+				case 1: s->remove_vehicle();									break;
+				case 2:															break;
+				case 3: s->camera.follow_vehicle = !s->camera.follow_vehicle;	break;
+				case 4: s->is_updating = true;									break;
+				case 5: s->is_updating = false;									break;
+				case 6: s->reset();												break;
 			}
 		}
 	}
@@ -36,9 +37,9 @@ namespace {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 
 			switch (key) {
-				case GLFW_KEY_F: s->follow_vehicle = !s->follow_vehicle;	break;
+				case GLFW_KEY_F: s->camera.follow_vehicle = !s->camera.follow_vehicle;	break;
 				case GLFW_KEY_LEFT: 
-					if (s->follow_vehicle) {
+					if (s->camera.follow_vehicle) {
 						if (s->index_selected_vehicle == 0)
 							s->index_selected_vehicle = s->transforms_vehicles.size() - 1;
 						else
@@ -46,7 +47,7 @@ namespace {
 					}
 					break;
 				case GLFW_KEY_RIGHT: 
-					if (s->follow_vehicle) {
+					if (s->camera.follow_vehicle) {
 						if (s->index_selected_vehicle == s->transforms_vehicles.size() - 1)
 							s->index_selected_vehicle = 0;
 						else
@@ -69,6 +70,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
 	GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
 

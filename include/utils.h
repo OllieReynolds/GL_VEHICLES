@@ -20,6 +20,7 @@ namespace utils {
 		float forward_speed;
 		float turning_speed;
 		vec4 colour;
+		bool is_predator;
 	};
 
 	struct dimensions {
@@ -192,6 +193,7 @@ namespace utils {
 	};
 
 	struct Camera {
+		bool follow_vehicle;
 		bool target_changed;
 		int last_target_index;
 		float target_distance;
@@ -211,7 +213,7 @@ namespace utils {
 		vec3 old_position;
 		vec3 old_target;
 		
-		void update(const bool follow_vehicle, const std::vector<Transform>& transforms, const int target_index) {
+		void update(const std::vector<Transform>& transforms, const int target_index) {
 			if (last_target_index != target_index) {
 				target_changed = true;
 				old_position = position_current;
@@ -254,7 +256,8 @@ namespace utils {
 			}
 			else {
 				position_current = position_start;
-				position_target = transforms[target_index].position;
+				if (!transforms.empty())
+					position_target = transforms[target_index].position;
 			}
 
 			matrix_projection_persp = shared::perspective_matrix(field_of_view, aspect_ratio, depth_range_persp.x, depth_range_persp.y);

@@ -1,5 +1,7 @@
 #pragma once
 
+
+
 #include <glew.h>
 #include <glfw3.h>
 
@@ -7,6 +9,9 @@
 #include "maths.h"
 #include "model.h"
 #include "physics.h"
+
+#include <Windows.h>
+
 
 using namespace maths;
 using namespace utils;
@@ -54,13 +59,13 @@ struct Wheel_Attributes {
 
 struct UI {
 	UI() { }
-	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1), num_buttons(7) {
-		attributes_ui = vector<Button_Attributes>(num_buttons);
+	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1) {
+		attributes_ui = vector<Button_Attributes>();
 		std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "RESTARTAAAAAAAAAAAAAA" };
-		for (int i = 0; i < num_buttons; i++) {
-			float width_by_buttons = camera.resolution.x / num_buttons;
+		for (int i = 0; i < 7; i++) {
+			float width_by_buttons = camera.resolution.x / 7;
 			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-			attributes_ui[i] = { { p, 740.f },{ 206.f, 32.f }, utils::colour::black, button_labels[i] };
+			attributes_ui.push_back( { { p, 740.f },{ 206.f, 32.f }, utils::colour::black, button_labels[i] });
 		}
 	}
 
@@ -68,7 +73,7 @@ struct UI {
 		index_active_button = -1;
 		index_pressed_button = -1;
 
-		for (int i = 0; i < num_buttons; i++) {
+		for (int i = 0; i < attributes_ui.size(); i++) {
 			float l = attributes_ui[i].position.x - (attributes_ui[i].size.x * 0.5f);
 			float r = attributes_ui[i].position.x + (attributes_ui[i].size.x * 0.5f);
 			float u = attributes_ui[i].position.y + (attributes_ui[i].size.y * 0.5f);
@@ -82,7 +87,6 @@ struct UI {
 
 	int index_active_button;
 	int index_pressed_button;
-	int num_buttons;
 	vector<Button_Attributes> attributes_ui;
 };
 
@@ -100,8 +104,9 @@ public:
 	void draw();
 	void destroy();
 
-	void add_vehicle();
+	void add_vehicle(bool is_predator);
 	void remove_vehicle();
+	void reset();
 
 	Cube_Renderer cube_renderer;
 	Line_Renderer line_renderer;
@@ -119,13 +124,13 @@ public:
 	Texture shadow_texture;
 
 	Light* lights;
-
 	UI ui;
 
-	bool follow_vehicle;
 	bool mouse_pressed;
-	bool is_running;
-		
+	
+	bool is_updating;
+	bool is_drawing;
+
 	int index_selected_vehicle;
 	int index_state;
 	int num_lights;
