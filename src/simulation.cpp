@@ -92,7 +92,7 @@ Simulation::Simulation() {
 		vec3 rb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
 		vec3 rc = transforms_vehicles[i].position + vec3{ b_right.x, y, b_right.y };
 
-		vehicle_sensors.push_back(Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false });
+		vehicle_sensors.push_back(Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false, false });
 	}
 
 
@@ -102,7 +102,7 @@ Simulation::Simulation() {
 	int index = 0;
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
 		for (int j = 0; j < 4; j++) {
-			transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(transforms_vehicles[i], 8.f);
+			transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle({ 0.f, 0.f }, transforms_vehicles[i], 8.f);
 			index++;
 		}
 	}
@@ -163,7 +163,7 @@ void Simulation::update() {
 			transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
 
 			for (int j = 0; j < 4; j++) {
-				transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(transforms_vehicles[i], 8.f);
+				transforms_wheels[index] = attributes_wheels[j].gen_transform_from_vehicle(physics->vehicles[i].body->GetLinearVelocity(), transforms_vehicles[i], 8.f);
 				index++;
 			}
 		}
@@ -173,8 +173,6 @@ void Simulation::update() {
 			transforms_shadows[i].position.x = transforms_vehicles[i].position.x;
 			transforms_shadows[i].position.z = transforms_vehicles[i].position.z;
 		}
-
-		
 
 		// Update Vehicle Sensor Transforms
 		static const float SENSOR_ANGLE = 30.f;
@@ -197,7 +195,7 @@ void Simulation::update() {
 			vec3 rb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
 			vec3 rc = transforms_vehicles[i].position + vec3{ b_right.x, y, b_right.y };
 
-			vehicle_sensors[i] = Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false };
+			vehicle_sensors[i] = Vehicle_Sensors{ la, lb, lc, ra, rb, rc, false, false, false };
 		}		
 
 		for (int i = 0; i < transforms_vehicles.size(); i++) {
@@ -217,6 +215,7 @@ void Simulation::update() {
 						point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
 					{
 						vehicle_sensors[i].ldetected = true;
+						vehicle_sensors[i].detected_predator = attributes_vehicles[j].is_predator;
 					}
 
 					a = vehicle_sensors[i].ra.XZ();
@@ -226,6 +225,7 @@ void Simulation::update() {
 						point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
 					{
 						vehicle_sensors[i].rdetected = true;
+						vehicle_sensors[i].detected_predator = attributes_vehicles[j].is_predator;
 					}
 				}
 			}
@@ -258,6 +258,42 @@ void Simulation::update() {
 
 					else
 						physics->vehicles[i].control_state = 0;
+				}
+			}
+
+			for (int i = 0; i < transforms_vehicles.size(); i++) {
+				vec2 a = vehicle_sensors[i].la.XZ();
+				vec2 b = vehicle_sensors[i].lb.XZ();
+				vec2 c = vehicle_sensors[i].lc.XZ();
+
+				vec2 p0 = { -400.f, -400.f };
+				vec2 p1 = { -400.f,  400.f };
+				vec2 p2 = { 400.f,  400.f };
+				vec2 p3 = { 400.f, -400.f };
+
+				if (
+					utils::shared::Intersecting(p0, p1, a, b, c) ||
+					utils::shared::Intersecting(p1, p2, a, b, c) ||
+					utils::shared::Intersecting(p2, p3, a, b, c) ||
+					utils::shared::Intersecting(p3, p0, a, b, c)
+					) {
+					vehicle_sensors[i].ldetected = true;
+					physics->vehicles[i].control_state = DOWN | RIGHT;
+				}
+
+
+				a = vehicle_sensors[i].ra.XZ();
+				b = vehicle_sensors[i].rb.XZ();
+				c = vehicle_sensors[i].rc.XZ();
+
+				if (
+					utils::shared::Intersecting(p0, p1, a, b, c) ||
+					utils::shared::Intersecting(p1, p2, a, b, c) ||
+					utils::shared::Intersecting(p2, p3, a, b, c) ||
+					utils::shared::Intersecting(p3, p0, a, b, c)
+					) {
+					vehicle_sensors[i].rdetected = true;
+					physics->vehicles[i].control_state = DOWN | LEFT;
 				}
 			}
 		}
@@ -425,4 +461,7 @@ void Simulation::reset() {
 	for (int i = 0; i < n; i++) {
 		add_vehicle(gen_random(0.f, 1.f) > 0.5f);
 	}
+
+	index_selected_vehicle = 0;
+	camera.follow_vehicle = true;
 }

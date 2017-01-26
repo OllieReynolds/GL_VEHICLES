@@ -101,17 +101,6 @@ public:
 
 		body->ApplyForce(force * forward_normal, body->GetWorldCenter(), true);
 	}
-
-	/*void update_turn(int control_state) {
-		float desired_torque = 0;
-
-		switch (control_state & (LEFT | RIGHT)) {
-			case LEFT: desired_torque = 15; break;
-			case RIGHT: desired_torque = 15; break;
-		}
-
-		body->ApplyTorque(desired_torque, true);
-	}*/
 };
 
 class Vehicle {
@@ -132,12 +121,11 @@ public:
 		b2BodyDef body_def;
 		body_def.type = b2_dynamicBody;
 		body_def.position.Set(position.x, position.y);
-		//ody_def.angle = rotation;
 		body = world->CreateBody(&body_def);
 		body->SetAngularDamping(3);
 
 		b2PolygonShape polygon_shape;
-		polygon_shape.SetAsBox(8.f, 12.f);
+		polygon_shape.SetAsBox(6.f, 10.f);
 		b2Fixture* fixture = body->CreateFixture(&polygon_shape, 0.1f);
 
 		b2RevoluteJointDef joint_def;
@@ -147,18 +135,18 @@ public:
 		joint_def.upperAngle = 0;
 		joint_def.localAnchorB.SetZero();
 
-		float max_forward_speed = 250;
+		float max_forward_speed = 200;
 		float max_backward_speed = -40;
 		float back_tyre_max_drive_force = 300;
 		float front_tyre_max_drive_force = 500;
-		float back_tyre_max_lateral_impulse = 8.5;
-		float front_tyre_max_lateral_impulse = 7.5;
+		float back_tyre_max_lateral_impulse = 9.5;
+		float front_tyre_max_lateral_impulse = 6.5;
 
 		// Back Left
 		Tyre* tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(-13.f, -10.75f);
+		joint_def.localAnchorA.Set(-13.f, 0.75f);
 		world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 
@@ -166,7 +154,7 @@ public:
 		tyre = new Tyre(world);
 		tyre->set_characteristics(max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
 		joint_def.bodyB = tyre->body;
-		joint_def.localAnchorA.Set(13.f, -10.75f);
+		joint_def.localAnchorA.Set(13.f, 0.75f);
 		world->CreateJoint(&joint_def);
 		tyres.push_back(tyre);
 
@@ -195,7 +183,7 @@ public:
 			tyres[i]->update_drive(control_state);
 
 
-		float lock_angle = 35 * DEGTORAD;
+		float lock_angle = 70 * DEGTORAD;
 		float turn_speed_per_second = 160 * DEGTORAD;
 		float turn_per_time_step = turn_speed_per_second / 60.f;
 		float desired_angle = 0;

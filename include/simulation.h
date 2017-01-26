@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include <glew.h>
 #include <glfw3.h>
 
@@ -9,9 +7,6 @@
 #include "maths.h"
 #include "model.h"
 #include "physics.h"
-
-#include <Windows.h>
-
 
 using namespace maths;
 using namespace utils;
@@ -25,6 +20,7 @@ struct Light {
 struct Vehicle_Sensors {
 	vec3 la, lb, lc, ra, rb, rc;
 	bool ldetected, rdetected;
+	bool detected_predator;
 };
 
 struct Button_Attributes {
@@ -38,20 +34,26 @@ struct Wheel_Attributes {
 	float angular_offset;
 	float y_rotation;
 
-	Transform gen_transform_from_vehicle(const Transform& t, float wheel_dist) {
+	Transform gen_transform_from_vehicle(const b2Vec2& forward_velocity, const Transform& t, float wheel_dist) {
 		float wheel_offset_from_vehicle_angle = t.rotation.y - angular_offset;
 		vec2 direction = polar_to_cartesian(to_radians(wheel_offset_from_vehicle_angle)) * wheel_dist;
 
 		Transform transform;
 		transform.position = vec3{ t.position.x + direction.x, 4.f, t.position.z + direction.y };
-		transform.size = vec3{ 1.f, 1.f, 1.f };
+		transform.size = vec3{ 1.f, 1.f, 1.5f };
 		transform.rotation = t.rotation;
 		transform.rotation.y += y_rotation;
 
 		if (y_rotation == 0.f)
+			transform.rotation.z += magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
+		else 
+			transform.rotation.z -= magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
+
+
+		/*if (y_rotation == 0.f)
 			transform.rotation.z += 128.f * utils::elapsed_time();
 		else 
-			transform.rotation.z -= 128.f * utils::elapsed_time();
+			transform.rotation.z -= 128.f * utils::elapsed_time();*/
 
 		return transform;
 	}
@@ -61,11 +63,11 @@ struct UI {
 	UI() { }
 	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1) {
 		attributes_ui = vector<Button_Attributes>();
-		std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "RESTARTAAAAAAAAAAAAAA" };
+		std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "NEW" };
 		for (int i = 0; i < 7; i++) {
 			float width_by_buttons = camera.resolution.x / 7;
 			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-			attributes_ui.push_back( { { p, 740.f },{ 206.f, 32.f }, utils::colour::black, button_labels[i] });
+			attributes_ui.push_back( { { p, 740.f },{ 162.f, 32.f }, utils::colour::black, button_labels[i] });
 		}
 	}
 

@@ -190,6 +190,56 @@ namespace utils {
 
 			return viewMatrix;
 		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// http://gamedev.stackexchange.com/questions/21096/what-is-an-efficient-2d-line-segment-versus-triangle-intersection-test
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/* Check whether P and Q lie on the same side of line AB */
+		static float Side(vec2 p, vec2 q, vec2 a, vec2 b)
+		{
+			float z1 = (b.x - a.x) * (p.y - a.y) - (p.x - a.x) * (b.y - a.y);
+			float z2 = (b.x - a.x) * (q.y - a.y) - (q.x - a.x) * (b.y - a.y);
+			return z1 * z2;
+		}
+
+		/* Check whether segment P0P1 intersects with triangle t0t1t2 */
+		static bool Intersecting(vec2 p0, vec2 p1, vec2 t0, vec2 t1, vec2 t2)
+		{
+			/* Check whether segment is outside one of the three half-planes
+			* delimited by the triangle. */
+			float f1 = Side(p0, t2, t0, t1), f2 = Side(p1, t2, t0, t1);
+			float f3 = Side(p0, t0, t1, t2), f4 = Side(p1, t0, t1, t2);
+			float f5 = Side(p0, t1, t2, t0), f6 = Side(p1, t1, t2, t0);
+			/* Check whether triangle is totally inside one of the two half-planes
+			* delimited by the segment. */
+			float f7 = Side(t0, t1, p0, p1);
+			float f8 = Side(t1, t2, p0, p1);
+
+			/* If segment is strictly outside triangle, or triangle is strictly
+			* apart from the line, we're not intersecting */
+			if ((f1 < 0 && f2 < 0) || (f3 < 0 && f4 < 0) || (f5 < 0 && f6 < 0)
+				|| (f7 > 0 && f8 > 0))
+				return false;
+
+			/* If segment is aligned with one of the edges, we're overlapping */
+			if ((f1 == 0 && f2 == 0) || (f3 == 0 && f4 == 0) || (f5 == 0 && f6 == 0))
+				return true;
+
+			/* If segment is outside but not strictly, or triangle is apart but
+			* not strictly, we're touching */
+			if ((f1 <= 0 && f2 <= 0) || (f3 <= 0 && f4 <= 0) || (f5 <= 0 && f6 <= 0)
+				|| (f7 >= 0 && f8 >= 0))
+				return true;
+
+			/* If both segment points are strictly inside the triangle, we
+			* are not intersecting either */
+			if (f1 > 0 && f2 > 0 && f3 > 0 && f4 > 0 && f5 > 0 && f6 > 0)
+				return false;
+
+			/* Otherwise we're intersecting with at least one edge */
+			return true;
+		}
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	};
 
 	struct Camera {
