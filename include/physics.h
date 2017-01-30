@@ -112,6 +112,8 @@ public:
 			tyres[i]->destroy();
 			delete tyres[i];
 		}
+
+		body->GetWorld()->DestroyBody(body);
 	}
 
 
@@ -136,10 +138,10 @@ public:
 		joint_def.localAnchorB.SetZero();
 
 		float max_forward_speed = 200;
-		float max_backward_speed = -40;
-		float back_tyre_max_drive_force = 300;
-		float front_tyre_max_drive_force = 500;
-		float back_tyre_max_lateral_impulse = 9.5;
+		float max_backward_speed = -200;
+		float back_tyre_max_drive_force = 600;
+		float front_tyre_max_drive_force = 300;
+		float back_tyre_max_lateral_impulse = 19.5;
 		float front_tyre_max_lateral_impulse = 6.5;
 
 		// Back Left
@@ -198,6 +200,8 @@ public:
 		new_angle = fl_joint->GetJointAngle() + angle_to_turn;
 		fl_joint->SetLimits(new_angle, new_angle);
 		fr_joint->SetLimits(new_angle, new_angle);
+
+
 	}
 
 	std::vector<Tyre*> tyres;
@@ -253,7 +257,6 @@ public:
 			vehicles[i].update();
 
 		world.Step(time_step, velocity_iterations, position_iterations);
-		
 	}
 
 	/////////////////////////////////////

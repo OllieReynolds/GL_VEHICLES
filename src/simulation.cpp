@@ -4,8 +4,6 @@ Simulation::Simulation() {
 	index_state = 1;
 	index_selected_vehicle = 0;
 
-	num_lights = 3;
-
 	mouse_pressed = false;
 	is_updating = false;
 	is_drawing = true;
@@ -128,10 +126,13 @@ Simulation::Simulation() {
 		transforms_shadows[i] = { transforms_vehicles[i].position - vec3{ 0.f, 3.95f - i * 0.01f, 0.f },{ 20.f }, { 90.f, 0.f, 0.f } };
 	}
 
-	// TODO Make these a param to renderers
-	lights = new Light[num_lights];
-	lights[0] = { 0.2f, {  0.f, 30.f,  0.f }, utils::colour::white };
-	lights[1] = { 0.2f, { 10.f, 10.f, 10.f }, utils::colour::red };
+	lights = vector<Light>();
+	for (int i = 0; i < transforms_vehicles.size(); i++) {
+		lights.push_back({ { 0.f, 30.f, 0.f }, attributes_vehicles[i].colour.XYZ() });
+	}
+
+	/*lights.push_back({ { 0.f, 30.f, 0.f }, {0.f, 0.f, 1.f} });
+	lights.push_back({ { 0.f, 30.f, 0.f }, {1.f, 0.f, 0.f } });*/
 }
 
 void Simulation::init() {
@@ -151,6 +152,11 @@ void Simulation::init() {
 }
 
 void Simulation::update() {
+
+	for (int i = 0; i < lights.size(); i++) {
+		lights[i].position = transforms_vehicles[i].position;
+	}
+
 	if (is_updating) {
 		// Update Physics
 		physics->update();
@@ -175,11 +181,13 @@ void Simulation::update() {
 		}
 
 		// Update Vehicle Sensor Transforms
-		static const float SENSOR_ANGLE = 30.f;
+		static const float SENSOR_ANGLE = 60.f;
 		static const float SENSOR_OFFSET = 20.f;
-		static const float SENSOR_RANGE = 200.f;
+		static const float SENSOR_RANGE = 400.f;
+
+		int sensor_num = 0;
 		for (int i = 0; i < transforms_vehicles.size(); i++) {
-			float y = transforms_vehicles[i].position.y - 6.f + (i * .3f);
+			float y = transforms_vehicles[i].position.y - 6.f + (sensor_num++ * .8f);
 
 			float _a = transforms_vehicles[i].rotation.y - SENSOR_OFFSET;
 			vec2 a_left = polar_to_cartesian(to_radians(_a - SENSOR_ANGLE / 2.F)) * SENSOR_RANGE;
@@ -187,6 +195,8 @@ void Simulation::update() {
 			vec3 la = transforms_vehicles[i].position + vec3{ a_left.x, y, a_left.y };
 			vec3 lb = transforms_vehicles[i].position + vec3{ 0.f, y, 0.f };
 			vec3 lc = transforms_vehicles[i].position + vec3{ a_right.x, y, a_right.y };
+
+			y = transforms_vehicles[i].position.y - 6.f + (sensor_num++ * .8f);
 
 			float _b = transforms_vehicles[i].rotation.y + SENSOR_OFFSET;
 			vec2 b_left = polar_to_cartesian(to_radians(_b - SENSOR_ANGLE / 2.F)) * SENSOR_RANGE;
@@ -230,6 +240,8 @@ void Simulation::update() {
 				}
 			}
 
+			
+
 			// Predator Prey
 			for (int i = 0; i < transforms_vehicles.size(); i++) {
 				if (attributes_vehicles[i].is_predator) {
@@ -243,7 +255,7 @@ void Simulation::update() {
 						physics->vehicles[i].control_state = UP | LEFT;
 
 					else
-						physics->vehicles[i].control_state = UP;
+						physics->vehicles[i].control_state = 0;
 
 				}
 				else {
@@ -261,6 +273,7 @@ void Simulation::update() {
 				}
 			}
 
+			// Walls
 			for (int i = 0; i < transforms_vehicles.size(); i++) {
 				vec2 a = vehicle_sensors[i].la.XZ();
 				vec2 b = vehicle_sensors[i].lb.XZ();
@@ -296,6 +309,7 @@ void Simulation::update() {
 					physics->vehicles[i].control_state = DOWN | LEFT;
 				}
 			}
+			
 		}
 	}
 
@@ -310,39 +324,40 @@ void Simulation::draw() {
 		glEnable(GL_DEPTH_TEST);
 		{
 			// Walls & Floor
-			model_renderer.draw_multiple_3D_textured(transforms_walls.size(), grid_model, camera, transforms_walls, floor_texture);
+			model_renderer.draw_multiple_3D_textured(transforms_walls.size(), grid_model, camera, transforms_walls, floor_texture, lights);
 
 			// Boundaries
 			quad_renderer.draw_multiple_3D_coloured(camera, transforms_boundaries, utils::colour::red);
 
-			// Vehicles
-			cube_renderer.draw_multiple(camera, transforms_vehicles, attributes_vehicles);
+			if (!transforms_vehicles.empty()) {
+				// Vehicles
+				cube_renderer.draw_multiple(camera, transforms_vehicles, attributes_vehicles, lights);
 
-			// Wheels
-			model_renderer.draw_multiple_3D_textured(transforms_wheels.size(), wheel_model, camera, transforms_wheels, wheel_texture);
+				// Wheels
+				model_renderer.draw_multiple_3D_textured(transforms_wheels.size(), wheel_model, camera, transforms_wheels, wheel_texture, lights);
+			}
 		}
 
+	
 		glEnable(GL_BLEND);
 		{
+			if (!transforms_vehicles.empty()) {
+				// Shadows
+				circle_renderer.draw_multiple_3D_shadow(camera, transforms_shadows);
 
+				// Vehicle Sensors
+				for (int i = 0; i < vehicle_sensors.size(); i++) {
+					if (vehicle_sensors[i].ldetected)
+						tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 1.f, 0.f, 0.05f });
+					else
+						tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 0.f, 0.f, 0.05f });
 
-			// Shadows
-			circle_renderer.draw_multiple_3D_shadow(camera, transforms_shadows);
-
-			// Vehicle Sensors
-			for (int i = 0; i < vehicle_sensors.size(); i++) {
-				if (vehicle_sensors[i].ldetected)
-					tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 1.f, 0.f, 0.1f });
-				else
-					tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].la, vehicle_sensors[i].lb, vehicle_sensors[i].lc, vec4{ 1.f, 0.f, 0.f, 0.1f });
-
-				if (vehicle_sensors[i].rdetected)
-					tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 1.f, 0.f, 0.1f });
-				else
-					tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 0.f, 0.f, 0.1f });
+					if (vehicle_sensors[i].rdetected)
+						tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 1.f, 0.f, 0.05f });
+					else
+						tri_renderer.draw_3D_coloured(camera, vehicle_sensors[i].ra, vehicle_sensors[i].rb, vehicle_sensors[i].rc, vec4{ 1.f, 0.f, 0.f, 0.05f });
+				}
 			}
-
-
 		}
 
 		glDisable(GL_DEPTH_TEST);
@@ -379,7 +394,6 @@ void Simulation::destroy() {
 	physics->destroy();
 
 	delete physics;
-	delete[] lights;
 }
 
 void Simulation::add_vehicle(bool is_predator) {
@@ -396,8 +410,11 @@ void Simulation::add_vehicle(bool is_predator) {
 		is_predator
 	};
 
+	
 	transforms_vehicles.push_back(t);
 	attributes_vehicles.push_back(av);
+
+	lights.push_back({ { 0.f, 30.f, 0.f }, attributes_vehicles.back().colour.XYZ() });
 	 
 	transforms_shadows.push_back({ t.position - vec3{ 0.f, 3.95f, 0.f }, vec3{ 20.f }, vec3{ 90.f, 0.f, 0.f } });
 
@@ -442,6 +459,8 @@ void Simulation::remove_vehicle() {
 			transforms_wheels.pop_back();
 		}
 
+		lights.pop_back();
+
 		vehicle_sensors.pop_back();
 
 		physics->remove_vehicle();
@@ -463,5 +482,5 @@ void Simulation::reset() {
 	}
 
 	index_selected_vehicle = 0;
-	camera.follow_vehicle = true;
+	camera.follow_vehicle = false;
 }

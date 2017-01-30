@@ -131,6 +131,11 @@ namespace utils {
 		glUniform1f(uniform_location, v);
 	}
 
+	void Shader::set_uniform(const char* name, const int i) {
+		GLuint uniform_location = uniform_handle(name);
+		glUniform1i(uniform_location, i);
+	}
+
 	void Shader::set_uniform(const char* name, const maths::vec2& v) {
 		GLuint uniform_location = uniform_handle(name);
 		glUniform2fv(uniform_location, 1, &v[0]);

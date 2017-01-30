@@ -23,6 +23,7 @@ namespace utils {
 
 		void set_uniform(const char* name, const bool b);
 		void set_uniform(const char* name, const float v);
+		void set_uniform(const char* name, const int i);
 		void set_uniform(const char* name, const maths::vec2& v);
 		void set_uniform(const char* name, const maths::vec3& v);
 		void set_uniform(const char* name, const maths::vec4& v);

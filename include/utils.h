@@ -10,6 +10,11 @@
 namespace utils {
 	using namespace maths;
 
+	struct Light {
+		vec3 position;
+		vec3 colour;
+	};
+
 	struct Transform {
 		vec3 position;
 		vec3 size;

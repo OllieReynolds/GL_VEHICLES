@@ -11,12 +11,6 @@
 using namespace maths;
 using namespace utils;
 
-struct Light {
-	float ambient;
-	vec3 position;
-	vec4 colour;
-};
-
 struct Vehicle_Sensors {
 	vec3 la, lb, lc, ra, rb, rc;
 	bool ldetected, rdetected;
@@ -48,12 +42,6 @@ struct Wheel_Attributes {
 			transform.rotation.z += magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
 		else 
 			transform.rotation.z -= magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
-
-
-		/*if (y_rotation == 0.f)
-			transform.rotation.z += 128.f * utils::elapsed_time();
-		else 
-			transform.rotation.z -= 128.f * utils::elapsed_time();*/
 
 		return transform;
 	}
@@ -125,7 +113,6 @@ public:
 	Texture floor_texture;
 	Texture shadow_texture;
 
-	Light* lights;
 	UI ui;
 
 	bool mouse_pressed;
@@ -135,14 +122,17 @@ public:
 
 	int index_selected_vehicle;
 	int index_state;
-	int num_lights;
 
 	vec2 cursor_position;
 
 	Camera camera;
+
 	Physics* physics;
 
+	vector<Light>				lights;
+
 	vector<Vehicle_Attributes>	attributes_vehicles;
+
 	vector<Wheel_Attributes>	attributes_wheels;
 
 	vector<Vehicle_Sensors>		vehicle_sensors;

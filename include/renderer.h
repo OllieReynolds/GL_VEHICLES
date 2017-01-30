@@ -77,7 +77,7 @@ public:
 
 	void init();
 	void draw(const Camera& camera, const vec3& position, const vec3& size, float rotation, const vec4& colour);
-	void draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes);
+	void draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes, const std::vector<Light>& lights);
 	void destroy();
 
 private:
@@ -107,10 +107,11 @@ public:
 	void init();
 	void draw_3D_coloured(Model& model, const Camera& camera, const Transform& transform, const vec4& colour);
 	void draw_3D_textured(Model& model, const Camera& camera, const Transform& transform, Texture& texture);
-	void draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture);
+	void draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture, const std::vector<Light>& lights);
 	void destroy();
 
 private:
+
 	Shader shader_coloured;
 	Shader shader_textured;
 };

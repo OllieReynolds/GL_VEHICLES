@@ -117,21 +117,6 @@ void Triangle_Renderer::init() {
 	glEnableVertexAttribArray(0);
 }
 
-//void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const Transform& transform, const vec4& colour) {
-//	shader_3D_coloured.use();
-//	glBindVertexArray(vao);
-//
-//	shader_3D_coloured.set_uniform("uniform_colour", colour);
-//	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
-//	shader_3D_coloured.set_uniform("view", camera.matrix_view);
-//	shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform));
-//
-//	glDrawArrays(GL_TRIANGLES, 0, 3);
-//
-//	glBindVertexArray(0);
-//	shader_3D_coloured.release();
-//}
-
 void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const vec3& a, const vec3& b, const vec3& c, const vec4& colour) {
 	shader_3D_coloured.use();
 	glBindVertexArray(vao);
@@ -150,23 +135,6 @@ void Triangle_Renderer::draw_3D_coloured(const Camera& camera, const vec3& a, co
 	glBindVertexArray(0);
 	shader_3D_coloured.release();
 }
-
-//void Triangle_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::vector<Transform>& transform_list, const vec4& colour) {
-//	shader_3D_coloured.use();
-//	glBindVertexArray(vao);
-//
-//	shader_3D_coloured.set_uniform("uniform_colour", colour);
-//	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
-//	shader_3D_coloured.set_uniform("view", camera.matrix_view);
-//
-//	for (int i = 0; i < transform_list.size(); i++) {
-//		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
-//		glDrawArrays(GL_TRIANGLES, 0, 3);
-//	}
-//
-//	glBindVertexArray(0);
-//	shader_3D_coloured.release();
-//}
 
 void Triangle_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);
@@ -326,12 +294,19 @@ void Cube_Renderer::draw(const Camera& camera, const vec3& position, const vec3&
 	glBindVertexArray(0);
 }
 
-void Cube_Renderer::draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes) {
+void Cube_Renderer::draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes, const std::vector<Light>& lights) {
 	shader.use();
 
 	shader.set_uniform("view", camera.matrix_view);
 	shader.set_uniform("projection", camera.matrix_projection_persp);
-	shader.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
+	shader.set_uniform("num_lights", static_cast<int>(lights.size()));
+
+	for (int i = 0; i < lights.size(); i++) {
+		std::string str = "lights[" + std::to_string(i) + "].position";
+		shader.set_uniform(str.c_str(), lights[i].position);
+		str = "lights[" + std::to_string(i) + "].colour";
+		shader.set_uniform(str.c_str(), lights[i].colour);
+	}
 
 	for (int i = 0; i < transform_list.size(); i++) {
 		glBindVertexArray(vao);
@@ -403,11 +378,23 @@ void Model_Renderer::init() {
 	};
 }
 
-void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture) {
+void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture, const std::vector<Light>& lights) {
 	shader_textured.use();
 	shader_textured.set_uniform("view", camera.matrix_view);
 	shader_textured.set_uniform("projection", camera.matrix_projection_persp);
-	shader_textured.set_uniform("light_position", vec3{ 0.f, 30.f, 0.f });
+	shader_textured.set_uniform("num_lights", static_cast<int>(lights.size()));
+	//shader_textured.set_uniform("lights[0].position", lights[0].position);
+	//shader_textured.set_uniform("lights[0].colour", lights[0].colour);
+	//shader_textured.set_uniform("lights[1].position", lights[1].position);
+	//shader_textured.set_uniform("lights[1].colour", lights[1].colour);
+
+
+	for (int i = 0; i < lights.size(); i++) {
+		std::string str = "lights[" + std::to_string(i) + "].position";
+		shader_textured.set_uniform(str.c_str(), lights[i].position);
+		str = "lights[" + std::to_string(i) + "].colour";
+		shader_textured.set_uniform(str.c_str(), lights[i].colour);
+	}
 
 	texture.use();
 
