@@ -30,7 +30,7 @@ struct Mesh {
 };
 
 struct Model {
-	Model() { }
+	Model();
 	void init(const char* filename);
 	void destroy();
 
@@ -41,5 +41,4 @@ private:
 	void process_face(std::string& line, bool uvs_included, std::vector<int>& vertex_indices, std::vector<int>& uv_indices, std::vector<int>& normal_indices);
 	bool check_uvs_included(const char* filename);
 	std::vector<std::pair<int, int>> file_preprocess(const char* filename);
-
 };

@@ -18,7 +18,6 @@ namespace utils {
 
 		void use();
 		void release();
-
 		void destroy();
 
 		void set_uniform(const char* name, const bool b);
@@ -30,7 +29,6 @@ namespace utils {
 		void set_uniform(const char* name, const maths::mat4& v);
 
 		GLuint program;
-
 		GLint uniform_handle(const char* name);
 
 	private:

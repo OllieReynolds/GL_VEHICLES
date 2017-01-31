@@ -3,10 +3,12 @@
 #include <glew.h>
 #include <glfw3.h>
 
-#include "renderer.h"
+#include "camera.h"
 #include "maths.h"
 #include "model.h"
 #include "physics.h"
+#include "renderer.h"
+#include "ui.h"
 
 using namespace maths;
 using namespace utils;
@@ -15,13 +17,6 @@ struct Vehicle_Sensors {
 	vec3 la, lb, lc, ra, rb, rc;
 	bool ldetected, rdetected;
 	bool detected_predator;
-};
-
-struct Button_Attributes {
-	vec2 position;
-	vec2 size;
-	vec4 colour;
-	std::string label;
 };
 
 struct Wheel_Attributes {
@@ -45,44 +40,6 @@ struct Wheel_Attributes {
 
 		return transform;
 	}
-};
-
-struct UI {
-	UI() { }
-	UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1) {
-		attributes_ui = vector<Button_Attributes>();
-		std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "NEW" };
-		for (int i = 0; i < 7; i++) {
-			float width_by_buttons = camera.resolution.x / 7;
-			float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-			attributes_ui.push_back( { { p, 740.f },{ 162.f, 32.f }, utils::colour::black, button_labels[i] });
-		}
-	}
-
-	void update(const vec2& cursor_position, const bool mouse_pressed) {
-		index_active_button = -1;
-		index_pressed_button = -1;
-
-		for (int i = 0; i < attributes_ui.size(); i++) {
-			float l = attributes_ui[i].position.x - (attributes_ui[i].size.x * 0.5f);
-			float r = attributes_ui[i].position.x + (attributes_ui[i].size.x * 0.5f);
-			float u = attributes_ui[i].position.y + (attributes_ui[i].size.y * 0.5f);
-			float d = attributes_ui[i].position.y - (attributes_ui[i].size.y * 0.5f);
-			if (utils::point_quad_intersect(cursor_position, l, r, u, d)) index_active_button = i;
-		}
-
-		if (mouse_pressed && index_active_button != -1) 
-			index_pressed_button = index_active_button;
-	}
-
-	int index_active_button;
-	int index_pressed_button;
-	vector<Button_Attributes> attributes_ui;
-};
-
-enum SIMULATION_STATE {
-	RUNNING = 0,
-	PAUSED = 1
 };
 
 class Simulation {
@@ -114,32 +71,27 @@ public:
 	Texture shadow_texture;
 
 	UI ui;
+	Camera camera;
+	Physics* physics;
 
 	bool mouse_pressed;
-	
 	bool is_updating;
 	bool is_drawing;
-
 	int index_selected_vehicle;
 	int index_state;
 
 	vec2 cursor_position;
 
-	Camera camera;
-
-	Physics* physics;
-
+	// Environment Properties
 	vector<Light>				lights;
-
-	vector<Vehicle_Attributes>	attributes_vehicles;
-
-	vector<Wheel_Attributes>	attributes_wheels;
-
-	vector<Vehicle_Sensors>		vehicle_sensors;
-
-	vector<Transform>			transforms_vehicles;
-	vector<Transform>			transforms_wheels;
 	vector<Transform>			transforms_walls;
 	vector<Transform>			transforms_boundaries;
+	
+	// Vehicle Properties
+	vector<Vehicle_Attributes>	attributes_vehicles;
+	vector<Wheel_Attributes>	attributes_wheels;
+	vector<Vehicle_Sensors>		vehicle_sensors;
+	vector<Transform>			transforms_vehicles;
+	vector<Transform>			transforms_wheels;
 	vector<Transform>			transforms_shadows;
 };

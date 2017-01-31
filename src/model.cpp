@@ -1,5 +1,9 @@
 #include "..\include\model.h"
 
+Model::Model() {
+
+}
+
 void Model::init(const char* filename) {
 	std::vector <std::pair<int, int>> data_ranges = file_preprocess(filename);
 	load_meshes(filename, data_ranges);
