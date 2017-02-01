@@ -9,7 +9,7 @@ using namespace maths;
 using namespace utils;
 
 struct Camera {
-	Camera() { }
+	Camera();
 	void update(const std::vector<Transform>& transforms, const int target_index);
 
 	bool follow_vehicle;

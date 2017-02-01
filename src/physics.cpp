@@ -9,7 +9,7 @@ Tyre::Tyre(b2World* world, float max_forward_speed, float max_backward_speed, fl
 	body = world->CreateBody(&body_def);
 
 	b2PolygonShape polygonShape;
-	polygonShape.SetAsBox(0.5f, 1.25f);
+	polygonShape.SetAsBox(0.5f, 0.5f);
 	body->CreateFixture(&polygonShape, 1.f);
 
 	body->SetUserData(this);
@@ -150,8 +150,8 @@ void Vehicle::update() {
 	float desired_angle = 0;
 
 	switch (control_state & (LEFT | RIGHT)) {
-	case LEFT: desired_angle = lock_angle;  break;
-	case RIGHT: desired_angle = -lock_angle;  break;
+		case LEFT: desired_angle = lock_angle;  break;
+		case RIGHT: desired_angle = -lock_angle;  break;
 	}
 
 	float angle_to_turn = desired_angle - fl_joint->GetJointAngle();
@@ -170,7 +170,7 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms)
 			&world,
 			{ transforms[i].position.x, transforms[i].position.z },
 			transforms[i].rotation.y,
-			UP
+			0
 		);
 	}
 
@@ -260,7 +260,7 @@ void Physics::destroy() {
 void Physics::add_vehicle(const utils::Transform& transform) {
 	b2Vec2 position = { transform.position.x, transform.position.z };
 	Vehicle v;
-	v.init(&world, position, transform.rotation.y - 90.f, UP | LEFT);
+	v.init(&world, position, transform.rotation.y, 0);
 	vehicles.push_back(v);
 }
 

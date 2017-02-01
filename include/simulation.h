@@ -51,9 +51,16 @@ public:
 	void draw();
 	void destroy();
 
+	void update_simulation_transforms_from_physics();
+	void update_sensors_from_simulation_transforms();
+	void check_detected_walls();
+	void check_detected_vehicles();
+	void predator_prey();
+
 	void add_vehicle(bool is_predator);
 	void remove_vehicle();
 	void reset();
+
 
 	Cube_Renderer cube_renderer;
 	Line_Renderer line_renderer;
