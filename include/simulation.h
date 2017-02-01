@@ -13,10 +13,19 @@
 using namespace maths;
 using namespace utils;
 
-struct Vehicle_Sensors {
-	vec3 la, lb, lc, ra, rb, rc;
+struct Detection_Event {
+	float distance;
 	bool ldetected, rdetected;
 	bool detected_predator;
+	bool detected_prey;
+	bool detected_wall;
+};
+
+struct Vehicle_Sensors {
+	vec3 la, lb, lc, ra, rb, rc;
+	//bool ldetected, rdetected;
+	//bool detected_predator;
+	std::vector<Detection_Event> detection_events;
 };
 
 struct Wheel_Attributes {

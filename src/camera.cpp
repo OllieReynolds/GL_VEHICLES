@@ -8,7 +8,7 @@ Camera::Camera() {
 	depth_range_ortho = vec2{ -1.f, 1.f };
 	depth_range_persp = vec2{ 0.1f, 1500.f };
 	position_current = vec3{ 0.f, 0.f, 0.f };
-	position_start = vec3{ 0.f, 200.f, 0.f };
+	position_start = vec3{ 0.f, 400.f, 0.f };
 	position_target = vec3{ 30.f, 30.f, 30.f };
 	orientation_up = vec3{ 0.f, 1.f, 0.f };
 	aspect_ratio = resolution.x / resolution.y;
