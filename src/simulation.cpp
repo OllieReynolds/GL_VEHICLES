@@ -370,7 +370,7 @@ void Simulation::check_detected_vehicles() {
 			if (i != j) {
 				vec2 p = transforms_vehicles[j].position.XZ();
 
-				const static float HITBOX_SIZE = 20.f;
+				const static float HITBOX_SIZE = 10.f;
 				vec2 p1 = p + vec2{ -HITBOX_SIZE, -HITBOX_SIZE };
 				vec2 p2 = p + vec2{  HITBOX_SIZE, -HITBOX_SIZE };
 				vec2 p3 = p + vec2{ -HITBOX_SIZE,  HITBOX_SIZE };
@@ -385,7 +385,9 @@ void Simulation::check_detected_vehicles() {
 				if (point_triangle_intersect(p1, a, b, c) || point_triangle_intersect(p2, a, b, c) ||
 					point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
 				{
-					ldetected = true;
+
+					if ((attributes_vehicles[i].is_predator && !attributes_vehicles[j].is_predator) || (!attributes_vehicles[i].is_predator && attributes_vehicles[j].is_predator))
+						ldetected = true;
 				}
 
 				a = vehicle_sensors[i].ra.XZ();
@@ -394,7 +396,8 @@ void Simulation::check_detected_vehicles() {
 				if (point_triangle_intersect(p1, a, b, c) || point_triangle_intersect(p2, a, b, c) ||
 					point_triangle_intersect(p3, a, b, c) || point_triangle_intersect(p4, a, b, c))
 				{
-					rdetected = true;
+					if ((attributes_vehicles[i].is_predator && !attributes_vehicles[j].is_predator) || (!attributes_vehicles[i].is_predator && attributes_vehicles[j].is_predator))
+						rdetected = true;
 				}
 
 				if (ldetected || rdetected) {
