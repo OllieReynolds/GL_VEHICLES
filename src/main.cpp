@@ -12,7 +12,7 @@ namespace {
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 		Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 		s->cursor_position.x = (float)xpos;
-		s->cursor_position.y = 768.f - (float)ypos;
+		s->cursor_position.y = config::resolution.y - (float)ypos;
 	}
 
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -28,6 +28,7 @@ namespace {
 				case 4: s->is_updating = true;									break;
 				case 5: s->is_updating = false;									break;
 				case 6: s->reset();												break;
+				case 7: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
 			}
 		}
 	}
@@ -72,7 +73,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
-	GLFWwindow* window = glfwCreateWindow(1366, 768, "Vehicles", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(config::resolution.x, config::resolution.y, "Vehicles", (config::fullscreen) ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 	if (!window) {
 		glfwTerminate();

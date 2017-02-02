@@ -12,6 +12,11 @@ namespace utils {
 		vec4 dark_grey	= { .25f, .25f, .25f, 1.f };
 	};
 
+	namespace config {
+		vec2 resolution = { 1024.f, 768.f };
+		bool fullscreen = false;
+	};
+
 	namespace mesh {
 		maths::vec3 quad_points[4] = {
 			{ -0.5f, -0.5f, 0.f },

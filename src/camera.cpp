@@ -4,12 +4,12 @@ Camera::Camera() {
 	follow_vehicle = false;
 	field_of_view = 90.f;
 	target_distance = 50.f;
-	resolution = vec2{ 1366.f, 768.f };
+	resolution = config::resolution;
 	depth_range_ortho = vec2{ -1.f, 1.f };
 	depth_range_persp = vec2{ 0.1f, 1500.f };
 	position_current = vec3{ 0.f, 0.f, 0.f };
-	position_start = vec3{ 0.f, 400.f, 0.f };
-	position_target = vec3{ 30.f, 30.f, 30.f };
+	position_start = vec3{ 0.f, 456.f, 0.f };
+	position_target = vec3{ 0.f, 0.f, 0.f };
 	orientation_up = vec3{ 0.f, 1.f, 0.f };
 	aspect_ratio = resolution.x / resolution.y;
 	matrix_view = shared::view_matrix(position_current, position_target, orientation_up);
@@ -57,14 +57,14 @@ void Camera::update(const std::vector<Transform>& transforms, const int target_i
 		position_current.y += target_distance;
 		position_current.z -= direction.y;
 		position_target = position_current + vec3{ direction.x, -target_distance, direction.y };
+		orientation_up = vec3(0.f, 1.f, 0.f);
 	}
 	else {
 		position_current = position_start;
-		if (!transforms.empty())
-			position_target = transforms[target_index].position;
+		position_target = vec3{ 0.f, 0.f, 0.f };
+		orientation_up = vec3(0.f, 0.f, 1.f);
 	}
 
-	matrix_projection_persp = shared::perspective_matrix(field_of_view, aspect_ratio, depth_range_persp.x, depth_range_persp.y);
 	matrix_view = shared::view_matrix(position_current, position_target, orientation_up);
 
 	// Must come after the check for current index

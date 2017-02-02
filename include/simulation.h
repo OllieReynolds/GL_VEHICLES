@@ -23,32 +23,14 @@ struct Detection_Event {
 
 struct Vehicle_Sensors {
 	vec3 la, lb, lc, ra, rb, rc;
-	//bool ldetected, rdetected;
-	//bool detected_predator;
 	std::vector<Detection_Event> detection_events;
 };
 
 struct Wheel_Attributes {
+	Transform gen_transform_from_vehicle(const b2Vec2& forward_velocity, const Transform& t, float wheel_dist);
+
 	float angular_offset;
 	float y_rotation;
-
-	Transform gen_transform_from_vehicle(const b2Vec2& forward_velocity, const Transform& t, float wheel_dist) {
-		float wheel_offset_from_vehicle_angle = t.rotation.y - angular_offset;
-		vec2 direction = polar_to_cartesian(to_radians(wheel_offset_from_vehicle_angle)) * wheel_dist;
-
-		Transform transform;
-		transform.position = vec3{ t.position.x + direction.x, 4.f, t.position.z + direction.y };
-		transform.size = vec3{ 1.f, 1.f, 1.5f };
-		transform.rotation = t.rotation;
-		transform.rotation.y += y_rotation;
-
-		if (y_rotation == 0.f)
-			transform.rotation.z += magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
-		else 
-			transform.rotation.z -= magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
-
-		return transform;
-	}
 };
 
 class Simulation {
@@ -70,7 +52,6 @@ public:
 	void remove_vehicle();
 	void reset();
 
-
 	Cube_Renderer cube_renderer;
 	Line_Renderer line_renderer;
 	Quad_Renderer quad_renderer;
@@ -84,7 +65,6 @@ public:
 
 	Texture wheel_texture;
 	Texture floor_texture;
-	Texture shadow_texture;
 
 	UI ui;
 	Camera camera;
@@ -95,6 +75,7 @@ public:
 	bool is_drawing;
 	int index_selected_vehicle;
 	int index_state;
+	int generation;
 
 	vec2 cursor_position;
 
@@ -109,5 +90,4 @@ public:
 	vector<Vehicle_Sensors>		vehicle_sensors;
 	vector<Transform>			transforms_vehicles;
 	vector<Transform>			transforms_wheels;
-	vector<Transform>			transforms_shadows;
 };

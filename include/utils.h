@@ -118,6 +118,11 @@ namespace utils {
 		return mult(mult(s, r), t);
 	}
 
+	namespace config {
+		extern vec2 resolution;
+		extern bool fullscreen;
+	}
+
 	namespace colour {
 		extern vec4 black;
 		extern vec4 white;

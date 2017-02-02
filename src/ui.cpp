@@ -4,11 +4,17 @@ UI::UI() { }
 
 UI::UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1) {
 	attributes_ui = std::vector<Button_Attributes>();
-	std::string button_labels[7] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "NEW" };
-	for (int i = 0; i < 7; i++) {
-		float width_by_buttons = camera.resolution.x / 7;
-		float p = (i * width_by_buttons) + (width_by_buttons * 0.5f);
-		attributes_ui.push_back({ { p, 740.f },{ 162.f, 32.f }, utils::colour::black, button_labels[i] });
+	std::string button_labels[8] = { "ADD", "REMOVE", "EDIT", "FOLLOW", "PLAY", "PAUSE", "NEW", "EXIT" };
+	for (int i = 0; i < 8; i++) {
+		float width_by_buttons = camera.resolution.x / 8;
+		float px = (i * width_by_buttons) + (width_by_buttons * 0.5f);
+
+		float height_by_buttons = camera.resolution.y / 16;
+		float py = (i * height_by_buttons) + (height_by_buttons * 0.5f);
+
+		float button_width = camera.resolution.x / 10.f;
+		float button_height = camera.resolution.y / 20.f;
+		attributes_ui.push_back({ { px, button_height / 2.f },{ button_width, button_height }, utils::colour::black, button_labels[i] });
 	}
 }
 

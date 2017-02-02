@@ -87,7 +87,7 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_
 	body_def.type = b2_dynamicBody;
 	body_def.position.Set(position.x, position.y);
 	body = world->CreateBody(&body_def);
-	body->SetAngularDamping(3);
+	body->SetAngularDamping(2);
 
 	b2PolygonShape polygon_shape;
 	polygon_shape.SetAsBox(6.f, 10.f);
@@ -100,12 +100,12 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_
 	joint_def.upperAngle = 0;
 	joint_def.localAnchorB.SetZero();
 
-	float max_forward_speed = 200;
-	float max_backward_speed = -200;
-	float back_tyre_max_drive_force = 600;
-	float front_tyre_max_drive_force = 300;
-	float back_tyre_max_lateral_impulse = 19.5;
-	float front_tyre_max_lateral_impulse = 6.5;
+	float max_forward_speed = 100;
+	float max_backward_speed = -100;
+	float back_tyre_max_drive_force = 300;
+	float front_tyre_max_drive_force = 100;
+	float back_tyre_max_lateral_impulse = 32.f;
+	float front_tyre_max_lateral_impulse = 32.f;
 
 	// Back Left
 	Tyre* tyre = new Tyre(world, max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
@@ -162,7 +162,7 @@ void Vehicle::update() {
 }
 
 Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms) 
-	: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(12), position_iterations(12), time_step(1.f / 60.f) 
+	: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(12), position_iterations(12), time_step(1.f / 30.f) 
 {
 	vehicles = vector<Vehicle>(num_vehicles);
 	for (int i = 0; i < num_vehicles; i++) {
