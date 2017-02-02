@@ -32,19 +32,23 @@ Simulation::Simulation() {
 	text_renderer = Text_Renderer(camera.resolution.x / 60.f, "data/ShareTechMono-Regular.ttf");
 
 
-	// Init Physics
-	physics = new Physics(transforms_vehicles.size(), transforms_vehicles);
-	vector<vec2> positions = physics->get_vehicle_positions();
-	vector<float> rotations = physics->get_vehicle_rotations();
-	for (int i = 0; i < transforms_vehicles.size(); i++) {
-		transforms_vehicles[i].rotation.y = rotations[i] + 90.f;
-		transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
-	}
-
+	
+	// Constructor of Physics makes a ton of objects, but add_vehicle is doing this as well. Works if physics initialised before, but is wrong.
+	{
 	// Init Vehicles
-	for (int i = 0; i < 6; i++) {
-		bool is_predator = i % 2 == 0;
-		add_vehicle(is_predator);
+		for (int i = 0; i < 6; i++) {
+			bool is_predator = i % 2 == 0;
+			add_vehicle(is_predator);
+		}
+
+		// Init Physics
+		physics = new Physics(transforms_vehicles.size(), transforms_vehicles, attributes_vehicles);
+		vector<vec2> positions = physics->get_vehicle_positions();
+		vector<float> rotations = physics->get_vehicle_rotations();
+		for (int i = 0; i < transforms_vehicles.size(); i++) {
+			transforms_vehicles[i].rotation.y = rotations[i] + 90.f;
+			transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
+		}
 	}
 
 
@@ -70,6 +74,8 @@ Simulation::Simulation() {
 	for (int i = 0; i < transforms_vehicles.size(); i++) {
 		lights.push_back({ { 0.f, 30.f, 0.f }, attributes_vehicles[i].colour.XYZ() });
 	}
+
+	
 }
 
 void Simulation::init() {
@@ -254,7 +260,7 @@ void Simulation::add_vehicle(bool is_predator) {
 		vehicle_sensors.push_back(Vehicle_Sensors{ la, lb, lc, ra, rb, rc, {} });
 	}
 
-	physics->add_vehicle(t);
+	physics->add_vehicle(t, is_predator);
 }
 
 void Simulation::remove_vehicle() {
