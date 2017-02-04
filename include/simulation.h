@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <glew.h>
 #include <glfw3.h>
 
@@ -12,6 +14,8 @@
 
 using namespace maths;
 using namespace utils;
+
+using std::map;
 
 struct Detection_Event {
 	float distance;
@@ -75,21 +79,24 @@ public:
 	bool mouse_pressed;
 	bool is_updating;
 	bool is_drawing;
-	int index_selected_vehicle;
 	int index_state;
 	int generation;
 
 	vec2 cursor_position;
 
 	// Environment Properties
-	vector<Light>				lights;
+	
 	vector<Transform>			transforms_walls;
 	vector<Transform>			transforms_boundaries;
-	
-	// Vehicle Properties
-	vector<Vehicle_Attributes>	attributes_vehicles;
 	vector<Wheel_Attributes>	attributes_wheels;
-	vector<Vehicle_Sensors>		vehicle_sensors;
-	vector<Transform>			transforms_vehicles;
-	vector<Transform>			transforms_wheels;
+	
+	static int instance_id;
+
+	// Vehicle Properties
+	map<int, Vehicle_Attributes>	attributes_vehicles;
+	map<int, Light>				lights;
+
+	map<int, Vehicle_Sensors>		vehicle_sensors;
+	map<int, Transform>			transforms_vehicles;
+	map<int, vector<Transform>>			transforms_wheels;
 };

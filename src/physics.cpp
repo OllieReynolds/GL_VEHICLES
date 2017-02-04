@@ -105,7 +105,7 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_
 	b2Fixture* fixture = body->CreateFixture(&polygon_shape, 0.1f);
 
 	data = new VehicleData;
-	data->index = index;
+	data->instance_id = index;
 	data->is_predator = is_predator;
 	fixture->SetUserData((VehicleData*)data);
 
@@ -198,20 +198,12 @@ void ContactListener::BeginContact(b2Contact* contact) {
 		
 }
 
-Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, std::vector<utils::Vehicle_Attributes>& v_attribs)
+Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, std::map<int, utils::Vehicle_Attributes>& v_attribs)
 	: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(12), position_iterations(12), time_step(1.f / 30.f) 
 {
-	vehicles = vector<Vehicle>(num_vehicles);
-	for (int i = 0; i < num_vehicles; i++) {
-		vehicles[i].init(
-			&world,
-			{ transforms[i].position.x, transforms[i].position.z },
-			transforms[i].rotation.y,
-			0,
-			v_attribs[i].is_predator,
-			i
-		);
-	}
+	vehicles = map<int, Vehicle>();
+	for (int i = 0; i < num_vehicles; i++)
+		vehicles[i].init(&world, { transforms[i].position.x, transforms[i].position.z }, transforms[i].rotation.y, 0, v_attribs[i].is_predator, i);
 
 	b2BodyDef body_def;
 	b2PolygonShape polygon_shape;
@@ -270,22 +262,8 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, st
 void Physics::update() {
 	world.Step(time_step, velocity_iterations, position_iterations);
 
-	for (int i = 0; i < vehicles.size(); i++)
-		vehicles[i].update();
-}
-
-b2AABB Physics::get_vehicle_AABB(int index) {
-	b2AABB aabb;
-	aabb.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
-	aabb.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
-	b2Fixture* fixture = vehicles[index].body->GetFixtureList();
-
-	while (fixture != NULL) {
-		aabb.Combine(aabb, fixture->GetAABB(0));
-		fixture = fixture->GetNext();
-	}
-
-	return aabb;
+	for (map<int, Vehicle>::iterator it = vehicles.begin(); it != vehicles.end(); ++it)
+		it->second.update();
 }
 
 vec2 Physics::get_vehicle_position(int index) {
@@ -296,38 +274,24 @@ float Physics::get_vehicle_rotation(int index) {
 	return{ vehicles[index].body->GetAngle() * (float)(180 / 3.141592f) };
 }
 
-std::vector<vec2> Physics::get_vehicle_positions() {
-	std::vector<vec2> positions;
-	for (int i = 0; i < vehicles.size(); i++)
-		positions.push_back(get_vehicle_position(i));
-	return positions;
-}
-
-std::vector<float> Physics::get_vehicle_rotations() {
-	std::vector<float> rotations;
-	for (int i = 0; i < vehicles.size(); i++)
-		rotations.push_back(get_vehicle_rotation(i));
-	return rotations;
-}
-
 void Physics::destroy() {
-	for (int i = 0; i < vehicles.size(); i++)
-		vehicles[i].destroy();
+	for (map<int, Vehicle>::iterator it = vehicles.begin(); it != vehicles.end(); ++it)
+		it->second.destroy();
 }
 
-void Physics::add_vehicle(const utils::Transform& transform, bool is_predator) {
+void Physics::add_vehicle(int instance_id, const utils::Transform& transform, bool is_predator) {
 	b2Vec2 position = { transform.position.x, transform.position.z };
 	Vehicle v;
-	v.init(&world, position, transform.rotation.y, 0, is_predator, vehicles.size() + 1);
-	vehicles.push_back(v);
+	v.init(&world, position, transform.rotation.y, 0, is_predator, instance_id);
+	vehicles.insert(pair<int, Vehicle>(instance_id, v));
 }
 
 void Physics::remove_vehicle() {
-	vehicles.back().destroy();
-	vehicles.pop_back();
+	(--vehicles.end())->second.destroy();
+	vehicles.erase(--vehicles.end());
 }
 
-void Physics::remove_vehicle(int index) {
-	vehicles[index].destroy();
-	vehicles.erase(vehicles.begin() + index);
+void Physics::remove_vehicle(int instance_id) {
+	vehicles[instance_id].destroy();
+	vehicles.erase(instance_id);
 }

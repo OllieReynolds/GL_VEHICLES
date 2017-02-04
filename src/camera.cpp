@@ -17,8 +17,8 @@ Camera::Camera() {
 	matrix_projection_persp = shared::perspective_matrix(field_of_view, aspect_ratio, depth_range_persp.x, depth_range_persp.y);
 }
 
-void Camera::update(const std::vector<Transform>& transforms, const int target_index) {
-	if (last_target_index != target_index) {
+void Camera::update(std::map<int, Transform>& transforms) {
+	/*if (last_target_index != target_index) {
 		target_changed = true;
 		old_position = position_current;
 		old_target = position_target;
@@ -46,13 +46,13 @@ void Camera::update(const std::vector<Transform>& transforms, const int target_i
 			t = 0.f;
 			target_changed = false;
 		}
-	}
+	}*/
 
-	else if (follow_vehicle) {
-		vec2 direction = polar_to_cartesian(to_radians(transforms[target_index].rotation.y));
+	if (follow_vehicle) {
+		vec2 direction = polar_to_cartesian(to_radians(transforms.begin()->second.rotation.y));
 		direction *= target_distance;
 
-		position_current = transforms[target_index].position;
+		position_current = transforms.begin()->second.position;
 		position_current.x -= direction.x;
 		position_current.y += target_distance;
 		position_current.z -= direction.y;
@@ -66,7 +66,4 @@ void Camera::update(const std::vector<Transform>& transforms, const int target_i
 	}
 
 	matrix_view = shared::view_matrix(position_current, position_target, orientation_up);
-
-	// Must come after the check for current index
-	last_target_index = target_index;
 }

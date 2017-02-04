@@ -294,25 +294,27 @@ void Cube_Renderer::draw(const Camera& camera, const vec3& position, const vec3&
 	glBindVertexArray(0);
 }
 
-void Cube_Renderer::draw_multiple(const Camera& camera, const std::vector<Transform>& transform_list, const std::vector<Vehicle_Attributes>& vehicle_attributes, const std::vector<Light>& lights) {
+void Cube_Renderer::draw_multiple(const Camera& camera, std::map<int, Transform>& transform_list, std::map<int, Vehicle_Attributes>& vehicle_attributes, std::map<int, Light>& lights) {
 	shader.use();
 
 	shader.set_uniform("view", camera.matrix_view);
 	shader.set_uniform("projection", camera.matrix_projection_persp);
 	shader.set_uniform("num_lights", static_cast<int>(lights.size()));
 
-	for (int i = 0; i < lights.size(); i++) {
+	int i = 0;
+	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
 		std::string str = "lights[" + std::to_string(i) + "].position";
-		shader.set_uniform(str.c_str(), lights[i].position);
+		shader.set_uniform(str.c_str(), it->second.position);
 		str = "lights[" + std::to_string(i) + "].colour";
-		shader.set_uniform(str.c_str(), lights[i].colour);
+		shader.set_uniform(str.c_str(), it->second.colour);
+		i++;
 	}
 
-	for (int i = 0; i < transform_list.size(); i++) {
+	for (std::map<int, Vehicle_Attributes>::iterator it = vehicle_attributes.begin(); it != vehicle_attributes.end(); ++it) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		shader.set_uniform("uniform_colour", vehicle_attributes[i].colour);
-		shader.set_uniform("model", utils::gen_model_matrix(transform_list[i].size, transform_list[i].position, transform_list[i].rotation));
+		shader.set_uniform("uniform_colour", it->second.colour);
+		shader.set_uniform("model", utils::gen_model_matrix(transform_list[it->first].size, transform_list[it->first].position, transform_list[it->first].rotation));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 	}
@@ -378,22 +380,19 @@ void Model_Renderer::init() {
 	};
 }
 
-void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture, const std::vector<Light>& lights) {
+void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, const std::vector<Transform>& transform_list, Texture& texture, std::map<int, Light>& lights) {
 	shader_textured.use();
 	shader_textured.set_uniform("view", camera.matrix_view);
 	shader_textured.set_uniform("projection", camera.matrix_projection_persp);
 	shader_textured.set_uniform("num_lights", static_cast<int>(lights.size()));
-	//shader_textured.set_uniform("lights[0].position", lights[0].position);
-	//shader_textured.set_uniform("lights[0].colour", lights[0].colour);
-	//shader_textured.set_uniform("lights[1].position", lights[1].position);
-	//shader_textured.set_uniform("lights[1].colour", lights[1].colour);
 
-
-	for (int i = 0; i < lights.size(); i++) {
+	int i = 0;
+	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
 		std::string str = "lights[" + std::to_string(i) + "].position";
-		shader_textured.set_uniform(str.c_str(), lights[i].position);
+		shader_textured.set_uniform(str.c_str(), it->second.position);
 		str = "lights[" + std::to_string(i) + "].colour";
-		shader_textured.set_uniform(str.c_str(), lights[i].colour);
+		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		i++;
 	}
 
 	texture.use();
@@ -407,6 +406,45 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 			glBindVertexArray(0);
 		}
 	}
+
+	shader_textured.release();
+}
+
+void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera& camera, std::map<int, std::vector<Transform>>& transform_list, Texture& texture, std::map<int, Light>& lights) {
+	shader_textured.use();
+	shader_textured.set_uniform("view", camera.matrix_view);
+	shader_textured.set_uniform("projection", camera.matrix_projection_persp);
+	shader_textured.set_uniform("num_lights", static_cast<int>(lights.size()));
+
+	int i = 0;
+	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
+		std::string str = "lights[" + std::to_string(i) + "].position";
+		shader_textured.set_uniform(str.c_str(), it->second.position);
+		str = "lights[" + std::to_string(i) + "].colour";
+		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		i++;
+	}
+
+	texture.use();
+
+	for (std::map<int, std::vector<Transform>>::iterator it = transform_list.begin(); it != transform_list.end(); ++it) {
+
+		std::vector<Transform> t = it->second;
+
+		for (int j = 0; j < t.size(); j++) {
+			shader_textured.set_uniform("model", gen_model_matrix(t[j].size, t[j].position, t[j].rotation));
+
+			for (int i = 0; i < model.meshes.size(); i++) {
+				glBindVertexArray(model.meshes[i].vao);
+				glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
+				glBindVertexArray(0);
+			}
+		}
+
+		
+	}
+
+
 
 	shader_textured.release();
 }

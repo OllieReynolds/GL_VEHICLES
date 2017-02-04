@@ -3,6 +3,7 @@
 #include "maths.h"
 #include "utils.h"
 
+#include <map>
 #include <vector>
 
 using namespace maths;
@@ -10,7 +11,7 @@ using namespace utils;
 
 struct Camera {
 	Camera();
-	void update(const std::vector<Transform>& transforms, const int target_index);
+	void update(std::map<int, Transform>& transforms);
 
 	bool follow_vehicle;
 	bool target_changed;

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <vector>
 #include <set>
 
@@ -30,7 +31,7 @@ static uint16 ENV	  = 0x0004;
 
 struct VehicleData {
 	bool is_predator;
-	int index;
+	int instance_id;
 };
 
 extern set<pair<VehicleData*, VehicleData*>> vehicle_collision_events;
@@ -79,23 +80,20 @@ class ContactListener : public b2ContactListener {
 
 class Physics {
 public:
-	Physics(int num_vehicles, std::vector<utils::Transform>& transforms, std::vector<utils::Vehicle_Attributes>& v_attribs);
+	Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, std::map<int, utils::Vehicle_Attributes>& v_attribs);
 
 	void				update();
 	void				destroy();
-	b2AABB				get_vehicle_AABB(int index);
 	vec2				get_vehicle_position(int index);
 	float				get_vehicle_rotation(int index);
-	std::vector<vec2>	get_vehicle_positions();
-	std::vector<float>	get_vehicle_rotations();
-	void				add_vehicle(const utils::Transform& transform, bool is_predator);
+	void				add_vehicle(int instance_id, const utils::Transform& transform, bool is_predator);
 	void				remove_vehicle();
 	void				remove_vehicle(int index);
 
 	b2Vec2 gravity;
 	b2World world;
 	b2Body *wall_1, *wall_2, *wall_3, *wall_4;
-	vector<Vehicle> vehicles;
+	map<int, Vehicle> vehicles;
 	float time_step;
 	int velocity_iterations;
 	int position_iterations;
