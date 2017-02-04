@@ -35,12 +35,6 @@ Simulation::Simulation() {
 	
 	// Constructor of Physics makes a ton of objects, but add_vehicle is doing this as well. Works if physics initialised before, but is wrong.
 	{
-	// Init Vehicles
-		for (int i = 0; i < 6; i++) {
-			bool is_predator = i % 2 == 0;
-			add_vehicle(is_predator);
-		}
-
 		// Init Physics
 		physics = new Physics(transforms_vehicles.size(), transforms_vehicles, attributes_vehicles);
 		vector<vec2> positions = physics->get_vehicle_positions();
@@ -49,8 +43,13 @@ Simulation::Simulation() {
 			transforms_vehicles[i].rotation.y = rotations[i] + 90.f;
 			transforms_vehicles[i].position = vec3{ positions[i].x, transforms_vehicles[i].position.y, positions[i].y };
 		}
-	}
 
+	// Init Vehicles
+		for (int i = 0; i < 6; i++) {
+			bool is_predator = i % 2 == 0;
+			add_vehicle(is_predator);
+		}
+	}
 
 	attributes_wheels = vector<Wheel_Attributes>(4) = { { 315.f, 0.f },{ 225.f, 0.f },{ 45.f, 180.f },{ 135.f, 180.f } };
 
@@ -95,6 +94,26 @@ void Simulation::init() {
 }
 
 void Simulation::update() {
+
+	// Remove prey if collided with predator
+	//{
+	//	vector<int> remove_indices;
+	//	for (pair<VehicleData*, VehicleData*> e : vehicle_collision_events) {
+	//		if ((e.first->is_predator && !e.second->is_predator) || !e.first->is_predator && e.second->is_predator) {
+	//			int index = -1;
+	//			if (e.first->is_predator)
+	//				remove_indices.push_back( e.second->index);
+	//			else
+	//				remove_indices.push_back(e.first->index);
+	//		}
+	//	}
+
+	//	vehicle_collision_events.clear();
+
+	//	for (int i = 0; i < remove_indices.size(); i++) {
+	//		remove_vehicle(remove_indices[i]);
+	//	}
+	//}
 
 	for (int i = 0; i < lights.size(); i++) {
 		lights[i].position = transforms_vehicles[i].position;
@@ -208,13 +227,11 @@ void Simulation::destroy() {
 
 void Simulation::add_vehicle(bool is_predator) {
 	vec2 rand_pos = { utils::gen_random(-320.f, 320.f),  utils::gen_random(-320.f, 320.f) };
-	vec2 from_origin = vec2{ 0.f, 0.f } -rand_pos;
-	float angle = to_degrees( cartesian_to_polar(from_origin));
 
 	Transform t = {
 		vec3{ rand_pos.x, 4.f, rand_pos.y },
 		vec3{ 16.f, 2.f, 8.f },
-		vec3{ 0.f, angle, 0.f }
+		vec3{ 0.f, utils::gen_random(0.f, 360.f), 0.f }
 	};
 
 	Vehicle_Attributes av = {
@@ -280,6 +297,23 @@ void Simulation::remove_vehicle() {
 		if (transforms_vehicles.empty())
 			camera.follow_vehicle = false;
 	}
+}
+
+void Simulation::remove_vehicle(int index) {
+	transforms_vehicles.erase(transforms_vehicles.begin() + index);
+	attributes_vehicles.erase(attributes_vehicles.begin() + index);
+	
+	for (int i = 0; i < 4; i++) {
+		transforms_wheels.erase(transforms_wheels.begin() + (index * 4) + i);
+	}
+
+	lights.erase(lights.begin() + index);
+	vehicle_sensors.erase(vehicle_sensors.begin() + index);
+
+	physics->remove_vehicle(index);
+
+	if (transforms_vehicles.empty())
+		camera.follow_vehicle = false;
 }
 
 void Simulation::reset() {

@@ -1,5 +1,6 @@
 #include "..\include\physics.h"
 
+set<pair<VehicleData*, VehicleData*>> vehicle_collision_events;
 
 Tyre::Tyre(b2World* world, float max_forward_speed, float max_backward_speed, float max_drive_force, float max_lateral_impulse) 
 	: max_forward_speed(max_forward_speed), max_backward_speed(max_backward_speed), max_drive_force(max_drive_force), max_lateral_impulse(max_lateral_impulse) 
@@ -85,10 +86,11 @@ void Vehicle::destroy() {
 	}
 
 	body->GetWorld()->DestroyBody(body);
+	delete data;
 }
 
 
-void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_state, bool is_predator) {
+void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_state, bool is_predator, int index) {
 	this->control_state = control_state;
 	this->is_predator = is_predator;
 
@@ -102,7 +104,10 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_
 	polygon_shape.SetAsBox(6.f, 10.f);
 	b2Fixture* fixture = body->CreateFixture(&polygon_shape, 0.1f);
 
-	fixture->SetUserData((bool*)is_predator);
+	data = new VehicleData;
+	data->index = index;
+	data->is_predator = is_predator;
+	fixture->SetUserData((VehicleData*)data);
 
 	b2Filter filter;
 	filter.categoryBits = VEHICLE;
@@ -185,10 +190,10 @@ void ContactListener::BeginContact(b2Contact* contact) {
 
 	if (fA.categoryBits == VEHICLE && fB.categoryBits == VEHICLE) {
 
-		std::cout << endl;
-		std::cout << (bool)contact->GetFixtureA()->GetUserData() << std::endl;
-		std::cout << (bool)contact->GetFixtureB()->GetUserData() << std::endl;
-		std::cout << endl;
+		VehicleData* dA = (VehicleData*)contact->GetFixtureA()->GetUserData(); 
+		VehicleData* dB = (VehicleData*)contact->GetFixtureB()->GetUserData();
+
+		vehicle_collision_events.insert(pair<VehicleData*, VehicleData*>(dA, dB));
 	}
 		
 }
@@ -203,7 +208,8 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, st
 			{ transforms[i].position.x, transforms[i].position.z },
 			transforms[i].rotation.y,
 			0,
-			v_attribs[i].is_predator
+			v_attribs[i].is_predator,
+			i
 		);
 	}
 
@@ -221,14 +227,11 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, st
 	filter.groupIndex = 0;
 	f->SetFilterData(filter);
 
-
-
 	polygon_shape.SetAsBox(4.f, 800.f);
 	body_def.type = b2_staticBody;
 	body_def.position = { 390.f, 0.f };
 	wall_2 = world.CreateBody(&body_def);
 	f = wall_2->CreateFixture(&polygon_shape, 1.f);
-	filter;
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;
@@ -240,7 +243,6 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, st
 	body_def.angle = to_radians(90.f);
 	wall_3 = world.CreateBody(&body_def);
 	f = wall_3->CreateFixture(&polygon_shape, 1.f);
-	filter;
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;
@@ -251,14 +253,13 @@ Physics::Physics(int num_vehicles, std::vector<utils::Transform>& transforms, st
 	body_def.position = { 0.f, 390.f };
 	body_def.angle = to_radians(90.f);
 	wall_4 = world.CreateBody(&body_def);
-	wall_4->CreateFixture(&polygon_shape, 1.f);
-	filter;
+	f = wall_4->CreateFixture(&polygon_shape, 1.f);
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;
 	f->SetFilterData(filter);
 
-	world.SetContactListener(&contact_listener);
+	world.SetContactListener(&vehicle_contact_listener);
 
 	for (int i = 0; i < vehicles.size(); i++)
 		vehicles[i].update();
@@ -317,11 +318,16 @@ void Physics::destroy() {
 void Physics::add_vehicle(const utils::Transform& transform, bool is_predator) {
 	b2Vec2 position = { transform.position.x, transform.position.z };
 	Vehicle v;
-	v.init(&world, position, transform.rotation.y, 0, is_predator);
+	v.init(&world, position, transform.rotation.y, 0, is_predator, vehicles.size() + 1);
 	vehicles.push_back(v);
 }
 
 void Physics::remove_vehicle() {
 	vehicles.back().destroy();
 	vehicles.pop_back();
+}
+
+void Physics::remove_vehicle(int index) {
+	vehicles[index].destroy();
+	vehicles.erase(vehicles.begin() + index);
 }

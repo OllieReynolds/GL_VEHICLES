@@ -13,7 +13,7 @@ namespace utils {
 	};
 
 	namespace config {
-		vec2 resolution = { 1024.f, 768.f };
+		vec2 resolution = { 1366.f, 768.f };
 		bool fullscreen = false;
 	};
 
