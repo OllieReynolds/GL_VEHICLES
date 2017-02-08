@@ -29,6 +29,7 @@ namespace {
 				case 5: s->is_updating = false;									break;
 				case 6: s->reset();												break;
 				case 7: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
+				default: std::cout << s->cursor_position << std::endl;			break;
 			}
 		}
 	}

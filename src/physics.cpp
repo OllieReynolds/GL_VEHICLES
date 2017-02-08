@@ -52,13 +52,12 @@ void Tyre::update_friction() {
 	body->ApplyForce(drag_magnitude * forward_normal, body->GetWorldCenter(), true);
 }
 
-void Tyre::update_drive(int control_state) {
-	float desired_speed = 0;
+void Tyre::update_drive(float desired_speed) {
 
-	switch (control_state & (UP | DOWN)) {
-		case UP: desired_speed = max_forward_speed; break;
-		case DOWN: desired_speed = max_backward_speed; break;
-	}
+	if (desired_speed > max_forward_speed)
+		desired_speed = max_forward_speed;
+	else if (desired_speed < max_backward_speed)
+		desired_speed = max_backward_speed;
 
 	b2Vec2 forward_normal = body->GetWorldVector(b2Vec2(0, 1));
 	float current_speed = b2Dot(get_forward_velocity(), forward_normal);
@@ -76,7 +75,8 @@ void Tyre::update_drive(int control_state) {
 }
 
 Vehicle::Vehicle() {
-
+	desired_angle = 0; // 70
+	desired_speed = 0; // 100
 }
 
 void Vehicle::destroy() {
@@ -90,8 +90,7 @@ void Vehicle::destroy() {
 }
 
 
-void Vehicle::init(b2World* world, b2Vec2 position, float rotation, int control_state, bool is_predator, int index) {
-	this->control_state = control_state;
+void Vehicle::init(b2World* world, b2Vec2 position, float rotation, bool is_predator, int index) {
 	this->is_predator = is_predator;
 
 	b2BodyDef body_def;
@@ -163,20 +162,13 @@ void Vehicle::update() {
 		tyres[i]->update_friction();
 
 	for (int i = 0; i < tyres.size(); i++)
-		tyres[i]->update_drive(control_state);
+		tyres[i]->update_drive(desired_speed);
 
 
-	float lock_angle = 70 * DEGTORAD;
+	float angle = desired_angle * DEGTORAD;
 	float turn_speed_per_second = 160 * DEGTORAD;
 	float turn_per_time_step = turn_speed_per_second / 60.f;
-	float desired_angle = 0;
-
-	switch (control_state & (LEFT | RIGHT)) {
-		case LEFT: desired_angle = lock_angle;  break;
-		case RIGHT: desired_angle = -lock_angle;  break;
-	}
-
-	float angle_to_turn = desired_angle - fl_joint->GetJointAngle();
+	float angle_to_turn = angle - fl_joint->GetJointAngle();
 	angle_to_turn = b2Clamp(angle_to_turn, -turn_per_time_step, turn_per_time_step);
 	new_angle = fl_joint->GetJointAngle() + angle_to_turn;
 	fl_joint->SetLimits(new_angle, new_angle);
@@ -203,7 +195,7 @@ Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, 
 {
 	vehicles = map<int, Vehicle>();
 	for (int i = 0; i < num_vehicles; i++)
-		vehicles[i].init(&world, { transforms[i].position.x, transforms[i].position.z }, transforms[i].rotation.y, 0, v_attribs[i].is_predator, i);
+		vehicles[i].init(&world, { transforms[i].position.x, transforms[i].position.z }, transforms[i].rotation.y, v_attribs[i].is_predator, i);
 
 	b2BodyDef body_def;
 	b2PolygonShape polygon_shape;
@@ -282,7 +274,7 @@ void Physics::destroy() {
 void Physics::add_vehicle(int instance_id, const utils::Transform& transform, bool is_predator) {
 	b2Vec2 position = { transform.position.x, transform.position.z };
 	Vehicle v;
-	v.init(&world, position, transform.rotation.y, 0, is_predator, instance_id);
+	v.init(&world, position, transform.rotation.y, is_predator, instance_id);
 	vehicles.insert(pair<int, Vehicle>(instance_id, v));
 }
 

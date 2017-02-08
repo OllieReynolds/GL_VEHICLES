@@ -26,6 +26,8 @@ namespace utils {
 		float turning_speed;
 		vec4 colour;
 		bool is_predator;
+		float energy;
+		int id;
 	};
 
 	struct dimensions {

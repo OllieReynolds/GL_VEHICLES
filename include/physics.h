@@ -14,12 +14,12 @@
 using namespace maths;
 using namespace std;
 
-enum {
-	LEFT = 0x1,
-	RIGHT = 0X2,
-	UP = 0x4,
-	DOWN = 0x8
-};
+//enum {
+//	LEFT = 0x1,
+//	RIGHT = 0X2,
+//	UP = 0x4,
+//	DOWN = 0x8
+//};
 
 #define DEGTORAD 0.0174532925199432957f
 #define RADTODEG 57.295779513082320876f
@@ -45,7 +45,7 @@ public:
 
 	void destroy();
 	void update_friction();
-	void update_drive(int control_state);
+	void update_drive(float desired_speed);
 
 	float max_forward_speed;
 	float max_backward_speed;
@@ -61,17 +61,19 @@ public:
 	Vehicle();
 
 	void destroy();
-	void init(b2World* world, b2Vec2 position, float rotation, int control_state, bool is_predator, int index);
+	void init(b2World* world, b2Vec2 position, float rotation, bool is_predator, int index);
 	void update();
 
 	std::vector<Tyre*> tyres;
 	b2RevoluteJoint *fl_joint, *fr_joint;
 	b2Body* body;
 	float new_angle;
-	int control_state;
 	int index;
 	bool is_predator;
 	VehicleData* data;
+
+	float desired_angle;
+	float desired_speed;
 };
 
 class ContactListener : public b2ContactListener {
