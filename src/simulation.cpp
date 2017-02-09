@@ -86,6 +86,8 @@ void Simulation::init() {
 	circle_renderer.init();
 	model_renderer.init();
 	tri_renderer.init();
+
+	inactivity_timer.init(transforms_vehicles);
 }
 
 void Simulation::update() {
@@ -116,6 +118,7 @@ void Simulation::update() {
 
 	if (is_updating) {
 		generation = utils::elapsed_time();
+		
 
 		// Update Physics
 		physics->update();
@@ -128,6 +131,11 @@ void Simulation::update() {
 		//check_detected_walls();
 		predator_prey();
 		
+		inactivity_timer.update(transforms_vehicles);
+		if (inactivity_timer.remaining_milliseconds < 0.f) {
+			reset();
+			is_updating = true;
+		}
 	}
 
 	ui.update(cursor_position, mouse_pressed);
@@ -210,25 +218,29 @@ void Simulation::draw() {
 					text_renderer.draw("No vehicles running", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::grey);
 				} else {
 					for (map<int, Vehicle_Attributes>::iterator it = attributes_vehicles.begin(); it != attributes_vehicles.end(); ++it) {
-						if (y_offset_multiplier > 17) {
+						if (y_offset_multiplier > 14) {
 							text_renderer.draw("<more...>", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
 							break;
 						}
 						else {
 							string str_i = to_string(it->second.id);
-							string str_energy = friendly_float(it->second.energy);
-							string display = "Vehicle " + str_i + ":" + str_energy;
+							string str_energy = friendly_float(it->second.energy, 6);
+							string display = "Vehicle " + str_i + ": " + str_energy;
 							text_renderer.draw(display, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
 						}
 					}
 				}
+
+				y_offset_multiplier++;
+				string str_timer = (friendly_float(inactivity_timer.remaining_milliseconds, 4));
+				text_renderer.draw("INACTIVITY TRACKER", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::yellow);
+				text_renderer.draw(str_timer, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
 			}
 		}
 
 		glDisable(GL_BLEND);
 	}
 }
-
 
 void Simulation::destroy() {
 	cube_renderer.destroy();
@@ -334,6 +346,7 @@ void Simulation::remove_vehicle(int instance_id) {
 }
 
 void Simulation::reset() {
+	inactivity_timer.reset();
 	int n = transforms_vehicles.size();
 	for (int i = 0; i < n; i++) 
 		remove_vehicle();

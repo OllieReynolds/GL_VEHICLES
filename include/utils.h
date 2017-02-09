@@ -82,12 +82,11 @@ namespace utils {
 		return vec2(x, y);
 	}
 
-	static std::string friendly_float(const float f) {
+	static std::string friendly_float(const float f, int num_digits) {
 		std::string str = std::to_string(f);
-		int offset = (f < 0.f) ? 4 : 3;
-		str.erase(str.begin() + offset, str.end());
-		if (f >= 0.f)
-			str = " " + str;
+		str.erase(str.begin() + num_digits, str.end());
+		//if (f >= 0.f)
+		//	str = " " + str;
 		return str;
 	}
 

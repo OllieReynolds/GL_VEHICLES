@@ -6,6 +6,7 @@
 #include <glfw3.h>
 
 #include "camera.h"
+#include "inactivity_timer.h"
 #include "maths.h"
 #include "model.h"
 #include "physics.h"
@@ -75,6 +76,8 @@ public:
 	UI ui;
 	Camera camera;
 	Physics* physics;
+
+	Inactivity_Timer inactivity_timer;
 
 	bool mouse_pressed;
 	bool is_updating;

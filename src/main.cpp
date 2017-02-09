@@ -29,7 +29,9 @@ namespace {
 				case 5: s->is_updating = false;									break;
 				case 6: s->reset();												break;
 				case 7: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
+#ifdef _DEBUG
 				default: std::cout << s->cursor_position << std::endl;			break;
+#endif
 			}
 		}
 	}
@@ -79,6 +81,7 @@ int main() {
 		return 1;
 	}
 
+#ifdef _DEBUG
 	{ // Check everything initialised correctly
 		std::stringstream ss;
 		ss << "Device Vendor: " << glGetString(GL_VENDOR) << std::endl;
@@ -87,6 +90,7 @@ int main() {
 		ss << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 		std::cout << ss.str() << std::endl;
 	}
+#endif
 
 	// GL Config
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);

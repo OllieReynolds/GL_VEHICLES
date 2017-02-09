@@ -86,10 +86,12 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 
 	ifs.close();
 
+#ifdef _DEBUG
 	std::cout << " Mesh Count: " << meshes.size() << std::endl;
 	std::cout << "Vertex List: " << vertex_list.size() << std::endl;
 	std::cout << "Normal List: " << normal_list.size() << std::endl;
 	std::cout << "    UV List: " << uv_list.size() << std::endl;
+#endif
 
 	for (int i = 0; i < meshes.size(); i++) {
 		for (int j = 0; j < meshes[i].vertex_indices.size(); j++) {
@@ -111,10 +113,12 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 			}
 		}
 
+#ifdef _DEBUG
 		std::cout << "     Mesh " << i << ":" << std::endl;
 		std::cout << "Vertices: " << meshes[i].vertices.size() << std::endl;
 		std::cout << " Normals: " << meshes[i].normals.size() << std::endl;
 		std::cout << "     UVs: " << meshes[i].uvs.size() << std::endl;
+#endif
 	}
 }
 
