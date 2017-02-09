@@ -14,7 +14,7 @@ UI::UI(const Camera& camera) : index_active_button(-1), index_pressed_button(-1)
 
 		float button_width = camera.resolution.x / 10.f;
 		float button_height = camera.resolution.y / 20.f;
-		attributes_ui.push_back({ { px, button_height / 2.f },{ button_width, button_height }, utils::colour::black, button_labels[i] });
+		attributes_ui.push_back({ { px, button_height / 2.f }, { button_width, button_height }, utils::colour::black, button_labels[i] });
 	}
 }
 

@@ -12,7 +12,7 @@
 
 																													   
 namespace maths {
-	extern double PI;
+	extern float PI;
 
 	class vec2 {
 	public:

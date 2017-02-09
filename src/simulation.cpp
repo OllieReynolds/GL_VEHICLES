@@ -40,7 +40,7 @@ Simulation::Simulation() {
 		physics = new Physics(transforms_vehicles.size(), transforms_vehicles, attributes_vehicles);
 
 	// Init Vehicles
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 10; i++) {
 			bool is_predator = i % 2 == 0;
 			add_vehicle(is_predator);
 		}
@@ -68,8 +68,6 @@ Simulation::Simulation() {
 	for (map<int, Transform>::iterator it = transforms_vehicles.begin(); it != transforms_vehicles.end(); ++it) {
 		lights.insert(pair<int, Light>(it->first, { { 0.f, 30.f, 0.f }, attributes_vehicles[it->first].colour.XYZ() }));
 	}
-
-	
 }
 
 void Simulation::init() {
@@ -97,10 +95,14 @@ void Simulation::update() {
 		for (pair<VehicleData*, VehicleData*> e : vehicle_collision_events) {
 			if ((e.first->is_predator && !e.second->is_predator) || !e.first->is_predator && e.second->is_predator) {
 				int index = -1;
-				if (e.first->is_predator)
+				if (e.first->is_predator) {
+					attributes_vehicles[e.first->instance_id].energy = 100.f;
 					remove_indices.push_back( e.second->instance_id);
-				else
+				}
+				else {
+					attributes_vehicles[e.second->instance_id].energy = 100.f;
 					remove_indices.push_back(e.first->instance_id);
+				}
 			}
 		}
 
@@ -117,9 +119,6 @@ void Simulation::update() {
 	}
 
 	if (is_updating) {
-		generation = utils::elapsed_time();
-		
-
 		// Update Physics
 		physics->update();
 
@@ -130,11 +129,30 @@ void Simulation::update() {
 		check_detected_vehicles();
 		//check_detected_walls();
 		predator_prey();
+
+		vector<int> remove_ids;
+		for (map<int, Vehicle_Attributes>::iterator it = attributes_vehicles.begin(); it != attributes_vehicles.end(); ++it) {
+			if (it->second.is_predator)
+				it->second.energy -= 0.1f;
+			else
+				it->second.energy -= 0.01f;
+
+			if (it->second.energy < 0.f) {
+				remove_ids.push_back(it->first);
+			}
+		}
+
+		for (int i = 0; i < remove_ids.size(); i++) {
+			remove_vehicle(remove_ids[i]);
+			add_vehicle(gen_random(0.f, 1.f) > 0.5f);
+		}
 		
-		inactivity_timer.update(transforms_vehicles);
-		if (inactivity_timer.remaining_milliseconds < 0.f) {
-			reset();
-			is_updating = true;
+		if (transforms_vehicles.size() >= 2) {
+			inactivity_timer.update(transforms_vehicles);
+			if (inactivity_timer.remaining_milliseconds < 0.f) {
+				reset();
+				is_updating = true;
+			}
 		}
 	}
 
@@ -152,7 +170,8 @@ void Simulation::draw() {
 			model_renderer.draw_multiple_3D_textured(transforms_walls.size(), grid_model, camera, transforms_walls, floor_texture, lights);
 
 			// Boundaries
-			quad_renderer.draw_multiple_3D_coloured(camera, transforms_boundaries, utils::colour::red);
+			vec4 c = { 0.2f, 0.3f, 0.2f, 1.f };
+			quad_renderer.draw_multiple_3D_coloured(camera, transforms_boundaries, c);
 
 			if (!transforms_vehicles.empty()) {
 				// Vehicles
@@ -223,10 +242,12 @@ void Simulation::draw() {
 							break;
 						}
 						else {
-							string str_i = to_string(it->second.id);
-							string str_energy = friendly_float(it->second.energy, 6);
+							string str_i = friendly_float(it->second.id, 3);
+							string str_energy = friendly_float(it->second.energy, 4);
 							string display = "Vehicle " + str_i + ": " + str_energy;
-							text_renderer.draw(display, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
+							vec4 colour = it->second.colour;
+							colour += vec4(0.25f);
+							text_renderer.draw(display, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, colour);
 						}
 					}
 				}
@@ -234,8 +255,10 @@ void Simulation::draw() {
 				y_offset_multiplier++;
 				string str_timer = (friendly_float(inactivity_timer.remaining_milliseconds, 4));
 				text_renderer.draw("INACTIVITY TRACKER", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::yellow);
-				text_renderer.draw(str_timer, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
+				text_renderer.draw("Remaining: " + str_timer, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
 			}
+
+			
 		}
 
 		glDisable(GL_BLEND);
@@ -346,6 +369,8 @@ void Simulation::remove_vehicle(int instance_id) {
 }
 
 void Simulation::reset() {
+	generation++;
+	instance_id = 0;
 	inactivity_timer.reset();
 	int n = transforms_vehicles.size();
 	for (int i = 0; i < n; i++) 

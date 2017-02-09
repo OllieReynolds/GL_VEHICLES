@@ -27,7 +27,7 @@ void Inactivity_Timer::check_inactivity(map<int, Transform> new_transforms) {
 		vec2 p0 = new_transform_iterator->second.position.XZ();
 		vec2 p1 = old_transform_iterator->second.position.XZ();
 
-		bool changed = !almost_equal(p0, p1, 0.1f);
+		bool changed = !almost_equal(p0, p1, 0.2f);
 
 		if (changed) {
 			remaining_milliseconds = start_milliseconds;
