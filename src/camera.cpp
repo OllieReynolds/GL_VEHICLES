@@ -18,36 +18,6 @@ Camera::Camera() {
 }
 
 void Camera::update(std::map<int, Transform>& transforms) {
-	/*if (last_target_index != target_index) {
-		target_changed = true;
-		old_position = position_current;
-		old_target = position_target;
-	}
-
-	if (target_changed) {
-		static float t = 0.f;
-
-		vec2 direction = polar_to_cartesian(to_radians(transforms[target_index].rotation.y)) * target_distance;
-
-		vec3 p = transforms[target_index].position;
-		p.x -= direction.x;
-		p.y += target_distance;
-		p.z -= direction.y;
-		position_current = lerp(old_position, p, t);
-
-		vec3 targ = position_current + vec3{ direction.x, -target_distance, direction.y };
-		if (targ.y < -target_distance)
-			targ.y = -target_distance;
-		position_target = lerp(old_target, targ, t);
-
-		t += 0.01f;
-
-		if (t > 1.f) {
-			t = 0.f;
-			target_changed = false;
-		}
-	}*/
-
 	if (follow_vehicle) {
 		vec2 direction = polar_to_cartesian(to_radians(transforms.begin()->second.rotation.y));
 		direction *= target_distance;

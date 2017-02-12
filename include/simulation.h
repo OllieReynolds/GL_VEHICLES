@@ -56,7 +56,6 @@ public:
 	void add_vehicle(bool is_predator);
 	void remove_vehicle();
 	void remove_vehicle(int index);
-
 	void reset();
 
 	Cube_Renderer cube_renderer;
@@ -88,7 +87,6 @@ public:
 	vec2 cursor_position;
 
 	// Environment Properties
-	
 	vector<Transform>			transforms_walls;
 	vector<Transform>			transforms_boundaries;
 	vector<Wheel_Attributes>	attributes_wheels;

@@ -1,15 +1,7 @@
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <complex>
 #include <ostream>
-#include <cmath>
-#include <limits>
-#include <iomanip>
-#include <iostream>
-#include <type_traits>
-
+#include <string>
 																													   
 namespace maths {
 	extern float PI;

@@ -3,7 +3,6 @@
 #include <chrono>
 #include <random>
 #include <fstream>
-#include <intrin.h>
 
 #include "maths.h"
 

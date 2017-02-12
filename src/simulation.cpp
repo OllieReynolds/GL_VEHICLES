@@ -11,6 +11,8 @@ Transform Wheel_Attributes::gen_transform_from_vehicle(const b2Vec2& forward_vel
 	transform.rotation = t.rotation;
 	transform.rotation.y += y_rotation;
 
+	transform.rotation.z += 0.5f;
+
 	if (y_rotation == 0.f)
 		transform.rotation.z += magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
 	else
@@ -30,16 +32,15 @@ Simulation::Simulation() {
 	is_drawing = true;
 
 	ui = UI(camera);
-	text_renderer = Text_Renderer(camera.resolution.x / 60.f, "data/ShareTechMono-Regular.ttf");
+	text_renderer = Text_Renderer(static_cast<int>(camera.resolution.x / 60.f), "data/ShareTechMono-Regular.ttf");
 
 
-	
 	// Constructor of Physics makes a ton of objects, but add_vehicle is doing this as well. Works if physics initialised before, but is wrong.
 	{
 		// Init Physics
 		physics = new Physics(transforms_vehicles.size(), transforms_vehicles, attributes_vehicles);
 
-	// Init Vehicles
+		// Init Vehicles
 		for (int i = 0; i < 10; i++) {
 			bool is_predator = i % 2 == 0;
 			add_vehicle(is_predator);
@@ -90,6 +91,7 @@ void Simulation::init() {
 
 void Simulation::update() {
 
+	// Check collision events and remove/add any eligible vehicles
 	{
 		vector<int> remove_indices;
 		for (pair<VehicleData*, VehicleData*> e : vehicle_collision_events) {
@@ -108,7 +110,7 @@ void Simulation::update() {
 
 		vehicle_collision_events.clear();
 
-		for (int i = 0; i < remove_indices.size(); i++) {
+		for (uint8 i = 0; i < remove_indices.size(); i++) {
 			remove_vehicle(remove_indices[i]);
 			add_vehicle(gen_random(0.f, 1.f) > 0.5f);
 		}
@@ -132,17 +134,13 @@ void Simulation::update() {
 
 		vector<int> remove_ids;
 		for (map<int, Vehicle_Attributes>::iterator it = attributes_vehicles.begin(); it != attributes_vehicles.end(); ++it) {
-			if (it->second.is_predator)
-				it->second.energy -= 0.1f;
-			else
-				it->second.energy -= 0.01f;
-
+			it->second.energy -= (it->second.is_predator) ? 0.1f : 0.01f;
 			if (it->second.energy < 0.f) {
 				remove_ids.push_back(it->first);
 			}
 		}
 
-		for (int i = 0; i < remove_ids.size(); i++) {
+		for (uint8 i = 0; i < remove_ids.size(); i++) {
 			remove_vehicle(remove_ids[i]);
 			add_vehicle(gen_random(0.f, 1.f) > 0.5f);
 		}
@@ -199,30 +197,25 @@ void Simulation::draw() {
 			// UI
 			if (ui.index_active_button != -1)
 				quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::colour::yellow);
-			for (int i = 0; i < ui.attributes_ui.size(); i++) {
+			for (uint8 i = 0; i < ui.attributes_ui.size(); i++) {
 				quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
 				text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -10.f }, true, colour::white);
 			}
 
 			int num_predators = 0;
 			int num_prey = 0;
-
 			for (map<int, Vehicle_Attributes>::iterator it = attributes_vehicles.begin(); it != attributes_vehicles.end(); ++it) {
-				if (attributes_vehicles[it->first].is_predator)
-					num_predators++;
-				else
-					num_prey++;
+				attributes_vehicles[it->first].is_predator ? num_predators++ : num_prey++;
 			}
 
 			// Side Menu
 			{
 				float text_x = camera.resolution.x * 0.04685212298f;
-
 				float text_y = camera.resolution.y * 0.85f;
 				float text_y_offset = 30.f;
 
+				// Draw details about the predator/prey scenario
 				quad_renderer.draw_2D(camera, { camera.resolution.x * 0.125f, camera.resolution.y / 2.f }, { camera.resolution.x * 0.2f, camera.resolution.y * 0.8f }, { 0.f, 0.f, 0.f, 0.7f });
-
 				string predators =	"Predators:  " + to_string(num_predators);
 				string prey =		"Prey:       " + to_string(num_prey);
 				string gen =		"Generation: " + to_string(generation);
@@ -231,6 +224,7 @@ void Simulation::draw() {
 				text_renderer.draw(prey,			{ text_x, text_y - (text_y_offset * 2.f) }, false, utils::colour::white);
 				text_renderer.draw(gen,				{ text_x, text_y - (text_y_offset * 3.f) }, false, utils::colour::white);
 
+				// Draw energy levels to UI
 				int y_offset_multiplier = 5;
 				text_renderer.draw("ENERGY LEVELS", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::yellow);
 				if (attributes_vehicles.empty()) {
@@ -252,13 +246,12 @@ void Simulation::draw() {
 					}
 				}
 
+				// Draw progress of inactivity tracker
 				y_offset_multiplier++;
 				string str_timer = (friendly_float(inactivity_timer.remaining_milliseconds, 4));
 				text_renderer.draw("INACTIVITY TRACKER", { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::yellow);
 				text_renderer.draw("Remaining: " + str_timer, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, utils::colour::white);
 			}
-
-			
 		}
 
 		glDisable(GL_BLEND);
@@ -284,6 +277,7 @@ void Simulation::destroy() {
 	delete physics;
 }
 
+// Should have another version for random selection
 void Simulation::add_vehicle(bool is_predator) {
 	vec2 rand_pos = { utils::gen_random(-320.f, 320.f),  utils::gen_random(-320.f, 320.f) };
 
@@ -310,6 +304,7 @@ void Simulation::add_vehicle(bool is_predator) {
 	lights.insert(pair<int, Light>(key, { { 0.f, 30.f, 0.f }, av.colour.XYZ() }));
 	transforms_wheels.insert(pair<int, vector<Transform>>(key, { {}, {}, {}, {} }));
 
+	// Declare these once at the start of the file
 	static const float SENSOR_ANGLE = 70.f;
 	static const float SENSOR_OFFSET = 30.f;
 	static const float SENSOR_RANGE = 400.f;
@@ -384,6 +379,7 @@ void Simulation::check_detected_walls() {
 		
 		int instance_id = it->first;
 
+		// Move wall related data to its own source file
 		static const vec2 p0 = { -400.f, -400.f };
 		static const vec2 p1 = { -400.f,  400.f };
 		static const vec2 p2 = { 400.f,  400.f };
@@ -464,6 +460,7 @@ void Simulation::check_detected_vehicles() {
 			if (id_i != id_j) {
 
 
+				// Should be at a higher scope
 				const static float HITBOX_SIZE = 10.f;
 				vec2 p = j->second.position.XZ();
 				vec2 p1 = p + vec2{ -HITBOX_SIZE, -HITBOX_SIZE };
@@ -513,7 +510,7 @@ void Simulation::predator_prey() {
 
 			int index_of_event_with_closest_distance = 0;
 			float closest_distance = FLT_MAX;
-			for (int j = 0; j < vehicle_sensors[instance_id].detection_events.size(); j++) {
+			for (uint8 j = 0; j < vehicle_sensors[instance_id].detection_events.size(); j++) {
 				if (vehicle_sensors[instance_id].detection_events[j].distance < closest_distance) {
 					closest_distance = vehicle_sensors[instance_id].detection_events[j].distance;
 					index_of_event_with_closest_distance = j;
@@ -522,6 +519,8 @@ void Simulation::predator_prey() {
 
 			Detection_Event e = vehicle_sensors[instance_id].detection_events[index_of_event_with_closest_distance];
 
+			// Refactor into truth table of anonymous functions?
+			// If changing speed, gradually change from one speed to another
 			if (attributes_vehicles[instance_id].is_predator) {
 				if (e.detected_prey) {
 					if (e.ldetected && e.rdetected)  {

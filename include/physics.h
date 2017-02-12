@@ -1,9 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
 #include <map>
-#include <vector>
 #include <set>
 
 #include <Box2D\Box2D.h>
@@ -13,13 +10,6 @@
 
 using namespace maths;
 using namespace std;
-
-//enum {
-//	LEFT = 0x1,
-//	RIGHT = 0X2,
-//	UP = 0x4,
-//	DOWN = 0x8
-//};
 
 #define DEGTORAD 0.0174532925199432957f
 #define RADTODEG 57.295779513082320876f

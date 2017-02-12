@@ -82,7 +82,7 @@ void Circle_Renderer::draw_multiple_3D_shadow(const Camera& camera, const std::v
 	shader_3D_shadow.set_uniform("projection", camera.matrix_projection_persp);
 	shader_3D_shadow.set_uniform("view", camera.matrix_view);
 	
-	for (int i = 0; i < transform_list.size(); i++) {
+	for (uint32_t i = 0; i < transform_list.size(); i++) {
 		shader_3D_shadow.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
@@ -209,7 +209,7 @@ void Quad_Renderer::draw_multiple_3D_coloured(const Camera& camera, const std::v
 	shader_3D_coloured.set_uniform("projection", camera.matrix_projection_persp);
 	shader_3D_coloured.set_uniform("view", camera.matrix_view);
 
-	for (int i = 0; i < transform_list.size(); i++) {
+	for (uint32_t i = 0; i < transform_list.size(); i++) {
 		shader_3D_coloured.set_uniform("model", utils::gen_model_matrix(transform_list[i]));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
@@ -400,7 +400,7 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 	for (int j = 0; j < n; j++) {
 		shader_textured.set_uniform("model", gen_model_matrix(transform_list[j].size, transform_list[j].position, transform_list[j].rotation));
 
-		for (int i = 0; i < model.meshes.size(); i++) {
+		for (uint32_t i = 0; i < model.meshes.size(); i++) {
 			glBindVertexArray(model.meshes[i].vao);
 			glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
 			glBindVertexArray(0);
@@ -431,10 +431,10 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 
 		std::vector<Transform> t = it->second;
 
-		for (int j = 0; j < t.size(); j++) {
+		for (uint32_t j = 0; j < t.size(); j++) {
 			shader_textured.set_uniform("model", gen_model_matrix(t[j].size, t[j].position, t[j].rotation));
 
-			for (int i = 0; i < model.meshes.size(); i++) {
+			for (uint32_t i = 0; i < model.meshes.size(); i++) {
 				glBindVertexArray(model.meshes[i].vao);
 				glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
 				glBindVertexArray(0);
@@ -458,7 +458,7 @@ void Model_Renderer::draw_3D_textured(Model& model, const Camera& camera, const 
 
 	texture.use();
 
-	for (int i = 0; i < model.meshes.size(); i++) {
+	for (uint32_t i = 0; i < model.meshes.size(); i++) {
 		glBindVertexArray(model.meshes[i].vao);
 		glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
 		glBindVertexArray(0);
@@ -468,8 +468,7 @@ void Model_Renderer::draw_3D_textured(Model& model, const Camera& camera, const 
 }
 
 void Model_Renderer::draw_3D_coloured(Model& model, const Camera& camera, const Transform& transform, const vec4& colour) {
-
-	for (int i = 0; i < model.meshes.size(); i++) {
+	for (uint32_t i = 0; i < model.meshes.size(); i++) {
 		glBindVertexArray(model.meshes[i].vao);
 		shader_coloured.use();
 
@@ -519,8 +518,8 @@ void Text_Renderer::init(const vec2& screen_resolution) {
 				{
 					tex,
 					ff->glyph->advance.x,
-					vec2(ff->glyph->bitmap.width, ff->glyph->bitmap.rows),
-					vec2(ff->glyph->bitmap_left, ff->glyph->bitmap_top)
+					vec2(static_cast<float>(ff->glyph->bitmap.width), static_cast<float>(ff->glyph->bitmap.rows)),
+					vec2(static_cast<float>(ff->glyph->bitmap_left), static_cast<float>(ff->glyph->bitmap_top))
 				}
 			));
 		}

@@ -5,12 +5,9 @@
 #include "texture.h"
 #include "utils.h"
 
-#include <iostream>
 #include <sstream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <tuple>
 
 using namespace maths;
 using namespace utils;

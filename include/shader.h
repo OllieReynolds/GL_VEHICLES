@@ -2,7 +2,6 @@
 
 #include <glew.h>
 #include <iostream>
-#include <iterator>
 #include <fstream>
 
 #include "maths.h"

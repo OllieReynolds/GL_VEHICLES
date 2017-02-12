@@ -8,7 +8,7 @@ void Model::init(const char* filename) {
 	std::vector <std::pair<int, int>> data_ranges = file_preprocess(filename);
 	load_meshes(filename, data_ranges);
 
-	for (int i = 0; i < meshes.size(); i++) {
+	for (uint32_t i = 0; i < meshes.size(); i++) {
 		glGenVertexArrays(1, &meshes[i].vao);
 		glBindVertexArray(meshes[i].vao);
 
@@ -37,7 +37,7 @@ void Model::init(const char* filename) {
 }
 
 void Model::destroy() {
-	for (int i = 0; i < meshes.size(); i++) {
+	for (uint32_t i = 0; i < meshes.size(); i++) {
 		glDeleteBuffers(1, &meshes[i].vbo_vertices);
 		glDeleteBuffers(1, &meshes[i].vbo_normals);
 		glDeleteBuffers(1, &meshes[i].vbo_uvs);
@@ -93,8 +93,8 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 	std::cout << "    UV List: " << uv_list.size() << std::endl;
 #endif
 
-	for (int i = 0; i < meshes.size(); i++) {
-		for (int j = 0; j < meshes[i].vertex_indices.size(); j++) {
+	for (uint32_t i = 0; i < meshes.size(); i++) {
+		for (uint32_t j = 0; j < meshes[i].vertex_indices.size(); j++) {
 			int vert_index = meshes[i].vertex_indices[j];
 			int norm_index = meshes[i].normal_indices[j];
 
@@ -106,7 +106,7 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 		}
 
 		if (meshes[i].uvs_included) {
-			for (int j = 0; j < meshes[i].uv_indices.size(); j++) {
+			for (uint32_t j = 0; j < meshes[i].uv_indices.size(); j++) {
 				int uv_index = meshes[i].uv_indices[j];
 				vec2 uv = { uv_list[uv_index].x, 1.f - uv_list[uv_index].y };
 				meshes[i].uvs.push_back(uv);
@@ -160,7 +160,7 @@ bool Model::check_uvs_included(const char* filename) {
 		pos = line.find('f');
 		if (pos != std::string::npos && pos == 0) {
 			char last = '1';
-			for (int i = 0; i < line.length(); i++) {
+			for (uint32_t i = 0; i < line.length(); i++) {
 				char c = line.at(i);
 				if (c == '/' && last == '/')
 					return false;
@@ -193,7 +193,7 @@ std::vector<std::pair<int, int>> Model::file_preprocess(const char* filename) {
 
 	int linecount = utils::line_count(filename);
 	std::vector <std::pair<int, int>> begin_end_markers;
-	for (int i = 0; i < data_ranges.size(); i++) {
+	for (uint32_t i = 0; i < data_ranges.size(); i++) {
 		std::pair<int, int> marker;
 
 		if (i == 0)
