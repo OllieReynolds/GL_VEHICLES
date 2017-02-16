@@ -9,6 +9,7 @@ out vec4 colour;
 struct Light {
 	vec3 position;
 	vec3 colour;
+	float intensity;
 };
 
 uniform int num_lights;
@@ -17,7 +18,7 @@ uniform Light lights[200];
 uniform sampler2D tex;
 
 vec3 calc_lighting(vec3 normal, Light light) {
-	float constant = 1.0;
+	float constant = 0.1;
     float linear = 0.09;
     float quadratic = 0.032;
 
@@ -28,7 +29,7 @@ vec3 calc_lighting(vec3 normal, Light light) {
 
 	vec3 light_direction = normalize(light.position - fragpos_out);
 	float diffuse = max(dot(normal, light_direction), 0.0) * attenuation;
-	return light.colour * diffuse * vec3(texture(tex, uv_out));
+	return light.colour * diffuse * vec3(texture(tex, uv_out)) * light.intensity;
 }
 
 void main() {

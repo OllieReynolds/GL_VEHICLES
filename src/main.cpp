@@ -23,12 +23,13 @@ namespace {
 			switch (active_button) {
 				case 0: s->add_vehicle(gen_random(0.f, 1.f) > 0.5f);			break;
 				case 1: s->remove_vehicle();									break;
-				case 2:															break;
-				case 3: s->camera.follow_vehicle = !s->camera.follow_vehicle;	break;
-				case 4: s->is_updating = true;									break;
-				case 5: s->is_updating = false;									break;
-				case 6: s->reset();												break;
-				case 7: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
+				case 2: s->camera.follow_vehicle = !s->camera.follow_vehicle;	break;
+				case 3: s->is_updating = true;									break;
+				case 4: s->is_updating = false;									break;
+				case 5: s->reset();												break;
+				case 6: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
+				case 7: s->draw_sensors = !s->draw_sensors;						break;
+				case 8: s->draw_sensor_outlines = !s->draw_sensor_outlines;		break;
 #ifdef _DEBUG
 				default: std::cout << s->cursor_position << std::endl;			break;
 #endif

@@ -307,6 +307,8 @@ void Cube_Renderer::draw_multiple(const Camera& camera, std::map<int, Transform>
 		shader.set_uniform(str.c_str(), it->second.position);
 		str = "lights[" + std::to_string(i) + "].colour";
 		shader.set_uniform(str.c_str(), it->second.colour);
+		str = "lights[" + std::to_string(i) + "].intensity";
+		shader.set_uniform(str.c_str(), it->second.intensity);
 		i++;
 	}
 
@@ -340,7 +342,7 @@ void Line_Renderer::init() {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 2, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 3, NULL, GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
@@ -358,9 +360,27 @@ void Line_Renderer::draw(const Camera& camera, const vec3& world_space_a, const 
 	shader.set_uniform("projection", camera.matrix_projection_persp);
 	shader.set_uniform("model", mat4());
 	shader.set_uniform("uniform_colour", colour);
-
+	
+	glLineWidth(4.f);
 	glDrawArrays(GL_LINES, 0, 2);
 }
+
+void Line_Renderer::draw_lineloop(const Camera& camera, const std::vector<vec3>& points, const vec4& colour) {
+	shader.use();
+	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * points.size(), &points.front());
+
+	shader.set_uniform("view", camera.matrix_view);
+	shader.set_uniform("projection", camera.matrix_projection_persp);
+	shader.set_uniform("model", mat4());
+	shader.set_uniform("uniform_colour", colour);
+
+	glLineWidth(4.f);
+	glDrawArrays(GL_LINE_LOOP, 0, points.size());
+}
+
 
 void Line_Renderer::destroy() {
 	glDeleteBuffers(1, &vbo);
@@ -392,6 +412,8 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 		shader_textured.set_uniform(str.c_str(), it->second.position);
 		str = "lights[" + std::to_string(i) + "].colour";
 		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		str = "lights[" + std::to_string(i) + "].intensity";
+		shader_textured.set_uniform(str.c_str(), it->second.intensity);
 		i++;
 	}
 
@@ -422,6 +444,8 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 		shader_textured.set_uniform(str.c_str(), it->second.position);
 		str = "lights[" + std::to_string(i) + "].colour";
 		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		str = "lights[" + std::to_string(i) + "].intensity";
+		shader_textured.set_uniform(str.c_str(), it->second.intensity);
 		i++;
 	}
 
@@ -439,9 +463,7 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 				glDrawArrays(GL_TRIANGLES, 0, model.meshes[i].vertices.size());
 				glBindVertexArray(0);
 			}
-		}
-
-		
+		}		
 	}
 
 

@@ -12,6 +12,7 @@ namespace utils {
 	struct Light {
 		vec3 position;
 		vec3 colour;
+		float intensity;
 	};
 
 	struct Transform {

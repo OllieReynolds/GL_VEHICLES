@@ -28,6 +28,7 @@ struct Detection_Event {
 
 struct Vehicle_Sensors {
 	vec3 la, lb, lc, ra, rb, rc;
+	float angle, offset, range;
 	std::vector<Detection_Event> detection_events;
 };
 
@@ -81,6 +82,10 @@ public:
 	bool mouse_pressed;
 	bool is_updating;
 	bool is_drawing;
+
+	bool draw_sensors;
+	bool draw_sensor_outlines;
+
 	int index_state;
 	int generation;
 
@@ -99,5 +104,6 @@ public:
 
 	map<int, Vehicle_Sensors>		vehicle_sensors;
 	map<int, Transform>			transforms_vehicles;
+	map<int, Transform>			old_transforms_vehicles;
 	map<int, vector<Transform>>			transforms_wheels;
 };

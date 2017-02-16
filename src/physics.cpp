@@ -100,7 +100,7 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, bool is_pred
 	body->SetAngularDamping(2);
 
 	b2PolygonShape polygon_shape;
-	polygon_shape.SetAsBox(6.f, 10.f);
+	polygon_shape.SetAsBox(8.f, 10.f);
 	b2Fixture* fixture = body->CreateFixture(&polygon_shape, 0.1f);
 
 	data = new VehicleData;
@@ -121,12 +121,19 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, bool is_pred
 	joint_def.upperAngle = 0;
 	joint_def.localAnchorB.SetZero();
 
-	float max_forward_speed = 100;
-	float max_backward_speed = -100;
-	float back_tyre_max_drive_force = 300;
-	float front_tyre_max_drive_force = 100;
-	float back_tyre_max_lateral_impulse = 32.f;
-	float front_tyre_max_lateral_impulse = 32.f;
+	//float max_forward_speed = 100;
+	//float max_backward_speed = -100;
+	//float back_tyre_max_drive_force = 300;
+	//float front_tyre_max_drive_force = 100;
+	//float back_tyre_max_lateral_impulse = 32.f;
+	//float front_tyre_max_lateral_impulse = 32.f;
+
+	float max_forward_speed = utils::gen_random(50.f, 450.f);
+	float max_backward_speed = -utils::gen_random(50.f, 450.f);
+	float back_tyre_max_drive_force = utils::gen_random(100.f, 400.f);
+	float front_tyre_max_drive_force = utils::gen_random(100.f, 400.f);
+	float back_tyre_max_lateral_impulse = utils::gen_random(10.f, 60.f);
+	float front_tyre_max_lateral_impulse = utils::gen_random(10.f, 60.f);
 
 	// Back Left
 	Tyre* tyre = new Tyre(world, max_forward_speed, max_backward_speed, back_tyre_max_drive_force, back_tyre_max_lateral_impulse);
@@ -204,7 +211,7 @@ Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, 
 	body_def.type = b2_staticBody;
 	body_def.position = { -390.f, 0.f };
 	wall_1 = world.CreateBody(&body_def);
-	b2Fixture* f = wall_1->CreateFixture(&polygon_shape, 1.f);
+	b2Fixture* f = wall_1->CreateFixture(&polygon_shape, 10.f);
 	b2Filter filter;
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
@@ -215,7 +222,7 @@ Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, 
 	body_def.type = b2_staticBody;
 	body_def.position = { 390.f, 0.f };
 	wall_2 = world.CreateBody(&body_def);
-	f = wall_2->CreateFixture(&polygon_shape, 1.f);
+	f = wall_2->CreateFixture(&polygon_shape, 10.f);
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;
@@ -226,7 +233,7 @@ Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, 
 	body_def.position = { 0.f, -390.f };
 	body_def.angle = to_radians(90.f);
 	wall_3 = world.CreateBody(&body_def);
-	f = wall_3->CreateFixture(&polygon_shape, 1.f);
+	f = wall_3->CreateFixture(&polygon_shape, 10.f);
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;
@@ -237,7 +244,7 @@ Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, 
 	body_def.position = { 0.f, 390.f };
 	body_def.angle = to_radians(90.f);
 	wall_4 = world.CreateBody(&body_def);
-	f = wall_4->CreateFixture(&polygon_shape, 1.f);
+	f = wall_4->CreateFixture(&polygon_shape, 10.f);
 	filter.categoryBits = ENV;
 	filter.maskBits = TYRE | VEHICLE;
 	filter.groupIndex = 0;

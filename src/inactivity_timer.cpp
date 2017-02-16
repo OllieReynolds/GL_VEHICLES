@@ -8,7 +8,7 @@ void Inactivity_Timer::init(map<int, Transform> new_transforms) {
 
 void Inactivity_Timer::update(map<int, Transform> new_transforms) {
 	check_inactivity(new_transforms);
-	remaining_milliseconds -= 0.1f;
+	remaining_milliseconds -= 0.02f;
 }
 
 void Inactivity_Timer::reset() {

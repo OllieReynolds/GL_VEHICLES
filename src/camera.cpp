@@ -22,10 +22,13 @@ void Camera::update(std::map<int, Transform>& transforms) {
 		vec2 direction = polar_to_cartesian(to_radians(transforms.begin()->second.rotation.y));
 		direction *= target_distance;
 
-		position_current = transforms.begin()->second.position;
-		position_current.x -= direction.x;
+		position_current = transforms.find(transforms.begin()->first)->second.position;
 		position_current.y += target_distance;
+
+		position_current.x -= direction.x;
 		position_current.z -= direction.y;
+
+
 		position_target = position_current + vec3{ direction.x, -target_distance, direction.y };
 		orientation_up = vec3(0.f, 1.f, 0.f);
 	}

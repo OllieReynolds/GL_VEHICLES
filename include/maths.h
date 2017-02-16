@@ -97,6 +97,7 @@ namespace maths {
 		vec4() : n{0.f, 0.f, 0.f, 0.f} {}
 		vec4(const float v) : n{v, v, v, v} {}
 		vec4(const float x, const float y, const float z, const float w) : n{x, y, z, w} {}
+		vec4(const vec3& v, const float w) : n{ v.x, v.y, v.z, w } {}
 
 		vec2 XY() { return vec2{x, y}; }
 		vec3 XYZ() { return vec3(x, y, z); }
