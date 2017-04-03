@@ -74,7 +74,8 @@ void Model::load_meshes(const char* filename, const std::vector<std::pair<int, i
 			uv_list.push_back({ u, v });
 		}
 		else if (type == "f") {
-			process_face(line, uvs_included, meshes.back().vertex_indices, meshes.back().uv_indices, meshes.back().normal_indices);
+			Mesh& mesh = meshes.back();
+			process_face(line, uvs_included, mesh.vertex_indices, mesh.uv_indices, mesh.normal_indices);
 		}
 		else if (type == "o") {
 			Mesh mesh = Mesh();

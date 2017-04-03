@@ -303,12 +303,13 @@ void Cube_Renderer::draw_multiple(const Camera& camera, std::map<int, Transform>
 
 	int i = 0;
 	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
+		Light& light = it->second;
 		std::string str = "lights[" + std::to_string(i) + "].position";
-		shader.set_uniform(str.c_str(), it->second.position);
+		shader.set_uniform(str.c_str(), light.position);
 		str = "lights[" + std::to_string(i) + "].colour";
-		shader.set_uniform(str.c_str(), it->second.colour);
+		shader.set_uniform(str.c_str(), light.colour);
 		str = "lights[" + std::to_string(i) + "].intensity";
-		shader.set_uniform(str.c_str(), it->second.intensity);
+		shader.set_uniform(str.c_str(), light.intensity);
 		i++;
 	}
 
@@ -408,12 +409,13 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 
 	int i = 0;
 	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
+		Light& light = it->second;
 		std::string str = "lights[" + std::to_string(i) + "].position";
-		shader_textured.set_uniform(str.c_str(), it->second.position);
+		shader_textured.set_uniform(str.c_str(), light.position);
 		str = "lights[" + std::to_string(i) + "].colour";
-		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		shader_textured.set_uniform(str.c_str(), light.colour);
 		str = "lights[" + std::to_string(i) + "].intensity";
-		shader_textured.set_uniform(str.c_str(), it->second.intensity);
+		shader_textured.set_uniform(str.c_str(), light.intensity);
 		i++;
 	}
 
@@ -440,12 +442,13 @@ void Model_Renderer::draw_multiple_3D_textured(int n, Model& model, const Camera
 
 	int i = 0;
 	for (std::map<int, Light>::iterator it = lights.begin(); it != lights.end(); ++it) {
+		Light& light = it->second;
 		std::string str = "lights[" + std::to_string(i) + "].position";
-		shader_textured.set_uniform(str.c_str(), it->second.position);
+		shader_textured.set_uniform(str.c_str(), light.position);
 		str = "lights[" + std::to_string(i) + "].colour";
-		shader_textured.set_uniform(str.c_str(), it->second.colour);
+		shader_textured.set_uniform(str.c_str(), light.colour);
 		str = "lights[" + std::to_string(i) + "].intensity";
-		shader_textured.set_uniform(str.c_str(), it->second.intensity);
+		shader_textured.set_uniform(str.c_str(), light.intensity);
 		i++;
 	}
 

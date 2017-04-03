@@ -30,9 +30,6 @@ namespace {
 				case 6: glfwSetWindowShouldClose(window, GLFW_TRUE);			break;
 				case 7: s->draw_sensors = !s->draw_sensors;						break;
 				case 8: s->draw_sensor_outlines = !s->draw_sensor_outlines;		break;
-#ifdef _DEBUG
-				default: std::cout << s->cursor_position << std::endl;			break;
-#endif
 			}
 		}
 	}
@@ -42,7 +39,24 @@ namespace {
 			Simulation* s = reinterpret_cast<Simulation*>(glfwGetWindowUserPointer(window));
 
 			switch (key) {
-				case GLFW_KEY_F: s->camera.follow_vehicle = !s->camera.follow_vehicle;	break;
+				case GLFW_KEY_F: s->camera.follow_vehicle = !s->camera.follow_vehicle;	
+					break;
+				case GLFW_KEY_LEFT: 
+					s->camera.index_list_position_current--;  
+					if (s->camera.index_list_position_current < 0)
+						s->camera.index_list_position_current = s->camera.list_position_current.size() - 1;
+					break;
+				case GLFW_KEY_RIGHT:  
+					s->camera.index_list_position_current++;
+					if (s->camera.index_list_position_current == s->camera.list_position_current.size())
+						s->camera.index_list_position_current = 0;
+					break;
+				case GLFW_KEY_UP: 
+					s->camera.height += 32.f;
+					break;
+				case GLFW_KEY_DOWN: 
+					s->camera.height -= 32.f;
+					break;
 			}
 			
 		}

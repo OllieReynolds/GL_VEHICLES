@@ -1,12 +1,13 @@
 #include "..\include\camera.h"
 
+
 Camera::Camera() {
 	follow_vehicle = false;
 	field_of_view = 90.f;
 	target_distance = 50.f;
 	resolution = config::resolution;
 	depth_range_ortho = vec2{ -1.f, 1.f };
-	depth_range_persp = vec2{ 0.1f, 1500.f };
+	depth_range_persp = vec2{ 0.1f, 2500.f };
 	position_current = vec3{ 0.f, 0.f, 0.f };
 	position_start = vec3{ 0.f, 456.f, 0.f };
 	position_target = vec3{ 0.f, 0.f, 0.f };
@@ -15,6 +16,44 @@ Camera::Camera() {
 	matrix_view = shared::view_matrix(position_current, position_target, orientation_up);
 	matrix_projection_ortho = orthographic_matrix(resolution, depth_range_ortho.x, depth_range_ortho.y, maths::mat4());
 	matrix_projection_persp = shared::perspective_matrix(field_of_view, aspect_ratio, depth_range_persp.x, depth_range_persp.y);
+
+	list_position_current = {
+		{    0.f, 256.f,  352.f },
+		{   88.f, 256.f,  352.f },
+		{  176.f, 256.f,  352.f },
+		{  264.f, 256.f,  352.f },
+		{  352.f, 256.f,  352.f },
+		{  352.f, 256.f,  264.f },
+		{  352.f, 256.f,  176.f },
+		{  352.f, 256.f,   88.f },
+		{  352.f, 256.f,    0.f },
+		{  352.f, 256.f,  -88.f },
+		{  352.f, 256.f, -176.f },
+		{  352.f, 256.f, -264.f },
+		{  352.f, 256.f, -352.f },
+		{  264.f, 256.f, -352.f },
+		{  176.f, 256.f, -352.f },
+		{   88.f, 256.f, -352.f },
+		{    0.f, 256.f, -352.f },
+		{  -88.f, 256.f, -352.f },
+		{ -176.f, 256.f, -352.f },
+		{ -264.f, 256.f, -352.f },
+		{ -352.f, 256.f, -352.f },
+		{ -352.f, 256.f, -264.f },
+		{ -352.f, 256.f, -176.f },
+		{ -352.f, 256.f,  -88.f },
+		{ -352.f, 256.f,    0.f },
+		{ -352.f, 256.f,   88.f },
+		{ -352.f, 256.f,  176.f },
+		{ -352.f, 256.f,  264.f },
+		{ -352.f, 256.f,  352.f },
+		{ -264.f, 256.f,  352.f },
+		{ -176.f, 256.f,  352.f },
+		{  -88.f, 256.f,  352.f },
+	};
+	index_list_position_current = 0;
+	height = 256.f;
+
 }
 
 void Camera::update(std::map<int, Transform>& transforms) {
@@ -33,9 +72,12 @@ void Camera::update(std::map<int, Transform>& transforms) {
 		orientation_up = vec3(0.f, 1.f, 0.f);
 	}
 	else {
-		position_current = position_start;
+		//position_current = position_start;
+		position_current = list_position_current[index_list_position_current];
+		position_current.y = height;
 		position_target = vec3{ 0.f, 0.f, 0.f };
-		orientation_up = vec3(0.f, 0.f, 1.f);
+		//orientation_up = vec3(0.f, 0.f, 1.f);
+		orientation_up = vec3(0.f, 1.f, 0.f);
 	}
 
 	matrix_view = shared::view_matrix(position_current, position_target, orientation_up);

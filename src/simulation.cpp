@@ -1,25 +1,5 @@
 #include "..\include\simulation.h"
 
-Transform Wheel_Attributes::gen_transform_from_vehicle(const b2Vec2& forward_velocity, const Transform& t, float wheel_dist) {
-	float wheel_offset_from_vehicle_angle = t.rotation.y - angular_offset;
-	vec2 direction = polar_to_cartesian(to_radians(wheel_offset_from_vehicle_angle)) * wheel_dist;
-
-	Transform transform;
-	transform.position = vec3{ t.position.x + direction.x, 4.f, t.position.z + direction.y };
-	transform.size = vec3{ 1.f, 1.f, 1.5f };
-	transform.rotation = t.rotation;
-	transform.rotation.y += y_rotation;
-
-	transform.rotation.z += 0.5f;
-
-	if (y_rotation == 0.f)
-		transform.rotation.z += magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
-	else
-		transform.rotation.z -= magnitude(vec2{ forward_velocity.x, forward_velocity.y }) * 3.f;
-
-	return transform;
-}
-
 int Simulation::instance_id = 0;
 
 Simulation::Simulation() {
@@ -60,10 +40,10 @@ Simulation::Simulation() {
 
 	// Init Boundaries 
 	transforms_boundaries = vector<Transform>(4);
-	transforms_boundaries[0] = { vec3{ physics->wall_1->GetPosition().x, 10.f, physics->wall_1->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_1->GetAngle()), 0.f } };
-	transforms_boundaries[1] = { vec3{ physics->wall_2->GetPosition().x, 10.f, physics->wall_2->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_2->GetAngle()), 0.f } };
-	transforms_boundaries[2] = { vec3{ physics->wall_3->GetPosition().x, 10.f, physics->wall_3->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_3->GetAngle()), 90.f } };
-	transforms_boundaries[3] = { vec3{ physics->wall_4->GetPosition().x, 10.f, physics->wall_4->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_4->GetAngle()), 90.f } };
+	transforms_boundaries[0] = { vec3{ physics->wall_1->body->GetPosition().x, 10.f, physics->wall_1->body->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_1->body->GetAngle()), 0.f } };
+	transforms_boundaries[1] = { vec3{ physics->wall_2->body->GetPosition().x, 10.f, physics->wall_2->body->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{ 90.f, box2d_to_simulation_angle(physics->wall_2->body->GetAngle()), 0.f } };
+	transforms_boundaries[2] = { vec3{ physics->wall_3->body->GetPosition().x, 10.f, physics->wall_3->body->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_3->body->GetAngle()), 90.f } };
+	transforms_boundaries[3] = { vec3{ physics->wall_4->body->GetPosition().x, 10.f, physics->wall_4->body->GetPosition().y }, vec3{ 4.f, 780.f, 0.f }, vec3{  0.f, box2d_to_simulation_angle(physics->wall_4->body->GetAngle()), 90.f } };
 
 	// Init Lights
 	lights = map<int, Light>();
@@ -96,7 +76,7 @@ void Simulation::update() {
 	{
 		vector<int> remove_indices;
 		for (pair<VehicleData*, VehicleData*> e : vehicle_collision_events) {
-			if ((e.first->is_predator && !e.second->is_predator) || !e.first->is_predator && e.second->is_predator) {
+			if ((e.first->is_predator && !e.second->is_predator) || (!e.first->is_predator && e.second->is_predator)) {
 				int index = -1;
 				if (e.first->is_predator) {
 					attributes_vehicles[e.first->instance_id].energy = 100.f;
@@ -141,14 +121,15 @@ void Simulation::update() {
 
 		vector<int> remove_ids;
 		for (map<int, Vehicle_Attributes>::iterator it = attributes_vehicles.begin(); it != attributes_vehicles.end(); ++it) {
-			
+			Vehicle_Attributes& tmp = it->second;
+
 			if (!almost_equal(transforms_vehicles[it->first].position.XZ(), old_transforms_vehicles[it->first].position.XZ(), 1.f)) {
-				it->second.energy -= 0.15f;
+				tmp.energy -= 0.15f;
 			}
 
-			it->second.energy -= (it->second.is_predator) ? 0.1f : 0.05f;
+			tmp.energy -= (tmp.is_predator) ? 0.1f : 0.05f;
 
-			if (it->second.energy < 0.f) {
+			if (tmp.energy < 0.f) {
 				remove_ids.push_back(it->first);
 			}
 		}
@@ -206,15 +187,17 @@ void Simulation::draw() {
 
 					float alpha = ((attributes_vehicles[it->first].energy * 0.1f) * 0.01f);
 
+					Vehicle_Sensors& tmp = it->second;
+
 					if (draw_sensors) {
-						tri_renderer.draw_3D_coloured(camera, it->second.la, it->second.lb, it->second.lc, vec4{ attributes_vehicles[it->first].colour.XYZ(), alpha });
-						tri_renderer.draw_3D_coloured(camera, it->second.ra, it->second.rb, it->second.rc, vec4{ attributes_vehicles[it->first].colour.XYZ(), alpha });
+						tri_renderer.draw_3D_coloured(camera, tmp.la, tmp.lb, tmp.lc, vec4{ attributes_vehicles[it->first].colour.XYZ(), alpha });
+						tri_renderer.draw_3D_coloured(camera, tmp.ra, tmp.rb, tmp.rc, vec4{ attributes_vehicles[it->first].colour.XYZ(), alpha });
 					}
 
 					float l_alpha = alpha * 5.f;
 					if (draw_sensor_outlines) {
-						line_renderer.draw_lineloop(camera, { it->second.la, it->second.lb, it->second.lc, }, vec4{ attributes_vehicles[it->first].colour.XYZ(), l_alpha });
-						line_renderer.draw_lineloop(camera, { it->second.ra, it->second.rb, it->second.rc, }, vec4{ attributes_vehicles[it->first].colour.XYZ(), l_alpha });
+						line_renderer.draw_lineloop(camera, { tmp.la, tmp.lb, tmp.lc, }, vec4{ attributes_vehicles[it->first].colour.XYZ(), l_alpha });
+						line_renderer.draw_lineloop(camera, { tmp.ra, tmp.rb, tmp.rc, }, vec4{ attributes_vehicles[it->first].colour.XYZ(), l_alpha });
 					}
 				}
 			}
@@ -225,9 +208,10 @@ void Simulation::draw() {
 			// UI
 			if (ui.index_active_button != -1)
 				quad_renderer.draw_2D(camera, ui.attributes_ui[ui.index_active_button].position, ui.attributes_ui[ui.index_active_button].size * 1.1f, utils::colour::yellow);
-			for (uint8 i = 0; i < ui.attributes_ui.size(); i++) {
-				quad_renderer.draw_2D(camera, ui.attributes_ui[i].position, ui.attributes_ui[i].size, ui.attributes_ui[i].colour);
-				text_renderer.draw(ui.attributes_ui[i].label, ui.attributes_ui[i].position + vec2{ 0.f, -10.f }, true, colour::white);
+			for (size_t i = 0; i < ui.attributes_ui.size(); i++) {
+				Button_Attributes& tmp = ui.attributes_ui[i];
+				quad_renderer.draw_2D(camera, tmp.position, tmp.size, tmp.colour);
+				text_renderer.draw(tmp.label, tmp.position + vec2{ 0.f, -10.f }, true, colour::white);
 			}
 
 			int num_predators = 0;
@@ -264,10 +248,11 @@ void Simulation::draw() {
 							break;
 						}
 						else {
-							string str_i = friendly_float(it->second.id, 3);
-							string str_energy = friendly_float(it->second.energy, 4);
+							Vehicle_Attributes& tmp = it->second;
+							string str_i = friendly_float(tmp.id, 3);
+							string str_energy = friendly_float(tmp.energy, 4);
 							string display = "Vehicle " + str_i + ": " + str_energy;
-							vec4 colour = it->second.colour;
+							vec4 colour = tmp.colour;
 							colour += vec4(0.25f);
 							text_renderer.draw(display, { text_x, text_y - (text_y_offset * y_offset_multiplier++) }, false, colour);
 						}
@@ -394,13 +379,13 @@ void Simulation::reset() {
 	generation++;
 	instance_id = 0;
 	inactivity_timer.reset();
-	int n = transforms_vehicles.size();
+	size_t n = transforms_vehicles.size();
 
 	bool camera_follow = camera.follow_vehicle;
 
-	for (int i = 0; i < n; i++) 
+	for (size_t i = 0; i < n; i++)
 		remove_vehicle();
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		bool is_predator = (i % 2 == 0);
 		add_vehicle(is_predator);
 	}
@@ -462,22 +447,23 @@ void Simulation::update_sensors_from_simulation_transforms() {
 	int sensor_num = 0;
 	for (map<int, Transform>::iterator it = transforms_vehicles.begin(); it != transforms_vehicles.end(); ++it) {
 		int instance_key = it->first;
+		Transform& tmp = it->second;
 
-		float y = it->second.position.y - 6.f + (sensor_num++ * .8f);
-		float a = it->second.rotation.y -  vehicle_sensors[instance_key].offset;
+		float y = tmp.position.y - 6.f + (sensor_num++ * .8f);
+		float a = tmp.rotation.y -  vehicle_sensors[instance_key].offset;
 		vec2 a_left = polar_to_cartesian(to_radians(a - vehicle_sensors[instance_key].angle / 2.F)) * vehicle_sensors[instance_key].range;
 		vec2 a_right = polar_to_cartesian(to_radians(a + vehicle_sensors[instance_key].angle / 2.F)) * vehicle_sensors[instance_key].range;
-		vehicle_sensors[instance_key].la = it->second.position + vec3{ a_left.x, y, a_left.y };
-		vehicle_sensors[instance_key].lb = it->second.position + vec3{ 0.f, y, 0.f };
-		vehicle_sensors[instance_key].lc = it->second.position + vec3{ a_right.x, y, a_right.y };
+		vehicle_sensors[instance_key].la = tmp.position + vec3{ a_left.x, y, a_left.y };
+		vehicle_sensors[instance_key].lb = tmp.position + vec3{ 0.f, y, 0.f };
+		vehicle_sensors[instance_key].lc = tmp.position + vec3{ a_right.x, y, a_right.y };
 
-		y = it->second.position.y - 6.f + (sensor_num++ * .8f);
-		float b = it->second.rotation.y + vehicle_sensors[instance_key].offset;
+		y = tmp.position.y - 6.f + (sensor_num++ * .8f);
+		float b = tmp.rotation.y + vehicle_sensors[instance_key].offset;
 		vec2 b_left = polar_to_cartesian(to_radians(b - vehicle_sensors[instance_key].angle / 2.F)) * vehicle_sensors[instance_key].range;
 		vec2 b_right = polar_to_cartesian(to_radians(b + vehicle_sensors[instance_key].angle / 2.F)) * vehicle_sensors[instance_key].range;
-		vehicle_sensors[instance_key].ra = it->second.position + vec3{ b_left.x, y, b_left.y };
-		vehicle_sensors[instance_key].rb = it->second.position + vec3{ 0.f, y, 0.f };
-		vehicle_sensors[instance_key].rc = it->second.position + vec3{ b_right.x, y, b_right.y };
+		vehicle_sensors[instance_key].ra = tmp.position + vec3{ b_left.x, y, b_left.y };
+		vehicle_sensors[instance_key].rb = tmp.position + vec3{ 0.f, y, 0.f };
+		vehicle_sensors[instance_key].rc = tmp.position + vec3{ b_right.x, y, b_right.y };
 	}
 }
 
@@ -535,66 +521,65 @@ void Simulation::predator_prey() {
 	for (map<int, Transform>::iterator it = transforms_vehicles.begin(); it != transforms_vehicles.end(); ++it) {
 
 		int instance_id = it->first;
+		Vehicle& tmp_vehicle = physics->vehicles[instance_id];
+		Vehicle_Sensors& tmp_sensor = vehicle_sensors[instance_id];
 
-		if (!vehicle_sensors[instance_id].detection_events.empty()) {
+		if (!tmp_sensor.detection_events.empty()) {
 
 			int index_of_event_with_closest_distance = 0;
 			float closest_distance = FLT_MAX;
-			for (uint8 j = 0; j < vehicle_sensors[instance_id].detection_events.size(); j++) {
-				if (vehicle_sensors[instance_id].detection_events[j].distance < closest_distance) {
-					closest_distance = vehicle_sensors[instance_id].detection_events[j].distance;
+			for (uint8 j = 0; j < tmp_sensor.detection_events.size(); j++) {
+				if (tmp_sensor.detection_events[j].distance < closest_distance) {
+					closest_distance = tmp_sensor.detection_events[j].distance;
 					index_of_event_with_closest_distance = j;
 				}
 			}
+			Detection_Event e = tmp_sensor.detection_events[index_of_event_with_closest_distance];
 
-			Detection_Event e = vehicle_sensors[instance_id].detection_events[index_of_event_with_closest_distance];
-
-			// Refactor into truth table of anonymous functions?
-			// If changing speed, gradually change from one speed to another
 			if (attributes_vehicles[instance_id].is_predator) {
 				if (e.detected_prey) {
 					if (e.ldetected && e.rdetected)  {
-						physics->vehicles[instance_id].desired_speed = 100;
+						tmp_vehicle.desired_speed = 100;
 					}
 					else if (e.ldetected) {
-						physics->vehicles[instance_id].desired_speed = 100;
-						physics->vehicles[instance_id].desired_angle = -70;
+						tmp_vehicle.desired_speed = 100;
+						tmp_vehicle.desired_angle = -70;
 					}
 					else if (e.rdetected) {
-						physics->vehicles[instance_id].desired_speed = 100;
-						physics->vehicles[instance_id].desired_angle = 70;
+						tmp_vehicle.desired_speed = 100;
+						tmp_vehicle.desired_angle = 70;
 					}
 				}
 				else {
-					physics->vehicles[instance_id].desired_speed = 0;
-					physics->vehicles[instance_id].desired_angle = 0;
+					tmp_vehicle.desired_speed = 0;
+					tmp_vehicle.desired_angle = 0;
 				}
 			}
 			else {
 				if (e.detected_predator) {
 					if (e.ldetected && e.rdetected) {
-						physics->vehicles[instance_id].desired_speed = -100;
+						tmp_vehicle.desired_speed = -100;
 					}
 					else if (e.ldetected) {
-						physics->vehicles[instance_id].desired_speed = -100;
-						physics->vehicles[instance_id].desired_angle = 70;
+						tmp_vehicle.desired_speed = -100;
+						tmp_vehicle.desired_angle = 70;
 					}
 					else if (e.rdetected) {
-						physics->vehicles[instance_id].desired_speed = -100;
-						physics->vehicles[instance_id].desired_angle = -70;
+						tmp_vehicle.desired_speed = -100;
+						tmp_vehicle.desired_angle = -70;
 					}
 				}
 				else {
-					physics->vehicles[instance_id].desired_speed = 0;
-					physics->vehicles[instance_id].desired_angle = 0;
+					tmp_vehicle.desired_speed = 0;
+					tmp_vehicle.desired_angle = 0;
 				}
 			}
 
-			vehicle_sensors[instance_id].detection_events.clear();
+			tmp_sensor.detection_events.clear();
 		}
 		else {
-			physics->vehicles[instance_id].desired_speed = 0;
-			physics->vehicles[instance_id].desired_angle = 0;
+			tmp_vehicle.desired_speed = 0;
+			tmp_vehicle.desired_angle = 0;
 		}
 	}
 }

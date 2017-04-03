@@ -1,6 +1,12 @@
 #include "..\include\shader.h"
 
 namespace utils {
+	Shader::Shader() {
+		v_shader_filename = "";
+		f_shader_filename = "";
+		program = 0;
+	}
+
 	Shader::Shader(const char* compute_shader_filename) {
 		GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
 		std::string src = load_source(compute_shader_filename);

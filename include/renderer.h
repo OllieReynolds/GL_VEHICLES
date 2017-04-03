@@ -119,7 +119,7 @@ private:
 
 class Text_Renderer {
 public:
-	Text_Renderer(int pixel_size = 24, const std::string& font = "") : pixel_size(pixel_size), font(font) { }
+	Text_Renderer(int pixel_size = 24, const std::string& font = "") : pixel_size(pixel_size), font(font), vao(0), vbo(0) { }
 
 	void init(const vec2& screen_resolution);
 	void draw(const std::string& msg, const vec2& position, bool centered, const vec4& colour);

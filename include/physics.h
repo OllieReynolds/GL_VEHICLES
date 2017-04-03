@@ -6,6 +6,7 @@
 #include <Box2D\Box2D.h>
 
 #include "maths.h"
+#include "types.h"
 #include "utils.h"
 
 using namespace maths;
@@ -25,6 +26,16 @@ struct VehicleData {
 };
 
 extern set<pair<VehicleData*, VehicleData*>> vehicle_collision_events;
+
+struct Boundary {
+	Boundary(b2World* world, const b2Vec2& position, float angle);
+
+	b2Body* body;
+	b2BodyDef body_def;
+	b2PolygonShape polygon_shape;
+
+	void destroy();
+};
 
 class Tyre {
 public:
@@ -72,19 +83,19 @@ class ContactListener : public b2ContactListener {
 
 class Physics {
 public:
-	Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, std::map<int, utils::Vehicle_Attributes>& v_attribs);
+	Physics(int num_vehicles, std::map<int, Transform>& transforms, std::map<int, Vehicle_Attributes>& v_attribs);
 
 	void				update();
 	void				destroy();
 	vec2				get_vehicle_position(int index);
 	float				get_vehicle_rotation(int index);
-	void				add_vehicle(int instance_id, const utils::Transform& transform, bool is_predator);
+	void				add_vehicle(int instance_id, const Transform& transform, bool is_predator);
 	void				remove_vehicle();
 	void				remove_vehicle(int index);
 
 	b2Vec2 gravity;
 	b2World world;
-	b2Body *wall_1, *wall_2, *wall_3, *wall_4;
+	Boundary *wall_1, *wall_2, *wall_3, *wall_4;
 	map<int, Vehicle> vehicles;
 	float time_step;
 	int velocity_iterations;

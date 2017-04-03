@@ -11,33 +11,11 @@
 #include "model.h"
 #include "physics.h"
 #include "renderer.h"
+#include "types.h"
 #include "ui.h"
 
 using namespace maths;
 using namespace utils;
-
-using std::map;
-
-struct Detection_Event {
-	float distance;
-	bool ldetected, rdetected;
-	bool detected_predator;
-	bool detected_prey;
-	bool detected_wall;
-};
-
-struct Vehicle_Sensors {
-	vec3 la, lb, lc, ra, rb, rc;
-	float angle, offset, range;
-	std::vector<Detection_Event> detection_events;
-};
-
-struct Wheel_Attributes {
-	Transform gen_transform_from_vehicle(const b2Vec2& forward_velocity, const Transform& t, float wheel_dist);
-
-	float angular_offset;
-	float y_rotation;
-};
 
 class Simulation {
 public:
@@ -100,10 +78,9 @@ public:
 
 	// Vehicle Properties
 	map<int, Vehicle_Attributes>	attributes_vehicles;
-	map<int, Light>				lights;
-
+	map<int, Light>					lights;
 	map<int, Vehicle_Sensors>		vehicle_sensors;
-	map<int, Transform>			transforms_vehicles;
-	map<int, Transform>			old_transforms_vehicles;
-	map<int, vector<Transform>>			transforms_wheels;
+	map<int, Transform>				transforms_vehicles;
+	map<int, Transform>				old_transforms_vehicles;
+	map<int, vector<Transform>>		transforms_wheels;
 };

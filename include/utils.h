@@ -5,30 +5,12 @@
 #include <fstream>
 
 #include "maths.h"
+#include "types.h"
 
 namespace utils {
 	using namespace maths;
 
-	struct Light {
-		vec3 position;
-		vec3 colour;
-		float intensity;
-	};
-
-	struct Transform {
-		vec3 position;
-		vec3 size;
-		vec3 rotation;
-	};
-
-	struct Vehicle_Attributes {
-		float forward_speed;
-		float turning_speed;
-		vec4 colour;
-		bool is_predator;
-		float energy;
-		int id;
-	};
+	
 
 	struct dimensions {
 		int width, height;
@@ -47,7 +29,6 @@ namespace utils {
 	}
 
 	static dimensions png_dimensions(const char* filename) {
-		std::string line;
 		std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
 
 		file.seekg(16, std::ios_base::cur);
@@ -167,7 +148,7 @@ namespace utils {
 
 	
 
-		static mat4 view_matrix(vec3 eye, vec3 target, vec3 up) {
+		static mat4 view_matrix(const vec3& eye, const vec3& target, const vec3& up) {
 			vec3 zaxis = normalise(eye - target);				// The "forward" vector.
 			vec3 xaxis = normalise(cross_product(up, zaxis));	// The "right" vector.
 			vec3 yaxis = cross_product(zaxis, xaxis);			// The "up" vector.

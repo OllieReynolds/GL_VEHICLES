@@ -2,6 +2,24 @@
 
 set<pair<VehicleData*, VehicleData*>> vehicle_collision_events;
 
+Boundary::Boundary(b2World* world, const b2Vec2& position, float angle) {
+	polygon_shape.SetAsBox(4.f, 800.f);
+	body_def.type = b2_staticBody;
+	body_def.position = position;
+	body_def.angle = to_radians(angle);
+	body = world->CreateBody(&body_def);
+	b2Fixture* f = body->CreateFixture(&polygon_shape, 10.f);
+	b2Filter filter;
+	filter.categoryBits = ENV;
+	filter.maskBits = TYRE | VEHICLE;
+	filter.groupIndex = 0;
+	f->SetFilterData(filter);
+}
+
+void Boundary::destroy() {
+	body->GetWorld()->DestroyBody(body);
+}
+
 Tyre::Tyre(b2World* world, float max_forward_speed, float max_backward_speed, float max_drive_force, float max_lateral_impulse) 
 	: max_forward_speed(max_forward_speed), max_backward_speed(max_backward_speed), max_drive_force(max_drive_force), max_lateral_impulse(max_lateral_impulse) 
 {
@@ -121,13 +139,6 @@ void Vehicle::init(b2World* world, b2Vec2 position, float rotation, bool is_pred
 	joint_def.upperAngle = 0;
 	joint_def.localAnchorB.SetZero();
 
-	//float max_forward_speed = 100;
-	//float max_backward_speed = -100;
-	//float back_tyre_max_drive_force = 300;
-	//float front_tyre_max_drive_force = 100;
-	//float back_tyre_max_lateral_impulse = 32.f;
-	//float front_tyre_max_lateral_impulse = 32.f;
-
 	float max_forward_speed = utils::gen_random(50.f, 450.f);
 	float max_backward_speed = -utils::gen_random(50.f, 450.f);
 	float back_tyre_max_drive_force = utils::gen_random(100.f, 400.f);
@@ -197,59 +208,19 @@ void ContactListener::BeginContact(b2Contact* contact) {
 		
 }
 
-Physics::Physics(int num_vehicles, std::map<int, utils::Transform>& transforms, std::map<int, utils::Vehicle_Attributes>& v_attribs)
+Physics::Physics(int num_vehicles, std::map<int, Transform>& transforms, std::map<int, Vehicle_Attributes>& v_attribs)
 	: gravity{ 0.f, 0.f }, world(gravity), velocity_iterations(12), position_iterations(12), time_step(1.f / 30.f) 
 {
 	vehicles = map<int, Vehicle>();
 	for (int i = 0; i < num_vehicles; i++)
 		vehicles[i].init(&world, { transforms[i].position.x, transforms[i].position.z }, transforms[i].rotation.y, v_attribs[i].is_predator, i);
 
-	b2BodyDef body_def;
-	b2PolygonShape polygon_shape;
-
-	polygon_shape.SetAsBox(4.f, 800.f);
-	body_def.type = b2_staticBody;
-	body_def.position = { -390.f, 0.f };
-	wall_1 = world.CreateBody(&body_def);
-	b2Fixture* f = wall_1->CreateFixture(&polygon_shape, 10.f);
-	b2Filter filter;
-	filter.categoryBits = ENV;
-	filter.maskBits = TYRE | VEHICLE;
-	filter.groupIndex = 0;
-	f->SetFilterData(filter);
-
-	polygon_shape.SetAsBox(4.f, 800.f);
-	body_def.type = b2_staticBody;
-	body_def.position = { 390.f, 0.f };
-	wall_2 = world.CreateBody(&body_def);
-	f = wall_2->CreateFixture(&polygon_shape, 10.f);
-	filter.categoryBits = ENV;
-	filter.maskBits = TYRE | VEHICLE;
-	filter.groupIndex = 0;
-	f->SetFilterData(filter);
-
-	polygon_shape.SetAsBox(4.f, 800.f);
-	body_def.type = b2_staticBody;
-	body_def.position = { 0.f, -390.f };
-	body_def.angle = to_radians(90.f);
-	wall_3 = world.CreateBody(&body_def);
-	f = wall_3->CreateFixture(&polygon_shape, 10.f);
-	filter.categoryBits = ENV;
-	filter.maskBits = TYRE | VEHICLE;
-	filter.groupIndex = 0;
-	f->SetFilterData(filter);
-
-	polygon_shape.SetAsBox(4.f, 800.f);
-	body_def.type = b2_staticBody;
-	body_def.position = { 0.f, 390.f };
-	body_def.angle = to_radians(90.f);
-	wall_4 = world.CreateBody(&body_def);
-	f = wall_4->CreateFixture(&polygon_shape, 10.f);
-	filter.categoryBits = ENV;
-	filter.maskBits = TYRE | VEHICLE;
-	filter.groupIndex = 0;
-	f->SetFilterData(filter);
-
+	// MAke these members and access via simulation
+	wall_1 = new Boundary{ &world, b2Vec2{ -390.f, 0.f }, 0.f };
+	wall_2 = new Boundary{ &world, b2Vec2{  390.f, 0.f }, 0.f };
+	wall_3 = new Boundary{ &world, b2Vec2{ 0.f, -390.f }, 90.f };
+	wall_4 = new Boundary{ &world, b2Vec2{ 0.f,  390.f }, 90.f };
+	
 	world.SetContactListener(&vehicle_contact_listener);
 
 	for (int i = 0; i < vehicles.size(); i++)
@@ -276,9 +247,14 @@ float Physics::get_vehicle_rotation(int index) {
 void Physics::destroy() {
 	for (map<int, Vehicle>::iterator it = vehicles.begin(); it != vehicles.end(); ++it)
 		it->second.destroy();
+
+	delete wall_1;
+	delete wall_2;
+	delete wall_3;
+	delete wall_4;
 }
 
-void Physics::add_vehicle(int instance_id, const utils::Transform& transform, bool is_predator) {
+void Physics::add_vehicle(int instance_id, const Transform& transform, bool is_predator) {
 	b2Vec2 position = { transform.position.x, transform.position.z };
 	Vehicle v;
 	v.init(&world, position, transform.rotation.y, is_predator, instance_id);

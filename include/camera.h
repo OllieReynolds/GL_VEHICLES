@@ -36,4 +36,8 @@ struct Camera {
 	mat4 matrix_view;
 	mat4 matrix_projection_persp;
 	mat4 matrix_projection_ortho;
+
+	float height;
+	int index_list_position_current;
+	std::vector<vec3> list_position_current;
 };
